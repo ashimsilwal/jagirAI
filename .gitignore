@@ -1,0 +1,47 @@
+# =========================
+# Python / Django
+# =========================
+backend/.venv/
+venv/
+ENV/
+*.py[cod]
+*$py.class
+__pycache__/
+backend/config/__pycache__/
+backend/users/__pycache__/
+backend/jobs/__pycache__/
+backend/applications/__pycache__/
+
+# SQLite & PostgreSQL local databases
+*.sqlite3
+*.db
+
+# Media & Uploads
+backend/media/
+
+# Environment Variables
+backend/.env
+frontend/.env.local
+frontend/.env*.local
+
+# =========================
+# Node / Next.js
+# =========================
+frontend/node_modules/
+node_modules/
+frontend/.next/
+.next/
+frontend/out/
+build/
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
