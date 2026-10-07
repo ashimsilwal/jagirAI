@@ -7,7 +7,7 @@ import {
   Search, 
   MapPin, 
   Briefcase, 
-  DollarSign, 
+  Banknote, 
   Clock, 
   Building2, 
   ArrowRight,
@@ -214,7 +214,7 @@ export default function HomePage() {
                     </div>
                     {job.salary && (
                       <div className="flex items-center gap-1 text-slate-700 font-medium">
-                        <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+                        <Banknote className="w-3.5 h-3.5 text-emerald-600" />
                         <span>{job.salary}</span>
                       </div>
                     )}

@@ -15,7 +15,7 @@ import {
   Power, 
   Clock,
   ArrowRight,
-  DollarSign
+  Banknote
 } from 'lucide-react';
 
 export default function RecruiterDashboard() {
@@ -162,7 +162,7 @@ export default function RecruiterDashboard() {
                     </span>
                     {job.salary && (
                       <span className="flex items-center gap-1 text-slate-700 font-medium">
-                        <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+                        <Banknote className="w-3.5 h-3.5 text-emerald-600" />
                         {job.salary}
                       </span>
                     )}

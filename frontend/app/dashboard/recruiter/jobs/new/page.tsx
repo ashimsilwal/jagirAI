@@ -7,7 +7,7 @@ import { apiFetch } from '@/lib/api';
 import { 
   Briefcase, 
   MapPin, 
-  DollarSign, 
+  Banknote, 
   Calendar, 
   PlusCircle, 
   ArrowLeft, 

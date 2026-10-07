@@ -8,7 +8,7 @@ import { apiFetch, Job } from '@/lib/api';
 import { 
   Building2, 
   MapPin, 
-  DollarSign, 
+  Banknote, 
   Calendar, 
   Briefcase, 
   Send, 
@@ -155,7 +155,7 @@ export default function JobDetailPage() {
                 </div>
                 {job.salary && (
                   <div className="flex items-center gap-1.5">
-                    <DollarSign className="w-4 h-4 text-emerald-600" />
+                    <Banknote className="w-4 h-4 text-emerald-600" />
                     <span className="font-semibold text-slate-800">{job.salary}</span>
                   </div>
                 )}
