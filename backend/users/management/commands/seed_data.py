@@ -73,7 +73,7 @@ class Command(BaseCommand):
                 'requirements': 'Proficiency in Python/Django, Next.js, and PostgreSQL.',
                 'responsibilities': 'Develop REST APIs, architect frontend components, lead technical reviews.',
                 'location': 'Remote / New York',
-                'salary': '$120,000 - $145,000',
+                'salary': 'Rs. 120,000 - Rs. 145,000',
                 'employment_type': Job.EmploymentType.FULL_TIME,
                 'status': Job.JobStatus.ACTIVE
             }

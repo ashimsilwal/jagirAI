@@ -43,7 +43,7 @@ class JobTests(TestCase):
             requirements="Python, Django, PostgreSQL",
             responsibilities="Design database schemas, implement REST APIs",
             location="Remote",
-            salary="$120k - $150k",
+            salary="Rs. 120,000 - Rs. 150,000",
             employment_type=Job.EmploymentType.FULL_TIME,
             status=Job.JobStatus.ACTIVE
         )
@@ -56,7 +56,7 @@ class JobTests(TestCase):
             "requirements": "React, TypeScript, CSS",
             "responsibilities": "Develop responsive components",
             "location": "New York, NY",
-            "salary": "$100k - $130k",
+            "salary": "Rs. 100,000 - Rs. 130,000",
             "employment_type": "FULL_TIME",
             "status": "ACTIVE"
         }
@@ -89,12 +89,12 @@ class JobTests(TestCase):
         self.client.force_authenticate(user=self.recruiter1)
         response = self.client.patch(
             f'/api/jobs/{self.job1.id}/',
-            {"salary": "$130k - $160k"},
+            {"salary": "Rs. 130,000 - Rs. 160,000"},
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.job1.refresh_from_db()
-        self.assertEqual(self.job1.salary, "$130k - $160k")
+        self.assertEqual(self.job1.salary, "Rs. 130,000 - Rs. 160,000")
 
     def test_recruiter_cannot_modify_other_recruiter_job(self):
         # Recruiter 2 attempts to modify Recruiter 1's job

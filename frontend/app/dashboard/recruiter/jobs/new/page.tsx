@@ -124,7 +124,7 @@ export default function NewJobPage() {
                 type="text"
                 value={salary}
                 onChange={(e) => setSalary(e.target.value)}
-                placeholder="e.g. $100,000 - $130,000"
+                placeholder="e.g. Rs. 80,000 - Rs. 120,000"
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
