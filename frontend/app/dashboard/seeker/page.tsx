@@ -56,25 +56,28 @@ export default function SeekerDashboard() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-indigo-700 to-violet-700 rounded-2xl p-6 sm:p-8 text-white shadow-lg shadow-indigo-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-gradient-to-r from-sky-50 via-blue-50 to-cyan-50 border border-sky-100/80 rounded-2xl p-6 sm:p-8 text-slate-900 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <span className="text-xs font-semibold uppercase tracking-wider text-sky-600 bg-sky-100/80 px-2.5 py-0.5 rounded-full">
+            Candidate Dashboard
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mt-2">
             Welcome, {user?.username}!
           </h1>
-          <p className="text-indigo-100 text-sm mt-1">
+          <p className="text-slate-600 text-xs sm:text-sm mt-1">
             Track your job applications and status updates in real time.
           </p>
         </div>
         <div className="flex gap-3">
           <Link
             href="/dashboard/seeker/profile"
-            className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs transition backdrop-blur-md"
+            className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs transition shadow-xs"
           >
             Edit Profile & Resume
           </Link>
           <Link
             href="/"
-            className="px-4 py-2 rounded-xl bg-white text-indigo-700 font-semibold text-xs shadow-md hover:bg-slate-50 transition"
+            className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-sm shadow-sky-200 transition cursor-pointer"
           >
             Browse More Jobs
           </Link>
@@ -104,7 +107,7 @@ export default function SeekerDashboard() {
             </p>
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 transition"
             >
               <span>Explore Vacancies</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -145,7 +148,7 @@ export default function SeekerDashboard() {
                   {getStatusBadge(app.status)}
                   <Link
                     href={`/jobs/${app.job.id}`}
-                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                    className="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1"
                   >
                     View Job <ArrowRight className="w-3.5 h-3.5" />
                   </Link>

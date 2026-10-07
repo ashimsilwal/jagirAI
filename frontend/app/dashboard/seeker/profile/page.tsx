@@ -101,7 +101,7 @@ export default function SeekerProfilePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-6">
       <Link
         href="/dashboard/seeker"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-sky-600 transition"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Dashboard
@@ -142,7 +142,7 @@ export default function SeekerProfilePage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 (555) 000-0000"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
 
@@ -155,7 +155,7 @@ export default function SeekerProfilePage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. San Francisco, CA / Remote"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function SeekerProfilePage() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="A brief summary of your background, passions, and career goals..."
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
             />
           </div>
 
@@ -182,7 +182,7 @@ export default function SeekerProfilePage() {
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
               placeholder="e.g. Python, Django, React, Next.js, PostgreSQL, Docker"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
             />
           </div>
 
@@ -195,7 +195,7 @@ export default function SeekerProfilePage() {
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
               placeholder="Detail your previous roles, responsibilities, and achievements..."
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
             />
           </div>
 
@@ -208,7 +208,7 @@ export default function SeekerProfilePage() {
               value={education}
               onChange={(e) => setEducation(e.target.value)}
               placeholder="Degrees, universities, certifications, relevant coursework..."
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
             />
           </div>
 
@@ -219,16 +219,16 @@ export default function SeekerProfilePage() {
             </label>
 
             {profile?.resume && (
-              <div className="mb-3 p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-indigo-900 font-medium truncate">
-                  <FileText className="w-4 h-4 text-indigo-600 shrink-0" />
+              <div className="mb-3 p-3 bg-sky-50/60 border border-sky-100 rounded-xl flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-sky-950 font-medium truncate">
+                  <FileText className="w-4 h-4 text-sky-600 shrink-0" />
                   <span className="truncate">Current Resume on file</span>
                 </div>
                 <a
                   href={profile.resume}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 hover:text-indigo-800"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 hover:text-sky-800"
                 >
                   <Download className="w-3.5 h-3.5" />
                   View
@@ -236,7 +236,7 @@ export default function SeekerProfilePage() {
               </div>
             )}
 
-            <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl text-xs text-slate-600 hover:text-indigo-600 cursor-pointer bg-slate-50 transition">
+            <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 hover:border-sky-400 rounded-xl text-xs text-slate-600 hover:text-sky-600 cursor-pointer bg-slate-50 transition">
               <FileUp className="w-4 h-4" />
               <span>{newResume ? newResume.name : 'Upload New Resume (.pdf, .doc, .docx)'}</span>
               <input
@@ -252,7 +252,7 @@ export default function SeekerProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-md shadow-indigo-200 transition cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-md shadow-sky-200 transition cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? 'Saving...' : 'Save Profile'}</span>

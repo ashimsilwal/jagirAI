@@ -26,12 +26,12 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-200 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-xs shadow-sky-200 group-hover:scale-105 transition-transform">
               <Briefcase className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg leading-tight tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors">
-                ProRecruiter<span className="text-indigo-600">AI</span>
+              <span className="font-bold text-lg leading-tight tracking-tight text-gray-900 group-hover:text-sky-600 transition-colors">
+                Jagri<span className="text-sky-600">AI</span>
               </span>
               <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">
                 Intelligent Hiring
@@ -45,7 +45,7 @@ export const Navbar: React.FC = () => {
               href="/"
               className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
                 isActive('/') 
-                  ? 'bg-indigo-50 text-indigo-700' 
+                  ? 'bg-sky-50 text-sky-700' 
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
@@ -59,7 +59,7 @@ export const Navbar: React.FC = () => {
                   href="/dashboard/seeker"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
                     isActive('/dashboard/seeker') 
-                      ? 'bg-indigo-50 text-indigo-700' 
+                      ? 'bg-sky-50 text-sky-700' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
@@ -70,7 +70,7 @@ export const Navbar: React.FC = () => {
                   href="/dashboard/seeker/profile"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
                     isActive('/dashboard/seeker/profile') 
-                      ? 'bg-indigo-50 text-indigo-700' 
+                      ? 'bg-sky-50 text-sky-700' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
@@ -86,7 +86,7 @@ export const Navbar: React.FC = () => {
                   href="/dashboard/recruiter"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
                     isActive('/dashboard/recruiter') 
-                      ? 'bg-indigo-50 text-indigo-700' 
+                      ? 'bg-sky-50 text-sky-700' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
@@ -97,7 +97,7 @@ export const Navbar: React.FC = () => {
                   href="/dashboard/recruiter/profile"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
                     isActive('/dashboard/recruiter/profile') 
-                      ? 'bg-indigo-50 text-indigo-700' 
+                      ? 'bg-sky-50 text-sky-700' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
@@ -115,7 +115,7 @@ export const Navbar: React.FC = () => {
                 {user.role === 'JOB_RECRUITER' && (
                   <Link
                     href="/dashboard/recruiter/jobs/new"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-xs hover:shadow-md"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 transition shadow-xs hover:shadow-md"
                   >
                     <PlusCircle className="w-4 h-4" />
                     Post Job
@@ -134,7 +134,7 @@ export const Navbar: React.FC = () => {
                   <button
                     onClick={logout}
                     title="Sign Out"
-                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -150,7 +150,7 @@ export const Navbar: React.FC = () => {
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-xs hover:shadow-md"
+                  className="px-4 py-2 text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 rounded-lg transition shadow-xs hover:shadow-md"
                 >
                   Get Started
                 </Link>

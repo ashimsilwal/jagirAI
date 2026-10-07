@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ProRecruiter AI - Modern Recruitment Platform',
+  title: 'Jagri AI - Modern Recruitment Platform',
   description: 'Connecting top talent with leading companies powered by intelligent recruitment features.',
 };
 

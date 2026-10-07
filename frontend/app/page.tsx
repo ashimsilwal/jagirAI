@@ -53,29 +53,29 @@ export default function HomePage() {
   return (
     <div className="flex-1 flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-indigo-900 via-slate-900 to-slate-950 text-white py-20 px-4 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.15),transparent_50%)] pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 text-slate-900 py-20 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_50%)] pointer-events-none" />
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-300 text-xs font-semibold backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-100 border border-sky-200/80 text-sky-800 text-xs font-semibold shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-sky-600" />
             <span>AI-Driven Recruitment Experience</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-slate-900">
             Connecting Top Talent with <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-indigo-200 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-sky-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
               Visionary Companies
             </span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-slate-300 text-base sm:text-lg">
+          <p className="max-w-2xl mx-auto text-slate-600 text-base sm:text-lg">
             Browse verified job vacancies, apply seamlessly with your resume, and track your career trajectory in real time.
           </p>
 
           {/* Search Bar Form */}
           <form
             onSubmit={handleSearchSubmit}
-            className="mt-8 bg-white p-2.5 sm:p-3 rounded-2xl shadow-2xl shadow-indigo-950/50 flex flex-col md:flex-row gap-2 max-w-4xl mx-auto border border-slate-200/20 text-slate-900"
+            className="mt-8 bg-white p-2.5 sm:p-3 rounded-2xl shadow-xl shadow-sky-900/5 flex flex-col md:flex-row gap-2 max-w-4xl mx-auto border border-sky-100 text-slate-900"
           >
             {/* Keyword Input */}
             <div className="flex-1 flex items-center px-3 py-2 bg-slate-50 md:bg-transparent rounded-xl">
@@ -124,7 +124,7 @@ export default function HomePage() {
 
             <button
               type="submit"
-              className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition shadow-md shadow-indigo-300/40 flex items-center justify-center gap-2 cursor-pointer"
+              className="px-6 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-sm transition shadow-sm shadow-sky-200 flex items-center justify-center gap-2 cursor-pointer"
             >
               Search Jobs
             </button>
@@ -173,7 +173,7 @@ export default function HomePage() {
                 setEmploymentType('');
                 fetchJobs();
               }}
-              className="mt-4 px-4 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition"
+              className="mt-4 px-4 py-2 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-100 rounded-lg transition"
             >
               Reset Filters
             </button>
@@ -183,12 +183,12 @@ export default function HomePage() {
             {jobs.map((job) => (
               <div
                 key={job.id}
-                className="group bg-white rounded-2xl border border-slate-200/80 hover:border-indigo-300 p-6 shadow-xs hover:shadow-xl hover:shadow-indigo-500/5 transition-all flex flex-col justify-between"
+                className="group bg-white rounded-2xl border border-slate-200/80 hover:border-sky-300 p-6 shadow-xs hover:shadow-xl hover:shadow-sky-500/5 transition-all flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex justify-between items-start gap-3">
                     <div>
-                      <h3 className="font-bold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                      <h3 className="font-bold text-lg text-slate-900 group-hover:text-sky-600 transition-colors line-clamp-1">
                         {job.title}
                       </h3>
                       <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
@@ -196,7 +196,7 @@ export default function HomePage() {
                         <span className="font-medium text-slate-700">{job.company_name}</span>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 shrink-0">
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 shrink-0">
                       {job.employment_type.replace('_', ' ')}
                     </span>
                   </div>
@@ -222,7 +222,7 @@ export default function HomePage() {
 
                   <Link
                     href={`/jobs/${job.id}`}
-                    className="w-full py-2.5 px-3 rounded-xl bg-slate-50 group-hover:bg-indigo-600 text-slate-700 group-hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                    className="w-full py-2.5 px-3 rounded-xl bg-slate-50 group-hover:bg-sky-600 text-slate-700 group-hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <span>View Details & Apply</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

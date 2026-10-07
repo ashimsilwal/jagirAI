@@ -70,7 +70,7 @@ export default function JobApplicantsPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-6">
       <Link
         href="/dashboard/recruiter"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-sky-600 transition"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Recruiter Dashboard
@@ -79,7 +79,7 @@ export default function JobApplicantsPage() {
       {/* Header */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">
+          <span className="text-xs font-semibold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full">
             Candidates Review
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">
@@ -118,7 +118,7 @@ export default function JobApplicantsPage() {
           {applications.map((app) => (
             <div
               key={app.id}
-              className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4 hover:border-indigo-200 transition"
+              className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4 hover:border-sky-300 transition"
             >
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100">
                 <div>
@@ -152,7 +152,7 @@ export default function JobApplicantsPage() {
                     value={app.status}
                     disabled={statusUpdating === app.id}
                     onChange={(e) => handleStatusChange(app.id, e.target.value)}
-                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 transition cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 transition cursor-pointer"
                   >
                     <option value="APPLIED">Applied</option>
                     <option value="SHORTLISTED">Shortlisted</option>
@@ -173,7 +173,7 @@ export default function JobApplicantsPage() {
                     {app.applicant_profile.skills.split(',').map((skill, idx) => (
                       <span
                         key={idx}
-                        className="px-2.5 py-0.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700"
+                        className="px-2.5 py-0.5 rounded-lg text-xs font-medium bg-sky-50 text-sky-700"
                       >
                         {skill.trim()}
                       </span>
@@ -205,7 +205,7 @@ export default function JobApplicantsPage() {
                     href={app.resume}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 transition"
                   >
                     <FileText className="w-4 h-4" />
                     <span>Download / View Resume</span>

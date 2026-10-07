@@ -105,7 +105,7 @@ export default function JobDetailPage() {
         <p className="text-sm text-slate-600 mt-1">{error || 'This vacancy does not exist.'}</p>
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 mt-4 text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+          className="inline-flex items-center gap-1.5 mt-4 text-xs font-semibold text-sky-600 hover:text-sky-700"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Jobs
@@ -121,7 +121,7 @@ export default function JobDetailPage() {
       {/* Back button */}
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition mb-6"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-sky-600 transition mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to all jobs
@@ -138,11 +138,11 @@ export default function JobDetailPage() {
                     {job.title}
                   </h1>
                   <div className="flex items-center gap-2 text-sm text-slate-600 mt-2 font-medium">
-                    <Building2 className="w-4 h-4 text-indigo-600" />
+                    <Building2 className="w-4 h-4 text-sky-600" />
                     <span>{job.company_name}</span>
                   </div>
                 </div>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-700">
                   {job.employment_type.replace('_', ' ')}
                 </span>
               </div>
@@ -210,11 +210,11 @@ export default function JobDetailPage() {
             <h3 className="font-bold text-lg text-slate-900">Apply for this Job</h3>
 
             {isOwnerRecruiter ? (
-              <div className="p-4 bg-indigo-50 rounded-xl space-y-3 text-sm">
-                <p className="text-indigo-900 font-medium">You posted this job.</p>
+              <div className="p-4 bg-sky-50 rounded-xl space-y-3 text-sm border border-sky-100">
+                <p className="text-sky-950 font-medium">You posted this job.</p>
                 <Link
                   href={`/dashboard/recruiter/jobs/${job.id}/applicants`}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm shadow-sky-100"
                 >
                   <Users className="w-4 h-4" />
                   View Applicants
@@ -252,7 +252,7 @@ export default function JobDetailPage() {
                     value={coverLetter}
                     onChange={(e) => setCoverLetter(e.target.value)}
                     placeholder="Briefly introduce yourself and why you're a great fit..."
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
                   />
                 </div>
 
@@ -261,7 +261,7 @@ export default function JobDetailPage() {
                     Custom Resume (PDF/Word, optional)
                   </label>
                   <div className="flex items-center gap-2">
-                    <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-slate-200 hover:border-indigo-300 rounded-xl text-xs text-slate-600 hover:text-indigo-600 cursor-pointer bg-slate-50 transition">
+                    <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-slate-200 hover:border-sky-300 rounded-xl text-xs text-slate-600 hover:text-sky-600 cursor-pointer bg-slate-50 transition">
                       <FileUp className="w-4 h-4" />
                       <span className="truncate">
                         {customResume ? customResume.name : 'Upload New Resume'}
@@ -282,7 +282,7 @@ export default function JobDetailPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-md shadow-indigo-200 cursor-pointer disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-md shadow-sky-200 cursor-pointer disabled:opacity-50"
                 >
                   {submitting ? (
                     <span>Submitting Application...</span>
@@ -305,13 +305,13 @@ export default function JobDetailPage() {
                 </p>
                 <Link
                   href="/login"
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm shadow-sky-100"
                 >
                   Sign In to Apply
                 </Link>
                 <Link
                   href="/register"
-                  className="block text-xs font-semibold text-indigo-600 hover:underline"
+                  className="block text-xs font-semibold text-sky-600 hover:underline"
                 >
                   Don't have an account? Sign up
                 </Link>

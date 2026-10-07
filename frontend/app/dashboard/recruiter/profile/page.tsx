@@ -96,7 +96,7 @@ export default function RecruiterProfilePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-6">
       <Link
         href="/dashboard/recruiter"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-sky-600 transition"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Recruiter Dashboard
@@ -138,7 +138,7 @@ export default function RecruiterProfilePage() {
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="e.g. Acme Corporation"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
 
@@ -151,7 +151,7 @@ export default function RecruiterProfilePage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. New York, NY / Global"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
 
@@ -164,7 +164,7 @@ export default function RecruiterProfilePage() {
                 value={companyWebsite}
                 onChange={(e) => setCompanyWebsite(e.target.value)}
                 placeholder="https://company.example.com"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
 
@@ -177,7 +177,7 @@ export default function RecruiterProfilePage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 (555) 123-4567"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
           </div>
@@ -191,7 +191,7 @@ export default function RecruiterProfilePage() {
               value={companyDescription}
               onChange={(e) => setCompanyDescription(e.target.value)}
               placeholder="Tell candidates about your mission, product, culture, and achievements..."
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
             />
           </div>
 
@@ -201,7 +201,7 @@ export default function RecruiterProfilePage() {
               Company Logo (PNG, JPG, max 2MB)
             </label>
 
-            <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl text-xs text-slate-600 hover:text-indigo-600 cursor-pointer bg-slate-50 transition">
+            <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 hover:border-sky-400 rounded-xl text-xs text-slate-600 hover:text-sky-600 cursor-pointer bg-slate-50 transition">
               <FileUp className="w-4 h-4" />
               <span>{companyLogo ? companyLogo.name : 'Upload New Logo Image'}</span>
               <input
@@ -217,7 +217,7 @@ export default function RecruiterProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-md shadow-indigo-200 transition cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-md shadow-sky-200 transition cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? 'Saving...' : 'Save Company Profile'}</span>
