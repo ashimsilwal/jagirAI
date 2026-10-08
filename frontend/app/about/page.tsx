@@ -175,7 +175,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {milestones.map((item, i) => (
               <div key={i} className="space-y-3 relative">
-                <span className="text-4xl font-extrabold text-sky-200 dark:text-sky-800/60 tracking-tight block">
+                <span className="text-4xl font-extrabold text-blue-400 dark:text-blue-800/90 tracking-tight block">
                   {item.step}
                 </span>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">

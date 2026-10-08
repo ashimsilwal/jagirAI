@@ -49,7 +49,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             return Application.objects.filter(applicant=user).select_related('job', 'applicant', 'job__recruiter')
 
         if user.role == User.Role.JOB_RECRUITER:
-            return Application.objects.filter(job__recruiter=user).select_related('job', 'applicant', 'job__recruiter')
+            return Application.objects.filter(job__recruiter=user).select_related('job', 'applicant', 'job__recruiter', 'applicant__job_seeker_profile')
 
         return Application.objects.none()
 
