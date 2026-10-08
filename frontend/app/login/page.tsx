@@ -22,7 +22,9 @@ export default function LoginPage() {
 
     try {
       const user = await login(email, password);
-      if (user.role === 'JOB_RECRUITER') {
+      if (user.is_staff || user.is_superuser) {
+        router.push('/dashboard/admin');
+      } else if (user.role === 'JOB_RECRUITER') {
         router.push('/dashboard/recruiter');
       } else {
         router.push('/dashboard/seeker');

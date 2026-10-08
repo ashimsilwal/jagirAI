@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { apiFetch, RecruiterProfile } from '@/lib/api';
 import { 
   Building2, 
@@ -17,7 +19,15 @@ import {
 } from 'lucide-react';
 
 export default function RecruiterProfilePage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<RecruiterProfile | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && user && (user.is_staff || user.is_superuser)) {
+      router.replace('/dashboard/admin');
+    }
+  }, [user, authLoading, router]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');

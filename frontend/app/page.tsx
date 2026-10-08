@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { apiFetch, Job } from '@/lib/api';
 import {
   Search,
@@ -16,11 +18,20 @@ import {
 } from 'lucide-react';
 
 export default function HomePage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>('');
   const [location, setLocation] = useState<string>('');
   const [employmentType, setEmploymentType] = useState<string>('');
+
+  useEffect(() => {
+    if (!authLoading && user && (user.is_staff || user.is_superuser)) {
+      router.replace('/dashboard/admin');
+    }
+  }, [user, authLoading, router]);
 
   const fetchJobs = async () => {
     setLoading(true);
