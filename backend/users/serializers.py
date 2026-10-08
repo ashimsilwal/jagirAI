@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'date_joined')
+        fields = ('id', 'username', 'email', 'role', 'is_staff', 'is_superuser', 'is_active', 'date_joined')
         read_only_fields = ('id', 'date_joined')
 
 
@@ -161,3 +161,83 @@ class RecruiterProfileSerializer(serializers.ModelSerializer):
             if value.size > 2 * 1024 * 1024:
                 raise serializers.ValidationError("Company logo file size cannot exceed 2MB.")
         return value
+
+
+class AdminUserListSerializer(serializers.ModelSerializer):
+    """
+    Detailed serializer for admin user management with profile summary and entity counts.
+    """
+    profile_summary = serializers.SerializerMethodField()
+    jobs_count = serializers.SerializerMethodField()
+    applications_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'role',
+            'is_staff',
+            'is_superuser',
+            'is_active',
+            'date_joined',
+            'profile_summary',
+            'jobs_count',
+            'applications_count',
+        )
+
+    def get_profile_summary(self, obj):
+        if obj.role == User.Role.JOB_SEEKER:
+            profile = getattr(obj, 'job_seeker_profile', None)
+            if profile:
+                return {
+                    'phone': profile.phone,
+                    'location': profile.location,
+                    'skills': profile.skills,
+                    'resume': profile.resume.url if profile.resume else None,
+                    'bio': profile.bio,
+                }
+        elif obj.role == User.Role.JOB_RECRUITER:
+            profile = getattr(obj, 'recruiter_profile', None)
+            if profile:
+                return {
+                    'company_name': profile.company_name,
+                    'location': profile.location,
+                    'phone': profile.phone,
+                    'company_website': profile.company_website,
+                    'company_description': profile.company_description,
+                }
+        return {}
+
+    def get_jobs_count(self, obj):
+        if obj.role == User.Role.JOB_RECRUITER:
+            return getattr(obj, 'posted_jobs', []).count() if hasattr(obj, 'posted_jobs') else 0
+        return 0
+
+    def get_applications_count(self, obj):
+        if obj.role == User.Role.JOB_SEEKER:
+            return getattr(obj, 'applications', []).count() if hasattr(obj, 'applications') else 0
+        return 0
+
+
+class AdminUserUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for admin to update user fields (status, role, staff, username, email).
+    """
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'role', 'is_active', 'is_staff')
+
+    def validate_email(self, value):
+        user = self.instance
+        if User.objects.filter(email__iexact=value).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value.lower()
+
+    def validate_username(self, value):
+        user = self.instance
+        if User.objects.filter(username__iexact=value).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError("A user with this username already exists.")
+        return value
+

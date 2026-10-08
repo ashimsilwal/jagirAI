@@ -174,3 +174,63 @@ class ProfileTests(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("resume", response.data)
+
+
+class AdminManagementTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.admin = User.objects.create_superuser(
+            email="admin@example.com",
+            username="superadmin",
+            password="AdminPassword123!"
+        )
+        self.regular_user = User.objects.create_user(
+            email="regular@example.com",
+            username="regular_seeker",
+            password="RegularPassword123!",
+            role=User.Role.JOB_SEEKER
+        )
+
+    def test_non_admin_forbidden_from_admin_endpoints(self):
+        self.client.force_authenticate(user=self.regular_user)
+        stats_res = self.client.get('/api/admin/stats/')
+        self.assertEqual(stats_res.status_code, status.HTTP_403_FORBIDDEN)
+
+        users_res = self.client.get('/api/admin/users/')
+        self.assertEqual(users_res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_admin_can_view_stats_and_list_users(self):
+        self.client.force_authenticate(user=self.admin)
+        stats_res = self.client.get('/api/admin/stats/')
+        self.assertEqual(stats_res.status_code, status.HTTP_200_OK)
+        self.assertIn('total_users', stats_res.data)
+        self.assertEqual(stats_res.data['total_users'], 2)
+
+        users_res = self.client.get('/api/admin/users/?search=regular')
+        self.assertEqual(users_res.status_code, status.HTTP_200_OK)
+        results = users_res.data['results'] if 'results' in users_res.data else users_res.data
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['email'], "regular@example.com")
+
+    def test_admin_can_update_user_status(self):
+        self.client.force_authenticate(user=self.admin)
+        patch_res = self.client.patch(
+            f'/api/admin/users/{self.regular_user.id}/',
+            {"is_active": False},
+            format='json'
+        )
+        self.assertEqual(patch_res.status_code, status.HTTP_200_OK)
+        self.regular_user.refresh_from_db()
+        self.assertFalse(self.regular_user.is_active)
+
+    def test_admin_cannot_delete_self(self):
+        self.client.force_authenticate(user=self.admin)
+        del_self = self.client.delete(f'/api/admin/users/{self.admin.id}/')
+        self.assertEqual(del_self.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_admin_can_delete_other_user(self):
+        self.client.force_authenticate(user=self.admin)
+        del_res = self.client.delete(f'/api/admin/users/{self.regular_user.id}/')
+        self.assertEqual(del_res.status_code, status.HTTP_200_OK)
+        self.assertFalse(User.objects.filter(id=self.regular_user.id).exists())
+

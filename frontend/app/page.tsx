@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { apiFetch, Job } from '@/lib/api';
-import { 
-  Search, 
-  MapPin, 
-  Briefcase, 
-  Banknote, 
-  Clock, 
-  Building2, 
+import {
+  Search,
+  MapPin,
+  Briefcase,
+  Banknote,
+  Clock,
+  Building2,
   ArrowRight,
   Filter,
   Sparkles
@@ -56,11 +56,6 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 text-slate-900 py-20 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_50%)] pointer-events-none" />
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-100 border border-sky-200/80 text-sky-800 text-xs font-semibold shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-sky-600" />
-            <span>AI-Driven Recruitment Experience</span>
-          </div>
-
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-slate-900">
             Connecting Top Talent with <br className="hidden sm:inline" />
             <span className="bg-gradient-to-r from-sky-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">

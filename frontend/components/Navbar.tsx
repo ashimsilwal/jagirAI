@@ -11,7 +11,8 @@ import {
   PlusCircle, 
   FileText, 
   Building2,
-  Search
+  Search,
+  ShieldCheck
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -106,12 +107,36 @@ export const Navbar: React.FC = () => {
                 </Link>
               </>
             )}
+
+            {(user?.is_staff || user?.is_superuser) && (
+              <Link
+                href="/dashboard/admin"
+                className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 ${
+                  isActive('/dashboard/admin') 
+                    ? 'bg-sky-100 text-sky-800 shadow-xs' 
+                    : 'text-sky-700 hover:text-sky-900 hover:bg-sky-50'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4 text-sky-600" />
+                Admin Panel
+              </Link>
+            )}
           </nav>
 
           {/* User Actions */}
           <div className="flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3">
+                {(user?.is_staff || user?.is_superuser) && (
+                  <Link
+                    href="/dashboard/admin"
+                    className="inline-flex md:hidden items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 transition"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Admin
+                  </Link>
+                )}
+
                 {user.role === 'JOB_RECRUITER' && (
                   <Link
                     href="/dashboard/recruiter/jobs/new"
@@ -127,8 +152,12 @@ export const Navbar: React.FC = () => {
                     <p className="text-xs font-semibold text-gray-900 leading-tight">
                       {user.username}
                     </p>
-                    <p className="text-[10px] text-gray-500 font-medium">
-                      {user.role === 'JOB_RECRUITER' ? 'Recruiter' : 'Candidate'}
+                    <p className="text-[10px] font-semibold text-sky-600">
+                      {user.is_staff || user.is_superuser 
+                        ? 'Admin' 
+                        : user.role === 'JOB_RECRUITER' 
+                        ? 'Recruiter' 
+                        : 'Candidate'}
                     </p>
                   </div>
                   <button

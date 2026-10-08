@@ -5,7 +5,37 @@ export interface User {
   username: string;
   email: string;
   role: 'JOB_SEEKER' | 'JOB_RECRUITER';
+  is_staff?: boolean;
+  is_superuser?: boolean;
+  is_active?: boolean;
   date_joined: string;
+}
+
+export interface AdminUser extends User {
+  profile_summary?: {
+    phone?: string;
+    location?: string;
+    skills?: string;
+    resume?: string | null;
+    bio?: string;
+    company_name?: string;
+    company_website?: string;
+    company_description?: string;
+  };
+  jobs_count?: number;
+  applications_count?: number;
+}
+
+export interface AdminStats {
+  total_users: number;
+  job_seekers: number;
+  recruiters: number;
+  active_users: number;
+  inactive_users: number;
+  staff_users: number;
+  total_jobs: number;
+  active_jobs: number;
+  total_applications: number;
 }
 
 export interface JobSeekerProfile {
