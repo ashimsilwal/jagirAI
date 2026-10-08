@@ -60,25 +60,25 @@ export default function RegisterPage() {
 
   return (
     <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-lg shadow-xl shadow-slate-200/60 border border-slate-100">
         <div className="text-center">
-          <div className="mx-auto w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-400 to-blue-500 flex items-center justify-center text-white shadow-md shadow-sky-200 mb-4">
+          <div className="mx-auto w-12 h-12 rounded-md bg-gradient-to-tr from-sky-400 to-blue-500 flex items-center justify-center text-white shadow-md shadow-sky-200 mb-4">
             <Briefcase className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
             Create an Account
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Join Jagri AI as a Job Seeker or Recruiter.
+            Join Jagir AI as a Job Seeker or Recruiter.
           </p>
         </div>
 
         {/* Role Selector Tabs */}
-        <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1.5 rounded-xl">
+        <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1.5 rounded-md">
           <button
             type="button"
             onClick={() => setRole('JOB_SEEKER')}
-            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-semibold transition cursor-pointer ${
               role === 'JOB_SEEKER'
                 ? 'bg-white text-sky-600 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -90,7 +90,7 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={() => setRole('JOB_RECRUITER')}
-            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-semibold transition cursor-pointer ${
               role === 'JOB_RECRUITER'
                 ? 'bg-white text-sky-600 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -102,7 +102,7 @@ export default function RegisterPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl bg-rose-50 border border-rose-200 p-4 flex items-start gap-3 text-rose-800 text-sm">
+          <div className="rounded-md bg-rose-50 border border-rose-200 p-4 flex items-start gap-3 text-rose-800 text-sm">
             <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
             <p>{error}</p>
           </div>
@@ -123,7 +123,7 @@ export default function RegisterPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="johndoe"
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
           </div>
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               />
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold text-white bg-sky-600 hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 shadow-md shadow-sky-200 transition disabled:opacity-50 cursor-pointer mt-2"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-semibold text-white bg-sky-600 hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 shadow-md shadow-sky-200 transition disabled:opacity-50 cursor-pointer mt-2"
           >
             {loading ? (
               <span>Creating account...</span>

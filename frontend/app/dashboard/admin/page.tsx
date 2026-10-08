@@ -214,7 +214,7 @@ export default function AdminDashboardPage() {
         </div>
         <h2 className="text-xl font-bold text-slate-900">Admin Privileges Required</h2>
         <p className="text-sm text-slate-600">
-          You do not have administrative permissions to view or manage users on Jagri AI.
+          You do not have administrative permissions to view or manage users on Jagir AI.
         </p>
         <div className="pt-2">
           <Link
@@ -604,7 +604,7 @@ export default function AdminDashboardPage() {
         {/* Table Footer Info */}
         <div className="py-3 px-5 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
           <span>Showing {filteredUsers.length} of {users.length} users</span>
-          <span className="text-[11px]">Admin Control Panel • Jagri AI</span>
+          <span className="text-[11px]">Admin Control Panel • Jagir AI</span>
         </div>
       </div>
 

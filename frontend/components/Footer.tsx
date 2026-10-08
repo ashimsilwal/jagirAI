@@ -10,7 +10,7 @@ export const Footer: React.FC = () => {
   const currentYear = 2026;
 
   return (
-    <footer className="bg-gradient-to-b from-sky-600 to-sky-700 border-t border-sky-500/40 text-white mt-auto">
+    <footer className="bg-gradient-to-b from-sky-600 to-sky-700 dark:from-slate-900 dark:to-slate-950 border-t border-sky-500/40 dark:border-slate-800 text-white mt-auto transition-colors duration-200">
       {/* Main Footer Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
@@ -18,12 +18,12 @@ export const Footer: React.FC = () => {
           {/* Column 1: Brand & About */}
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-xl bg-white text-sky-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-md bg-white text-sky-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
                 <Briefcase className="w-5 h-5 text-sky-600" />
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-xl leading-tight tracking-tight text-white group-hover:text-sky-100 transition-colors">
-                  Jagri<span className="text-sky-200">AI</span>
+                  Jagir<span className="text-sky-200">AI</span>
                 </span>
                 <span className="text-xs text-sky-100 font-medium uppercase tracking-wider">
                   Intelligent Hiring
@@ -42,8 +42,8 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-sky-200 shrink-0" />
-                <a href="mailto:support@jagriai.com" className="hover:text-white transition-colors">
-                  support@jagriai.com
+                <a href="mailto:support@jagirai.com" className="hover:text-white transition-colors">
+                  support@jagirai.com
                 </a>
               </div>
             </div>
@@ -101,7 +101,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link href="/register" className="text-sky-100 hover:text-white transition-colors inline-flex items-center gap-1.5">
-                  Hire with Jagri AI
+                  Hire with Jagir AI
                 </Link>
               </li>
             </ul>
@@ -111,7 +111,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Sub-footer */}
         <div className="mt-12 pt-6 border-t border-sky-500/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-sky-200">
-          <p>© {currentYear} Jagri AI. All rights reserved.</p>
+          <p>© {currentYear} Jagir AI. All rights reserved.</p>
 
           <div className="flex flex-wrap items-center gap-6 text-sm">
             <Link href="/about" className="hover:text-white transition-colors">

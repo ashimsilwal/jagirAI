@@ -30,12 +30,12 @@ const COMMON_TECH_KEYWORDS = [
 ];
 
 const AVATAR_PALETTES = [
-  'bg-sky-50 text-sky-700 border-sky-200/70',
-  'bg-blue-50 text-blue-700 border-blue-200/70',
-  'bg-indigo-50 text-indigo-700 border-indigo-200/70',
-  'bg-cyan-50 text-cyan-700 border-cyan-200/70',
-  'bg-teal-50 text-teal-700 border-teal-200/70',
-  'bg-slate-100 text-slate-700 border-slate-200/70',
+  'bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border-sky-200/70 dark:border-sky-800',
+  'bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-200/70 dark:border-blue-800',
+  'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800',
+  'bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border-cyan-200/70 dark:border-cyan-800',
+  'bg-teal-50 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border-teal-200/70 dark:border-teal-800',
+  'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200/70 dark:border-slate-700',
 ];
 
 function getCompanyPalette(name?: string): string {
@@ -205,7 +205,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   return (
     <div
       onClick={handleCardClick}
-      className="group relative bg-white rounded-2xl border border-slate-200/90 hover:border-sky-300/80 p-5 sm:p-6 shadow-xs hover:shadow-xl hover:shadow-sky-500/8 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+      className="group relative bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 hover:border-sky-300/80 dark:hover:border-sky-500/50 p-5 sm:p-6 shadow-xs hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between cursor-pointer"
     >
       <div className="space-y-4">
         {/* Top Header Row: Company Logo (Left) & Bookmark / Date (Right) */}
@@ -213,18 +213,18 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           {/* Company Avatar / Logo */}
           <div className="relative">
             {job.company_logo && !logoError ? (
-              <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/70 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs group-hover:border-sky-200 transition-colors">
+              <div className="w-12 h-12 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs group-hover:border-sky-200 dark:group-hover:border-sky-500 transition-colors">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={job.company_logo}
                   alt={`${job.company_name} logo`}
-                  className="w-full h-full object-contain rounded-lg"
+                  className="w-full h-full object-contain rounded-xs"
                   onError={() => setLogoError(true)}
                 />
               </div>
             ) : (
               <div
-                className={`w-12 h-12 rounded-xl border flex items-center justify-center font-bold text-sm tracking-wider shadow-2xs transition-transform group-hover:scale-105 ${palette}`}
+                className={`w-12 h-12 rounded-md border flex items-center justify-center font-bold text-sm tracking-wider shadow-2xs transition-transform group-hover:scale-105 ${palette}`}
               >
                 {initials}
               </div>
@@ -233,7 +233,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
 
           {/* Top Right: Posted Date & Bookmark Button */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-xs text-slate-400 font-medium flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+            <span className="text-xs text-slate-400 dark:text-slate-400 font-medium flex items-center gap-1 bg-slate-50 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-100 dark:border-slate-750">
               <Clock className="w-3.5 h-3.5 text-slate-400" />
               <span>{formatPostedDate(job.created_at)}</span>
             </span>
@@ -243,15 +243,15 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
               onClick={handleBookmarkToggle}
               aria-label={saved ? 'Remove bookmark' : 'Bookmark job'}
               title={saved ? 'Bookmarked' : 'Save job'}
-              className={`p-2 rounded-xl border transition-all duration-200 cursor-pointer ${
+              className={`p-2 rounded-md border transition-all duration-200 cursor-pointer ${
                 saved
-                  ? 'bg-sky-50 text-sky-600 border-sky-200/80 hover:bg-sky-100'
-                  : 'bg-white text-slate-400 border-slate-100 hover:text-sky-600 hover:border-sky-200 hover:bg-sky-50/50'
+                  ? 'bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border-sky-200/80 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900'
+                  : 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-700 hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-200 dark:hover:border-sky-600 hover:bg-sky-50/50 dark:hover:bg-slate-700'
               }`}
             >
               <Bookmark
                 className={`w-4 h-4 transition-transform active:scale-90 ${
-                  saved ? 'fill-sky-600 text-sky-600' : ''
+                  saved ? 'fill-sky-600 text-sky-600 dark:fill-sky-400 dark:text-sky-400' : ''
                 }`}
               />
             </button>
@@ -262,13 +262,13 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         <div className="space-y-1">
           <Link
             href={`/jobs/${job.id}`}
-            className="block group-hover:text-sky-600 transition-colors focus:outline-none"
+            className="block group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors focus:outline-none"
           >
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-sky-600 transition-colors line-clamp-1 leading-snug tracking-tight">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors line-clamp-1 leading-snug tracking-tight">
               {job.title}
             </h3>
           </Link>
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 font-medium">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">
             <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate">{job.company_name}</span>
           </div>
@@ -277,28 +277,28 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         {/* Key Metadata Row: Location, Employment Type, Salary */}
         <div className="flex flex-wrap items-center gap-2 pt-0.5">
           {/* Location */}
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200/60 max-w-[180px]">
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700 max-w-[180px]">
             <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate">{job.location}</span>
           </div>
 
           {/* Employment Type */}
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-100">
-            <Briefcase className="w-3 h-3 text-sky-600 shrink-0" />
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-900/60">
+            <Briefcase className="w-3 h-3 text-sky-600 dark:text-sky-400 shrink-0" />
             <span>{formatEmploymentType(job.employment_type)}</span>
           </div>
 
           {/* Salary when available */}
           {job.salary && (
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
-              <Banknote className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/60">
+              <Banknote className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="truncate">{job.salary}</span>
             </div>
           )}
         </div>
 
         {/* Short 1–2 Line Job Description */}
-        <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
           {job.description}
         </p>
 
@@ -308,7 +308,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
             {skills.map((skill, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200/70 group-hover:border-slate-300 transition-colors"
+                className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700 group-hover:border-slate-300 dark:group-hover:border-slate-600 transition-colors"
               >
                 {skill}
               </span>
@@ -318,13 +318,13 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </div>
 
       {/* Card Action / View Job Button */}
-      <div className="pt-4 mt-5 border-t border-slate-100">
+      <div className="pt-4 mt-5 border-t border-slate-100 dark:border-slate-800">
         <Link
           href={`/jobs/${job.id}`}
-          className="w-full py-2.5 px-4 rounded-xl bg-slate-50 group-hover:bg-sky-600 text-slate-700 group-hover:text-white border border-slate-200/80 group-hover:border-transparent text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 shadow-2xs group/btn"
+          className="w-full py-2.5 px-4 rounded-md bg-slate-50 dark:bg-slate-800 group-hover:bg-sky-600 dark:group-hover:bg-sky-600 text-slate-700 dark:text-slate-200 group-hover:text-white dark:group-hover:text-white border border-slate-200/80 dark:border-slate-700 group-hover:border-transparent dark:group-hover:border-transparent text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 shadow-2xs group/btn"
         >
           <span>View Job</span>
-          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-4 h-4 text-slate-400 dark:text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
         </Link>
       </div>
     </div>
