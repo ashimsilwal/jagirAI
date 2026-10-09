@@ -91,8 +91,8 @@ export default function SeekerProfilePage() {
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto py-12 px-4 space-y-6 animate-pulse">
-        <div className="h-8 bg-slate-200 rounded w-1/3" />
-        <div className="h-64 bg-slate-100 rounded-2xl" />
+        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+        <div className="h-64 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800" />
       </div>
     );
   }
@@ -101,31 +101,31 @@ export default function SeekerProfilePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-6">
       <Link
         href="/dashboard/seeker"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-sky-600 transition"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 transition"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Dashboard
       </Link>
 
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6 transition-colors">
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             Candidate Profile
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Keep your skills, resume, and experience up to date for recruiters.
           </p>
         </div>
 
         {message && (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{message}</span>
           </div>
         )}
 
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-800 dark:text-rose-300 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -134,7 +134,7 @@ export default function SeekerProfilePage() {
         <form onSubmit={handleSave} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Phone Number
               </label>
               <input
@@ -142,12 +142,12 @@ export default function SeekerProfilePage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 (555) 000-0000"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Location
               </label>
               <input
@@ -155,13 +155,13 @@ export default function SeekerProfilePage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. San Francisco, CA / Remote"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               Professional Bio
             </label>
             <textarea
@@ -169,12 +169,12 @@ export default function SeekerProfilePage() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="A brief summary of your background, passions, and career goals..."
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               Skills (Comma-separated)
             </label>
             <input
@@ -182,12 +182,12 @@ export default function SeekerProfilePage() {
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
               placeholder="e.g. Python, Django, React, Next.js, PostgreSQL, Docker"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               Work Experience
             </label>
             <textarea
@@ -195,12 +195,12 @@ export default function SeekerProfilePage() {
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
               placeholder="Detail your previous roles, responsibilities, and achievements..."
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               Education
             </label>
             <textarea
@@ -208,27 +208,27 @@ export default function SeekerProfilePage() {
               value={education}
               onChange={(e) => setEducation(e.target.value)}
               placeholder="Degrees, universities, certifications, relevant coursework..."
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
             />
           </div>
 
           {/* Resume Upload Box */}
-          <div className="pt-2 border-t border-slate-100">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               Default Resume (PDF or Word)
             </label>
 
             {profile?.resume && (
-              <div className="mb-3 p-3 bg-sky-50/60 border border-sky-100 rounded-xl flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-sky-950 font-medium truncate">
-                  <FileText className="w-4 h-4 text-sky-600 shrink-0" />
+              <div className="mb-3 p-3 bg-sky-50/60 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-800/80 rounded-xl flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-sky-950 dark:text-sky-200 font-medium truncate">
+                  <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                   <span className="truncate">Current Resume on file</span>
                 </div>
                 <a
                   href={profile.resume}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 hover:text-sky-800"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:text-sky-800 dark:hover:text-sky-200"
                 >
                   <Download className="w-3.5 h-3.5" />
                   View
@@ -236,7 +236,7 @@ export default function SeekerProfilePage() {
               </div>
             )}
 
-            <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 hover:border-sky-400 rounded-xl text-xs text-slate-600 hover:text-sky-600 cursor-pointer bg-slate-50 transition">
+            <label className="flex items-center justify-center gap-2.5 p-5 border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 rounded-xl text-xs text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 cursor-pointer bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-100/50 dark:hover:bg-slate-800/80 transition-all">
               <FileUp className="w-4 h-4" />
               <span>{newResume ? newResume.name : 'Upload New Resume (.pdf, .doc, .docx)'}</span>
               <input
@@ -248,11 +248,11 @@ export default function SeekerProfilePage() {
             </label>
           </div>
 
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-md shadow-sky-200 transition cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-md shadow-sky-500/20 transition cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? 'Saving...' : 'Save Profile'}</span>

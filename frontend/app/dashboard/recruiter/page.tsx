@@ -174,11 +174,8 @@ export default function RecruiterDashboard() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
       {/* Recruiter Header */}
-      <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 border border-sky-100/80 dark:border-slate-800 rounded-lg p-6 sm:p-8 text-slate-900 dark:text-white shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
+      <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-sky-100/80 dark:border-slate-800 rounded-lg p-6 sm:p-8 text-slate-900 dark:text-white shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-100/80 dark:bg-sky-950/80 px-2.5 py-0.5 rounded-md border border-sky-200/60 dark:border-sky-800">
-            Recruiter Portal
-          </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mt-2">
             Welcome, {user?.username}!
           </h1>
@@ -580,7 +577,7 @@ export default function RecruiterDashboard() {
             {jobs.map((job) => (
               <div
                 key={job.id}
-                className="p-5 sm:p-6 hover:bg-slate-50/60 dark:hover:bg-slate-850/60 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                className="p-5 sm:p-6 hover:bg-slate-50/60 dark:hover:bg-slate-800/60 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
               >
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">

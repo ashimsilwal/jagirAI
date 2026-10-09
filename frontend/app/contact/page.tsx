@@ -65,7 +65,7 @@ export default function ContactPage() {
             Get in Touch with Our Team
           </h1>
 
-          <p className="max-w-2xl mx-auto text-slate-600 dark:text-slate-350 text-sm sm:text-base leading-relaxed">
+          <p className="max-w-2xl mx-auto text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
             Have questions about posting a vacancy, need candidate assistance, or want to partner with Jagir AI? 
             We're here to help you every step of the way.
           </p>
@@ -310,7 +310,7 @@ export default function ContactPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="bg-white dark:bg-slate-900/60 py-16 border-t border-slate-200/80 dark:border-slate-800">
+      <section className="bg-white dark:bg-slate-900/90 py-16 border-t border-slate-200/80 dark:border-slate-800 transition-colors">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center space-y-2">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
@@ -325,15 +325,17 @@ export default function ContactPage() {
             {faqs.map((faq, idx) => (
               <div
                 key={idx}
-                className="p-6 rounded-lg bg-slate-50/70 dark:bg-slate-850/80 border border-slate-200/70 dark:border-slate-800 space-y-2"
+                className="p-6 rounded-xl bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 hover:border-sky-300 dark:hover:border-slate-600 transition-all shadow-xs space-y-2.5"
               >
                 <div className="flex items-start gap-2.5">
-                  <HelpCircle className="w-4.5 h-4.5 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  <div className="w-7 h-7 rounded-lg bg-sky-100/80 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 mt-0.5 border border-sky-200/60 dark:border-sky-800/80">
+                    <HelpCircle className="w-4 h-4" />
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white pt-0.5">
                     {faq.q}
                   </h4>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 pl-7 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 pl-9.5 leading-relaxed">
                   {faq.a}
                 </p>
               </div>

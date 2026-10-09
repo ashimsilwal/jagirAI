@@ -260,10 +260,6 @@ export default function AdminDashboardPage() {
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 border border-sky-100/80 rounded-2xl p-6 sm:p-8 text-slate-900 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 bg-sky-100/80 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            Admin Portal
-          </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mt-2">
             User Management & System Overview
           </h1>

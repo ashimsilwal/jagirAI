@@ -13,6 +13,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
+import { AnnouncementBar } from './AnnouncementBar';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -23,9 +24,14 @@ export const Navbar: React.FC = () => {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-xs transition-colors duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 sm:h-18">
+    <header className="sticky top-0 z-50 w-full transition-colors duration-200">
+      {/* Top Announcement Bar */}
+      <AnnouncementBar />
+
+      {/* Main Navbar */}
+      <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-xs transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 sm:h-18">
           
           {/* Logo */}
           <Link
@@ -229,6 +235,7 @@ export const Navbar: React.FC = () => {
           </div>
 
         </div>
+      </div>
       </div>
     </header>
   );
