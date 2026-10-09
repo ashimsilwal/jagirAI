@@ -69,7 +69,7 @@ export default function NewJobPage() {
         Back to Recruiter Dashboard
       </Link>
 
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-6">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Create Job Vacancy

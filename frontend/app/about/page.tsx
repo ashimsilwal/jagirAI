@@ -74,7 +74,7 @@ export default function AboutPage() {
             </span>
           </h1>
 
-          <p className="max-w-3xl mx-auto text-slate-600 dark:text-slate-350 text-base sm:text-lg leading-relaxed">
+          <p className="max-w-3xl mx-auto text-slate-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed">
             Jagir AI is an intelligent recruitment ecosystem built to eliminate the inefficiencies of traditional job boards. 
             We connect top professionals with visionary organizations through transparency, speed, and cutting-edge technology.
           </p>
@@ -101,8 +101,8 @@ export default function AboutPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full space-y-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           {/* Mission Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="w-12 h-12 rounded-md bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800 flex items-center justify-center mb-6 shadow-2xs group-hover:scale-105 transition-transform">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="w-12 h-12 rounded-md bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform">
               <Target className="w-6 h-6 text-sky-600 dark:text-sky-400" />
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Our Mission</h2>
@@ -113,8 +113,8 @@ export default function AboutPage() {
           </div>
 
           {/* Vision Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="w-12 h-12 rounded-md bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 flex items-center justify-center mb-6 shadow-2xs group-hover:scale-105 transition-transform">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="w-12 h-12 rounded-md bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform">
               <Compass className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Our Vision</h2>
@@ -142,10 +142,10 @@ export default function AboutPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs hover:shadow-xl hover:shadow-sky-500/5 hover:-translate-y-1 transition-all flex flex-col justify-between"
+                  className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/5 hover:-translate-y-1 transition-all flex flex-col justify-between"
                 >
                   <div className="space-y-4">
-                    <div className="w-11 h-11 rounded-md bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800 flex items-center justify-center shadow-2xs">
+                    <div className="w-11 h-11 rounded-md bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800 flex items-center justify-center shadow-sm">
                       <IconComp className="w-5 h-5 text-sky-600 dark:text-sky-400" />
                     </div>
                     <h3 className="font-bold text-lg text-slate-900 dark:text-white">
@@ -162,7 +162,7 @@ export default function AboutPage() {
         </div>
 
         {/* How It Works Timeline */}
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-8 sm:p-12 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-8 sm:p-12 shadow-sm">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
             <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               How Jagir AI Works

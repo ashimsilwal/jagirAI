@@ -128,7 +128,7 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/" className="text-sky-100 hover:text-white transition-colors inline-flex items-center gap-1.5">
+                <Link href="/#jobs" className="text-sky-100 hover:text-white transition-colors inline-flex items-center gap-1.5">
                   Browse Open Vacancies
                 </Link>
               </li>
@@ -172,7 +172,7 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/register" className="text-sky-100 hover:text-white transition-colors inline-flex items-center gap-1.5">
+                <Link href="/dashboard/recruiter/jobs/new" className="text-sky-100 hover:text-white transition-colors inline-flex items-center gap-1.5">
                   Hire with Jagir AI
                 </Link>
               </li>
@@ -192,10 +192,10 @@ export const Footer: React.FC = () => {
             <Link href="/contact" className="hover:text-white transition-colors">
               Contact & Support
             </Link>
-            <Link href="/" className="hover:text-white transition-colors">
+            <Link href="/about" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/" className="hover:text-white transition-colors">
+            <Link href="/about" className="hover:text-white transition-colors">
               Terms of Service
             </Link>
           </div>

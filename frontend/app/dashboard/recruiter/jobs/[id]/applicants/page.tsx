@@ -83,7 +83,7 @@ export default function JobApplicantsPage() {
       </Link>
 
       {/* Header */}
-      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 px-2.5 py-0.5 rounded-md border border-sky-100 dark:border-sky-900/60">
             Candidates Review
@@ -98,7 +98,7 @@ export default function JobApplicantsPage() {
 
         <Link
           href={`/jobs/${id}`}
-          className="px-4 py-2 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 border border-slate-200/60 dark:border-slate-700 transition"
+          className="px-4 py-2 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700 transition"
         >
           View Public Post
         </Link>
@@ -131,11 +131,11 @@ export default function JobApplicantsPage() {
             return (
               <div
                 key={app.id}
-                className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs space-y-4 hover:border-sky-300 dark:hover:border-sky-600/70 transition"
+                className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-sm space-y-4 hover:border-sky-300 dark:hover:border-sky-600/70 transition"
               >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-slate-100 dark:border-slate-800 border-b">
                   <div className="flex items-start gap-3.5">
-                    <div className="w-11 h-11 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
+                    <div className="w-11 h-11 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
                       {getInitials(candidateName)}
                     </div>
                     <div>

@@ -174,7 +174,7 @@ export default function RecruiterDashboard() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
       {/* Recruiter Header */}
-      <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-sky-100/80 dark:border-slate-800 rounded-lg p-6 sm:p-8 text-slate-900 dark:text-white shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
+      <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-sky-100/80 dark:border-slate-800 rounded-lg p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mt-2">
             Welcome, {user?.username}!
@@ -187,7 +187,7 @@ export default function RecruiterDashboard() {
         <div className="flex gap-2 sm:gap-3 shrink-0">
           <Link
             href="/dashboard/recruiter/profile"
-            className="px-4 py-2.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 font-semibold text-xs transition shadow-xs"
+            className="px-4 py-2.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition shadow-sm"
           >
             Company Profile
           </Link>
@@ -203,7 +203,7 @@ export default function RecruiterDashboard() {
 
       {/* Metrics Overview Bar */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-semibold uppercase tracking-wider">Active Jobs</span>
             <Briefcase className="w-4 h-4 text-sky-600 dark:text-sky-400" />
@@ -214,7 +214,7 @@ export default function RecruiterDashboard() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Applicants</span>
             <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -224,7 +224,7 @@ export default function RecruiterDashboard() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-1 relative overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">New / Pending</span>
             <Inbox className="w-4 h-4 text-amber-500" />
@@ -241,7 +241,7 @@ export default function RecruiterDashboard() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-semibold uppercase tracking-wider">In Pipeline</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -277,7 +277,7 @@ export default function RecruiterDashboard() {
               onClick={() => setAppFilter('ALL')}
               className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
                 appFilter === 'ALL'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -288,7 +288,7 @@ export default function RecruiterDashboard() {
               onClick={() => setAppFilter('APPLIED')}
               className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
                 appFilter === 'APPLIED'
-                  ? 'bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-400 shadow-2xs'
+                  ? 'bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-400 shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -299,7 +299,7 @@ export default function RecruiterDashboard() {
               onClick={() => setAppFilter('SHORTLISTED')}
               className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
                 appFilter === 'SHORTLISTED'
-                  ? 'bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-400 shadow-2xs'
+                  ? 'bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-400 shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -310,7 +310,7 @@ export default function RecruiterDashboard() {
               onClick={() => setAppFilter('INTERVIEW')}
               className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
                 appFilter === 'INTERVIEW'
-                  ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-2xs'
+                  ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -321,7 +321,7 @@ export default function RecruiterDashboard() {
               onClick={() => setAppFilter('HIRED')}
               className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
                 appFilter === 'HIRED'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-2xs'
+                  ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -371,12 +371,12 @@ export default function RecruiterDashboard() {
               return (
                 <div
                   key={app.id}
-                  className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-xs hover:border-sky-300 dark:hover:border-sky-600/70 transition-all space-y-4"
+                  className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-sm hover:border-sky-300 dark:hover:border-sky-600/70 transition-all space-y-4"
                 >
                   {/* Top Row: Candidate info + Job applied info + Status updater */}
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-start gap-3.5">
-                      <div className="w-11 h-11 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
+                      <div className="w-11 h-11 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
                         {getInitials(candidateName)}
                       </div>
                       <div className="space-y-0.5">
@@ -503,7 +503,7 @@ export default function RecruiterDashboard() {
                           href={resumeUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold text-xs text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-100 dark:border-sky-800 transition shadow-2xs"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold text-xs text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-100 dark:border-sky-800 transition shadow-sm"
                         >
                           <FileText className="w-3.5 h-3.5" />
                           <span>View Resume</span>
@@ -573,7 +573,7 @@ export default function RecruiterDashboard() {
             </Link>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 shadow-xs overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 shadow-sm overflow-hidden">
             {jobs.map((job) => (
               <div
                 key={job.id}

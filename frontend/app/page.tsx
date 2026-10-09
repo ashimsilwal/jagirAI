@@ -167,7 +167,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                 <Link
                   href="/dashboard/seeker"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 transition shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm"
                 >
                   <Briefcase className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                   <span>My Applications</span>
@@ -179,7 +179,7 @@ export default function HomePage() {
                 </Link>
                 <Link
                   href="/dashboard/seeker/profile"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 transition shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm"
                 >
                   <FileText className="w-3.5 h-3.5 text-slate-400" />
                   <span>Profile & Resume</span>
@@ -190,7 +190,7 @@ export default function HomePage() {
             {/* Seeker Search Bar */}
             <form
               onSubmit={handleSearchSubmit}
-              className="bg-white dark:bg-slate-900 p-2 sm:p-2.5 rounded-xl shadow-xs border border-slate-200/90 dark:border-slate-800 flex flex-col md:flex-row gap-2"
+              className="bg-white dark:bg-slate-900 p-2 sm:p-2.5 rounded-xl shadow-sm border border-slate-200/90 dark:border-slate-800 flex flex-col md:flex-row gap-2"
             >
               <div className="flex-1 flex items-center px-3 py-2 bg-slate-50/80 dark:bg-slate-800/60 md:bg-transparent dark:md:bg-transparent rounded-lg">
                 <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
@@ -270,8 +270,8 @@ export default function HomePage() {
                     }}
                     className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
                       isActive
-                        ? 'bg-sky-600 text-white shadow-xs font-semibold'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750'
+                        ? 'bg-sky-600 text-white shadow-sm font-semibold'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
                     {pill.label}
@@ -288,8 +288,8 @@ export default function HomePage() {
                 }}
                 className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
                   showSavedOnly
-                    ? 'bg-amber-500 text-white shadow-xs font-semibold'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750'
+                    ? 'bg-amber-500 text-white shadow-sm font-semibold'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 <Bookmark className={`w-3.5 h-3.5 ${showSavedOnly ? 'fill-white' : 'text-amber-500'}`} />
@@ -305,8 +305,8 @@ export default function HomePage() {
                 }}
                 className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
                   showUnappliedOnly
-                    ? 'bg-sky-600 text-white shadow-xs font-semibold'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750'
+                    ? 'bg-sky-600 text-white shadow-sm font-semibold'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5 text-sky-500" />
@@ -402,7 +402,7 @@ export default function HomePage() {
       )}
 
       {/* 2. JOB LISTINGS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full">
+      <section id="jobs" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full">
         {/* Results Toolbar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
@@ -449,7 +449,7 @@ export default function HomePage() {
                 title="Grid View"
                 className={`p-1.5 rounded-md transition cursor-pointer ${
                   layout === 'grid'
-                    ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-xs'
+                    ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
                     : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                 }`}
               >
@@ -462,7 +462,7 @@ export default function HomePage() {
                 title="List View"
                 className={`p-1.5 rounded-md transition cursor-pointer ${
                   layout === 'list'
-                    ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-xs'
+                    ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
                     : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                 }`}
               >
@@ -478,7 +478,7 @@ export default function HomePage() {
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-xs animate-pulse space-y-4 flex flex-col justify-between"
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-sm animate-pulse space-y-4 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">
@@ -501,7 +501,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : displayedJobs.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 p-8 shadow-xs">
+          <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 p-8 shadow-sm">
             <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 border border-slate-200/60 dark:border-slate-700/60 mb-3">
               <Briefcase className="w-7 h-7" />
             </div>

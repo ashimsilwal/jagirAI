@@ -105,7 +105,7 @@ export const WhyChooseUs: React.FC = () => {
             Why Choose <span className="bg-gradient-to-r from-sky-600 via-blue-600 to-cyan-600 dark:from-sky-400 dark:via-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">Jagir AI</span>?
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-350 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
             Whether you are taking your next major career leap or looking to assemble a powerhouse team,
             Jagir AI streamlines the journey with cutting-edge tools and zero friction.
           </p>
@@ -149,11 +149,11 @@ export const WhyChooseUs: React.FC = () => {
             return (
               <div
                 key={index}
-                className="group bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-500/50 p-6 shadow-xs hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+                className="group bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-500/50 p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-md bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white dark:group-hover:bg-sky-600 dark:group-hover:text-white group-hover:scale-105 transition-all duration-300 shadow-2xs">
+                    <div className="w-12 h-12 rounded-md bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white dark:group-hover:bg-sky-600 dark:group-hover:text-white group-hover:scale-105 transition-all duration-300 shadow-sm">
                       <IconComponent className="w-6 h-6 transition-colors" />
                     </div>
                     {item.tag && (
@@ -177,7 +177,7 @@ export const WhyChooseUs: React.FC = () => {
         </div>
 
         {/* Targeted Bottom Call-to-Action Bar */}
-        <div className="mt-12 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-12 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="text-center sm:text-left space-y-1">
             <h4 className="text-lg font-bold text-slate-900 dark:text-white">
               {activeTab === 'seeker'

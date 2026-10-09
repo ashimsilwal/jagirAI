@@ -29,7 +29,7 @@ export const Navbar: React.FC = () => {
       <AnnouncementBar />
 
       {/* Main Navbar */}
-      <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-xs transition-colors duration-200">
+      <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-sm transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-18">
           
@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
             href={isAdmin ? "/dashboard/admin" : user?.role === 'JOB_RECRUITER' ? "/dashboard/recruiter" : "/"}
             className="flex items-center gap-2.5 group"
           >
-            <div className="w-10 h-10 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-xs shadow-sky-200 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-sm shadow-sky-200 group-hover:scale-105 transition-transform">
               <Briefcase className="w-5 h-5 text-white" />
             </div>
             <div className="flex flex-col">
@@ -58,7 +58,7 @@ export const Navbar: React.FC = () => {
                 href="/dashboard/admin"
                 className={`px-4 py-2 rounded-md text-[15px] font-semibold transition-colors flex items-center gap-1.5 ${
                   isActive('/dashboard/admin') 
-                    ? 'bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-200 shadow-xs' 
+                    ? 'bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-200 shadow-sm' 
                     : 'text-sky-700 dark:text-sky-400 hover:text-sky-900 dark:hover:text-sky-200 hover:bg-sky-50 dark:hover:bg-slate-800'
                 }`}
               >
@@ -167,9 +167,9 @@ export const Navbar: React.FC = () => {
               className="p-2.5 rounded-md border border-gray-200/80 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
               {theme === 'dark' ? (
-                <Sun className="w-4.5 h-4.5 text-amber-400" />
+                <Sun className="w-5 h-5 text-amber-400" />
               ) : (
-                <Moon className="w-4.5 h-4.5 text-slate-700" />
+                <Moon className="w-5 h-5 text-slate-700" />
               )}
             </button>
 
@@ -187,7 +187,7 @@ export const Navbar: React.FC = () => {
                 {!isAdmin && user.role === 'JOB_RECRUITER' && (
                   <Link
                     href="/dashboard/recruiter/jobs/new"
-                    className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700 transition shadow-xs hover:shadow-md"
+                    className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700 transition shadow-sm hover:shadow-md"
                   >
                     <PlusCircle className="w-4 h-4" />
                     <span>Post Job</span>
@@ -212,7 +212,7 @@ export const Navbar: React.FC = () => {
                     title="Sign Out"
                     className="p-2 text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md transition-colors cursor-pointer"
                   >
-                    <LogOut className="w-4.5 h-4.5" />
+                    <LogOut className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export const Navbar: React.FC = () => {
                 </Link>
                 <Link
                   href="/register"
-                  className="px-3.5 sm:px-4.5 py-2 text-xs sm:text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-md transition shadow-xs hover:shadow-md"
+                  className="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-md transition shadow-sm hover:shadow-md"
                 >
                   Get Started
                 </Link>

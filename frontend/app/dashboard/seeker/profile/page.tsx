@@ -107,7 +107,7 @@ export default function SeekerProfilePage() {
         Back to Dashboard
       </Link>
 
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6 transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6 transition-colors">
         <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             Candidate Profile

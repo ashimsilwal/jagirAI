@@ -208,23 +208,23 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
     return (
       <div
         onClick={handleCardClick}
-        className="group relative bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 hover:border-sky-300/80 dark:hover:border-sky-500/50 p-5 shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 cursor-pointer"
+        className="group relative bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 hover:border-sky-300/80 dark:hover:border-sky-500/50 p-5 shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 cursor-pointer"
       >
         <div className="flex items-start gap-4 flex-1 min-w-0">
           {/* Company Avatar / Logo */}
           <div className="relative shrink-0">
             {job.company_logo && !logoError ? (
-              <div className="w-12 h-12 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 p-1 flex items-center justify-center overflow-hidden shadow-2xs">
+              <div className="w-12 h-12 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 p-1 flex items-center justify-center overflow-hidden shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={job.company_logo}
                   alt={`${job.company_name} logo`}
-                  className="w-full h-full object-contain rounded-xs"
+                  className="w-full h-full object-contain rounded-sm"
                   onError={() => setLogoError(true)}
                 />
               </div>
             ) : (
-              <div className={`w-12 h-12 rounded-lg border flex items-center justify-center font-bold text-sm tracking-wider shadow-2xs ${palette}`}>
+              <div className={`w-12 h-12 rounded-lg border flex items-center justify-center font-bold text-sm tracking-wider shadow-sm ${palette}`}>
                 {initials}
               </div>
             )}
@@ -322,7 +322,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
   return (
     <div
       onClick={handleCardClick}
-      className="group relative bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 hover:border-sky-300/80 dark:hover:border-sky-500/50 p-5 sm:p-6 shadow-xs hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+      className="group relative bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 hover:border-sky-300/80 dark:hover:border-sky-500/50 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between cursor-pointer"
     >
       <div className="space-y-4">
         {/* Top Header Row: Company Logo (Left) & Bookmark / Date (Right) */}
@@ -330,18 +330,18 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
           {/* Company Avatar / Logo */}
           <div className="relative">
             {job.company_logo && !logoError ? (
-              <div className="w-12 h-12 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs group-hover:border-sky-200 dark:group-hover:border-sky-500 transition-colors">
+              <div className="w-12 h-12 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-sky-200 dark:group-hover:border-sky-500 transition-colors">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={job.company_logo}
                   alt={`${job.company_name} logo`}
-                  className="w-full h-full object-contain rounded-xs"
+                  className="w-full h-full object-contain rounded-sm"
                   onError={() => setLogoError(true)}
                 />
               </div>
             ) : (
               <div
-                className={`w-12 h-12 rounded-md border flex items-center justify-center font-bold text-sm tracking-wider shadow-2xs transition-transform group-hover:scale-105 ${palette}`}
+                className={`w-12 h-12 rounded-md border flex items-center justify-center font-bold text-sm tracking-wider shadow-sm transition-transform group-hover:scale-105 ${palette}`}
               >
                 {initials}
               </div>
@@ -357,7 +357,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
               </span>
             )}
 
-            <span className="text-xs text-slate-400 dark:text-slate-400 font-medium flex items-center gap-1 bg-slate-50 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-100 dark:border-slate-750">
+            <span className="text-xs text-slate-400 dark:text-slate-400 font-medium flex items-center gap-1 bg-slate-50 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-100 dark:border-slate-700">
               <Clock className="w-3.5 h-3.5 text-slate-400" />
               <span>{formatPostedDate(job.created_at)}</span>
             </span>
@@ -445,7 +445,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
       <div className="pt-4 mt-5 border-t border-slate-100 dark:border-slate-800">
         <Link
           href={`/jobs/${job.id}`}
-          className="w-full py-2.5 px-4 rounded-md bg-slate-50 dark:bg-slate-800 group-hover:bg-sky-600 dark:group-hover:bg-sky-600 text-slate-700 dark:text-slate-200 group-hover:text-white dark:group-hover:text-white border border-slate-200/80 dark:border-slate-700 group-hover:border-transparent dark:group-hover:border-transparent text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 shadow-2xs group/btn cursor-pointer"
+          className="w-full py-2.5 px-4 rounded-md bg-slate-50 dark:bg-slate-800 group-hover:bg-sky-600 dark:group-hover:bg-sky-600 text-slate-700 dark:text-slate-200 group-hover:text-white dark:group-hover:text-white border border-slate-200/80 dark:border-slate-700 group-hover:border-transparent dark:group-hover:border-transparent text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 shadow-sm group/btn cursor-pointer"
         >
           <span>View Job</span>
           <ArrowRight className="w-4 h-4 text-slate-400 dark:text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />

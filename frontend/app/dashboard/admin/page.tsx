@@ -258,7 +258,7 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 border border-sky-100/80 rounded-2xl p-6 sm:p-8 text-slate-900 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 border border-sky-100/80 rounded-2xl p-6 sm:p-8 text-slate-900 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mt-2">
             User Management & System Overview
@@ -271,7 +271,7 @@ export default function AdminDashboardPage() {
         <button
           onClick={fetchAdminData}
           disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-sky-800 bg-white hover:bg-sky-50 border border-sky-200 transition shadow-xs cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-sky-800 bg-white hover:bg-sky-50 border border-sky-200 transition shadow-sm cursor-pointer disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh Data</span>
@@ -280,7 +280,7 @@ export default function AdminDashboardPage() {
 
       {/* Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Users</span>
             <Users className="w-4 h-4 text-sky-600" />
@@ -293,7 +293,7 @@ export default function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Job Seekers</span>
             <UserCheck className="w-4 h-4 text-emerald-600" />
@@ -304,7 +304,7 @@ export default function AdminDashboardPage() {
           <p className="text-[11px] text-slate-500 mt-1">Registered candidates</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Recruiters</span>
             <Building className="w-4 h-4 text-cyan-600" />
@@ -315,7 +315,7 @@ export default function AdminDashboardPage() {
           <p className="text-[11px] text-slate-500 mt-1">Employer accounts</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Active Jobs</span>
             <Briefcase className="w-4 h-4 text-blue-600" />
@@ -328,7 +328,7 @@ export default function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs col-span-2 sm:col-span-1">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm col-span-2 sm:col-span-1">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Applications</span>
             <FileText className="w-4 h-4 text-violet-600" />
@@ -341,7 +341,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* User Management Section */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         {/* Table Filters & Search */}
         <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           {/* Search Input */}
@@ -372,7 +372,7 @@ export default function AdminDashboardPage() {
                 onClick={() => setRoleFilter('ALL')}
                 className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                   roleFilter === 'ALL'
-                    ? 'bg-white text-sky-800 font-semibold shadow-xs'
+                    ? 'bg-white text-sky-800 font-semibold shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -382,7 +382,7 @@ export default function AdminDashboardPage() {
                 onClick={() => setRoleFilter('JOB_SEEKER')}
                 className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                   roleFilter === 'JOB_SEEKER'
-                    ? 'bg-white text-sky-800 font-semibold shadow-xs'
+                    ? 'bg-white text-sky-800 font-semibold shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -392,7 +392,7 @@ export default function AdminDashboardPage() {
                 onClick={() => setRoleFilter('JOB_RECRUITER')}
                 className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                   roleFilter === 'JOB_RECRUITER'
-                    ? 'bg-white text-sky-800 font-semibold shadow-xs'
+                    ? 'bg-white text-sky-800 font-semibold shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -402,7 +402,7 @@ export default function AdminDashboardPage() {
                 onClick={() => setRoleFilter('ADMIN')}
                 className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                   roleFilter === 'ADMIN'
-                    ? 'bg-white text-sky-800 font-semibold shadow-xs'
+                    ? 'bg-white text-sky-800 font-semibold shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -458,7 +458,7 @@ export default function AdminDashboardPage() {
                       {/* User Info */}
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-400 to-blue-500 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-400 to-blue-500 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">
                             {u.username.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -606,7 +606,7 @@ export default function AdminDashboardPage() {
 
       {/* MODAL 1: User Details View */}
       {selectedUser && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100 space-y-5 animate-in fade-in duration-150">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
@@ -757,7 +757,7 @@ export default function AdminDashboardPage() {
 
       {/* MODAL 2: Edit User Role & Status */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
           <form
             onSubmit={handleSaveEdit}
             className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 space-y-5 animate-in fade-in duration-150"
@@ -849,7 +849,7 @@ export default function AdminDashboardPage() {
 
       {/* MODAL 3: Delete Confirmation */}
       {deleteConfirmUser && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 space-y-4 animate-in fade-in duration-150 text-center">
             <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />

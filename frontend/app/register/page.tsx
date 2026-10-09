@@ -1,16 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { Briefcase, Lock, Mail, User, AlertCircle, ArrowRight, UserCheck, Building } from 'lucide-react';
+import { getSafeRedirectUrl } from '@/lib/authRedirect';
+import { Briefcase, Lock, Mail, User, AlertCircle, ArrowRight, UserCheck, Building, Info } from 'lucide-react';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const { register } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get('next');
 
-  const [role, setRole] = useState<'JOB_SEEKER' | 'JOB_RECRUITER'>('JOB_SEEKER');
+  // If next points to recruiter area, default to JOB_RECRUITER
+  const initialRole = nextParam && nextParam.includes('recruiter') ? 'JOB_RECRUITER' : 'JOB_SEEKER';
+
+  const [role, setRole] = useState<'JOB_SEEKER' | 'JOB_RECRUITER'>(initialRole);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,11 +44,8 @@ export default function RegisterPage() {
         role,
       });
 
-      if (user.role === 'JOB_RECRUITER') {
-        router.push('/dashboard/recruiter');
-      } else {
-        router.push('/dashboard/seeker');
-      }
+      const destination = getSafeRedirectUrl(nextParam, user);
+      router.push(destination);
     } catch (err: any) {
       const errorMsg =
         err.data?.username?.[0] ||
@@ -73,6 +76,13 @@ export default function RegisterPage() {
           </p>
         </div>
 
+        {nextParam && (
+          <div className="rounded-lg bg-sky-50 dark:bg-sky-950/50 border border-sky-200/80 dark:border-sky-900/60 p-3.5 flex items-start gap-2.5 text-sky-800 dark:text-sky-300 text-xs">
+            <Info className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+            <p>Create an account to access your requested page.</p>
+          </div>
+        )}
+
         {/* Role Selector Tabs */}
         <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-lg border border-transparent dark:border-slate-700/50">
           <button
@@ -80,7 +90,7 @@ export default function RegisterPage() {
             onClick={() => setRole('JOB_SEEKER')}
             className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-semibold transition cursor-pointer ${
               role === 'JOB_SEEKER'
-                ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-300 shadow-xs'
+                ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-300 shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -92,7 +102,7 @@ export default function RegisterPage() {
             onClick={() => setRole('JOB_RECRUITER')}
             className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-semibold transition cursor-pointer ${
               role === 'JOB_RECRUITER'
-                ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-300 shadow-xs'
+                ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-300 shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -204,7 +214,10 @@ export default function RegisterPage() {
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
           <p className="text-sm text-slate-600 dark:text-slate-400">
             Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300 transition">
+            <Link 
+              href={nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : '/login'} 
+              className="font-semibold text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300 transition"
+            >
               Sign in
             </Link>
           </p>
@@ -213,3 +226,16 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-sky-600 border-t-transparent animate-spin" />
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+

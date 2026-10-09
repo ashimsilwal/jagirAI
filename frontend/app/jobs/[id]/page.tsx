@@ -130,7 +130,7 @@ export default function JobDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Job Overview & Description */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-6">
             <div>
               <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
@@ -148,7 +148,7 @@ export default function JobDetailPage() {
               </div>
 
               {/* Key metadata chips */}
-              <div className="flex flex-wrap gap-4 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-350">
+              <div className="flex flex-wrap gap-4 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300">
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-slate-400" />
                   <span>{job.location}</span>
@@ -206,7 +206,7 @@ export default function JobDetailPage() {
 
         {/* Right Column: Application Card */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs sticky top-24 space-y-5">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm sticky top-24 space-y-5">
             <h3 className="font-bold text-lg text-slate-900 dark:text-white">Apply for this Job</h3>
 
             {isOwnerRecruiter ? (
@@ -295,22 +295,22 @@ export default function JobDetailPage() {
                 </button>
               </form>
             ) : user?.role === 'JOB_RECRUITER' ? (
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-md text-xs text-slate-600 dark:text-slate-350">
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-md text-xs text-slate-600 dark:text-slate-300">
                 You are currently signed in as a Recruiter. Only Job Seekers can apply for jobs.
               </div>
             ) : (
               <div className="space-y-3 text-center">
-                <p className="text-xs text-slate-600 dark:text-slate-350">
+                <p className="text-xs text-slate-600 dark:text-slate-300">
                   Please sign in or create an account to apply for this vacancy.
                 </p>
                 <Link
-                  href="/login"
+                  href={`/login?next=/jobs/${id}`}
                   className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm shadow-sky-100"
                 >
                   Sign In to Apply
                 </Link>
                 <Link
-                  href="/register"
+                  href={`/register?next=/jobs/${id}`}
                   className="block text-xs font-semibold text-sky-600 dark:text-sky-400 hover:underline"
                 >
                   Don't have an account? Sign up

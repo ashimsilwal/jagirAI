@@ -78,7 +78,7 @@ export default function ContactPage() {
           
           {/* Left Column: Direct Info & Operating Hours (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 Contact Details
               </h2>
@@ -156,7 +156,7 @@ export default function ContactPage() {
             </div>
 
             {/* Response Promise Card */}
-            <div className="bg-gradient-to-br from-sky-50 to-blue-50/60 dark:from-sky-950/40 dark:to-blue-950/40 rounded-lg border border-sky-100 dark:border-sky-800/60 p-6 shadow-xs flex items-center gap-4">
+            <div className="bg-gradient-to-br from-sky-50 to-blue-50/60 dark:from-sky-950/40 dark:to-blue-950/40 rounded-lg border border-sky-100 dark:border-sky-800/60 p-6 shadow-sm flex items-center gap-4">
               <ShieldCheck className="w-10 h-10 text-sky-600 dark:text-sky-400 shrink-0" />
               <div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -171,7 +171,7 @@ export default function ContactPage() {
 
           {/* Right Column: Contact Form (7 cols) */}
           <div className="lg:col-span-7">
-            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-10 shadow-xs">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-10 shadow-sm">
               {submitted ? (
                 <div className="py-12 text-center space-y-4">
                   <div className="w-16 h-16 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center mx-auto shadow-sm">
@@ -325,7 +325,7 @@ export default function ContactPage() {
             {faqs.map((faq, idx) => (
               <div
                 key={idx}
-                className="p-6 rounded-xl bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 hover:border-sky-300 dark:hover:border-slate-600 transition-all shadow-xs space-y-2.5"
+                className="p-6 rounded-xl bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 hover:border-sky-300 dark:hover:border-slate-600 transition-all shadow-sm space-y-2.5"
               >
                 <div className="flex items-start gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-sky-100/80 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 mt-0.5 border border-sky-200/60 dark:border-sky-800/80">
@@ -335,7 +335,7 @@ export default function ContactPage() {
                     {faq.q}
                   </h4>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 pl-9.5 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 pl-9 leading-relaxed">
                   {faq.a}
                 </p>
               </div>

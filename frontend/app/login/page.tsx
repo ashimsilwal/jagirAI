@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { Briefcase, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { getSafeRedirectUrl } from '@/lib/authRedirect';
+import { Briefcase, Lock, Mail, AlertCircle, ArrowRight, Info } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get('next');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,13 +25,8 @@ export default function LoginPage() {
 
     try {
       const user = await login(email, password);
-      if (user.is_staff || user.is_superuser) {
-        router.push('/dashboard/admin');
-      } else if (user.role === 'JOB_RECRUITER') {
-        router.push('/dashboard/recruiter');
-      } else {
-        router.push('/dashboard/seeker');
-      }
+      const destination = getSafeRedirectUrl(nextParam, user);
+      router.push(destination);
     } catch (err: any) {
       setError(err.data?.detail || err.message || 'Invalid email or password.');
     } finally {
@@ -50,6 +48,13 @@ export default function LoginPage() {
             Sign in to access your jobs, applications, and profile.
           </p>
         </div>
+
+        {nextParam && (
+          <div className="rounded-lg bg-sky-50 dark:bg-sky-950/50 border border-sky-200/80 dark:border-sky-900/60 p-3.5 flex items-start gap-2.5 text-sky-800 dark:text-sky-300 text-xs">
+            <Info className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+            <p>Please sign in to proceed to your requested page.</p>
+          </div>
+        )}
 
         {error && (
           <div className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-4 flex items-start gap-3 text-rose-800 dark:text-rose-300 text-sm">
@@ -118,12 +123,27 @@ export default function LoginPage() {
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
           <p className="text-sm text-slate-600 dark:text-slate-400">
             Don't have an account?{' '}
-            <Link href="/register" className="font-semibold text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300 transition">
+            <Link 
+              href={nextParam ? `/register?next=${encodeURIComponent(nextParam)}` : '/register'} 
+              className="font-semibold text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300 transition"
+            >
               Create an account
             </Link>
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-sky-600 border-t-transparent animate-spin" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
