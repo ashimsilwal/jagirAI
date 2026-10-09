@@ -422,76 +422,86 @@ export default function HomePage() {
 
       {/* 2. JOB LISTINGS SECTION */}
       <section id="jobs" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full">
-        {/* Results Toolbar with ScrollReveal */}
-        <ScrollReveal durationMs={500} distance={14}>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {showSavedOnly
-                ? 'Saved & Bookmarked Jobs'
-                : showUnappliedOnly
-                ? 'Opportunities You Haven’t Applied To'
-                : isSeeker
-                ? 'Explore Available Vacancies'
-                : 'Explore Active Positions'}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              Showing {displayedJobs.length} {displayedJobs.length === 1 ? 'verified position' : 'verified positions'}
-              {isSeeker && appliedCount > 0 && (
-                <span className="text-sky-600 dark:text-sky-400 ml-1.5 font-medium">
-                  • {appliedCount} applied
-                </span>
-              )}
-            </p>
-          </div>
+        {/* Results Toolbar */}
+        {(() => {
+          const toolbarContent = (
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  {showSavedOnly
+                    ? 'Saved & Bookmarked Jobs'
+                    : showUnappliedOnly
+                    ? 'Opportunities You Haven’t Applied To'
+                    : isSeeker
+                    ? 'Explore Available Vacancies'
+                    : 'Explore Active Positions'}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                  Showing {displayedJobs.length} {displayedJobs.length === 1 ? 'verified position' : 'verified positions'}
+                  {isSeeker && appliedCount > 0 && (
+                    <span className="text-sky-600 dark:text-sky-400 ml-1.5 font-medium">
+                      • {appliedCount} applied
+                    </span>
+                  )}
+                </p>
+              </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-slate-400 font-medium">Sort:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-200 text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="NEWEST">Newest First</option>
-                <option value="OLDEST">Oldest First</option>
-                <option value="TITLE">Title (A-Z)</option>
-              </select>
-            </div>
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                {/* Sort Dropdown */}
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span className="text-slate-400 font-medium">Sort:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-200 text-xs focus:outline-none cursor-pointer"
+                  >
+                    <option value="NEWEST">Newest First</option>
+                    <option value="OLDEST">Oldest First</option>
+                    <option value="TITLE">Title (A-Z)</option>
+                  </select>
+                </div>
 
-            {/* Layout Toggle: Grid / List */}
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200/80 dark:border-slate-700">
-              <button
-                type="button"
-                onClick={() => setLayout('grid')}
-                aria-label="Grid View"
-                title="Grid View"
-                className={`p-1.5 rounded-md transition cursor-pointer ${
-                  layout === 'grid'
-                    ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
-                }`}
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setLayout('list')}
-                aria-label="List View"
-                title="List View"
-                className={`p-1.5 rounded-md transition cursor-pointer ${
-                  layout === 'list'
-                    ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
-                }`}
-              >
-                <ListIcon className="w-4 h-4" />
-              </button>
+                {/* Layout Toggle: Grid / List */}
+                <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200/80 dark:border-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => setLayout('grid')}
+                    aria-label="Grid View"
+                    title="Grid View"
+                    className={`p-1.5 rounded-md transition cursor-pointer ${
+                      layout === 'grid'
+                        ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLayout('list')}
+                    aria-label="List View"
+                    title="List View"
+                    className={`p-1.5 rounded-md transition cursor-pointer ${
+                      layout === 'list'
+                        ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <ListIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        </ScrollReveal>
+          );
+
+          return !isSeeker ? (
+            <ScrollReveal durationMs={500} distance={14}>
+              {toolbarContent}
+            </ScrollReveal>
+          ) : (
+            toolbarContent
+          );
+        })()}
 
         {/* Listings Content */}
         {loading ? (
@@ -548,8 +558,8 @@ export default function HomePage() {
             {displayedJobs.map((job, idx) => (
               <div
                 key={job.id}
-                style={{ animationDelay: `${Math.min(idx * 60, 480)}ms` }}
-                className="animate-fade-in-up"
+                style={!isSeeker ? { animationDelay: `${Math.min(idx * 60, 480)}ms` } : undefined}
+                className={!isSeeker ? 'animate-fade-in-up' : ''}
               >
                 <JobCard
                   job={job}
