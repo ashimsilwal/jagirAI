@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 import { 
   Briefcase, 
   Mail, 
@@ -8,7 +11,11 @@ import {
 } from 'lucide-react';
 
 export const Footer: React.FC = () => {
+  const { user } = useAuth();
   const currentYear = 2026;
+
+  // For logged in users, navigation is handled through the sidebar
+  if (user) return null;
 
   return (
     <footer className="bg-gradient-to-b from-sky-600 to-sky-700 dark:from-slate-900 dark:to-slate-950 border-t border-sky-500/40 dark:border-slate-800 text-white mt-auto transition-colors duration-200">

@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from jobs.models import Job
 from applications.models import Application
-from .models import JobSeekerProfile, RecruiterProfile
+from .models import JobSeekerProfile, RecruiterProfile, SupportTicket
 from .permissions import IsJobSeeker, IsRecruiter, IsSuperAdminUser
 from .serializers import (
     RegisterSerializer,
@@ -17,6 +17,9 @@ from .serializers import (
     RecruiterProfileSerializer,
     AdminUserListSerializer,
     AdminUserUpdateSerializer,
+    SupportTicketSerializer,
+    SupportTicketCreateSerializer,
+    AdminSupportTicketUpdateSerializer,
 )
 
 User = get_user_model()
@@ -198,4 +201,81 @@ class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
             {"detail": "User deleted successfully."},
             status=status.HTTP_200_OK
         )
+
+
+class SupportTicketListCreateView(generics.ListCreateAPIView):
+    """
+    Endpoint: GET, POST /api/support/tickets/
+    Allows job seekers and recruiters to view their own tickets or create a new support ticket.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return SupportTicket.objects.filter(user=self.request.user).order_by('-created_at')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return SupportTicketCreateSerializer
+        return SupportTicketSerializer
+
+
+class SupportTicketDetailView(generics.RetrieveAPIView):
+    """
+    Endpoint: GET /api/support/tickets/<id>/
+    Allows job seekers and recruiters to view their specific ticket details.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SupportTicketSerializer
+
+    def get_queryset(self):
+        return SupportTicket.objects.filter(user=self.request.user)
+
+
+class AdminSupportTicketListView(generics.ListAPIView):
+    """
+    Endpoint: GET /api/admin/tickets/
+    Admin endpoint to view, search, and filter all support tickets across the platform.
+    """
+    serializer_class = SupportTicketSerializer
+    permission_classes = [permissions.IsAuthenticated, IsSuperAdminUser]
+
+    def get_queryset(self):
+        queryset = SupportTicket.objects.all().select_related('user', 'resolved_by').order_by('-created_at')
+
+        status_param = self.request.query_params.get('status', '').strip()
+        if status_param and status_param in SupportTicket.Status.values:
+            queryset = queryset.filter(status=status_param)
+
+        priority_param = self.request.query_params.get('priority', '').strip()
+        if priority_param and priority_param in SupportTicket.Priority.values:
+            queryset = queryset.filter(priority=priority_param)
+
+        category_param = self.request.query_params.get('category', '').strip()
+        if category_param and category_param in SupportTicket.Category.values:
+            queryset = queryset.filter(category=category_param)
+
+        search = self.request.query_params.get('search', '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(subject__icontains=search) |
+                Q(message__icontains=search) |
+                Q(user__email__icontains=search) |
+                Q(user__username__icontains=search)
+            )
+
+        return queryset
+
+
+class AdminSupportTicketDetailView(generics.RetrieveUpdateAPIView):
+    """
+    Endpoint: GET, PATCH, PUT /api/admin/tickets/<id>/
+    Admin endpoint to inspect ticket details and solve/update support tickets.
+    """
+    queryset = SupportTicket.objects.all().select_related('user', 'resolved_by')
+    permission_classes = [permissions.IsAuthenticated, IsSuperAdminUser]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return AdminSupportTicketUpdateSerializer
+        return SupportTicketSerializer
 

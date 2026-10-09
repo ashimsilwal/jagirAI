@@ -96,6 +96,24 @@ export interface Application {
   updated_at: string;
 }
 
+export interface SupportTicket {
+  id: number;
+  user: number;
+  user_email?: string;
+  user_username?: string;
+  user_role?: 'JOB_SEEKER' | 'JOB_RECRUITER';
+  subject: string;
+  category: 'TECHNICAL' | 'ACCOUNT' | 'BILLING' | 'VACANCY' | 'CANDIDATE' | 'OTHER';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  message: string;
+  status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  admin_response: string;
+  resolved_by?: number | null;
+  resolved_by_username?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export async function apiFetch<T = any>(
   endpoint: string,
   options: RequestInit = {}

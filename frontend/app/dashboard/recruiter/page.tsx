@@ -25,6 +25,7 @@ import {
   Inbox,
   Filter
 } from 'lucide-react';
+import { FunnelChart, BarChart, DonutChart } from '@/components/charts';
 
 function formatRelativeTime(dateString: string): string {
   try {
@@ -165,6 +166,64 @@ export default function RecruiterDashboard() {
   const interviewCount = useMemo(() => applications.filter((a) => a.status === 'INTERVIEW').length, [applications]);
   const hiredCount = useMemo(() => applications.filter((a) => a.status === 'HIRED').length, [applications]);
 
+  // Funnel chart conversion stages
+  const funnelStages = useMemo(() => {
+    return [
+      {
+        label: 'Total Submissions',
+        value: applications.length,
+        color: '#0284c7',
+        description: 'Received applications',
+      },
+      {
+        label: 'Shortlisted',
+        value: shortlistedCount,
+        color: '#f59e0b',
+        description: 'Screened & qualified',
+      },
+      {
+        label: 'Interviews Scheduled',
+        value: interviewCount,
+        color: '#a855f7',
+        description: 'Technical & hiring rounds',
+      },
+      {
+        label: 'Offers Accepted / Hired',
+        value: hiredCount,
+        color: '#10b981',
+        description: 'Successfully placed candidates',
+      },
+    ];
+  }, [applications.length, shortlistedCount, interviewCount, hiredCount]);
+
+  // Top jobs by application volume
+  const jobApplicationBars = useMemo(() => {
+    const countsMap: Record<number, number> = {};
+    applications.forEach((a) => {
+      const jId = a.job?.id;
+      if (jId) {
+        countsMap[jId] = (countsMap[jId] || 0) + 1;
+      }
+    });
+
+    return jobs.slice(0, 5).map((job) => ({
+      label: job.title,
+      value: countsMap[job.id] || 0,
+      secondaryLabel: `${job.location || 'Remote'}`,
+      badge: job.status === 'ACTIVE' ? 'Active' : 'Closed',
+      color: job.status === 'ACTIVE' ? '#0284c7' : '#94a3b8',
+    }));
+  }, [jobs, applications]);
+
+  // Vacancy distribution donut
+  const vacancyDonutSegments = useMemo(() => {
+    const closedCount = jobs.length - activeJobsCount;
+    return [
+      { label: 'Active Openings', value: activeJobsCount, color: '#0284c7' },
+      { label: 'Closed / Filled', value: Math.max(0, closedCount), color: '#64748b' },
+    ];
+  }, [jobs.length, activeJobsCount]);
+
   // Filtered applications
   const filteredApplications = useMemo(() => {
     if (appFilter === 'ALL') return applications;
@@ -201,36 +260,72 @@ export default function RecruiterDashboard() {
         </div>
       </div>
 
-      {/* Metrics Overview Bar */}
+      {/* Section 1: Visual Analytics - Recruitment Funnel & Job Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Pipeline Funnel */}
+        <FunnelChart
+          title="Recruitment Pipeline & Conversion Funnel"
+          description="Track throughput across screening, technical interviews, and final offers"
+          stages={funnelStages}
+        />
+
+        {/* Applications per Vacancy Bar Chart */}
+        <BarChart
+          title="Applications per Active Vacancy"
+          description="Comparing candidate interest across your top job postings"
+          data={jobApplicationBars}
+          orientation="horizontal"
+          emptyMessage="No job vacancies posted yet to display application volume"
+        />
+      </div>
+
+      {/* Section 2: Key Performance Indicators Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Active Jobs</span>
-            <Briefcase className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Jobs</span>
+            <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+              <Briefcase className="w-4 h-4" />
+            </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
-            {activeJobsCount}
-            <span className="text-xs font-normal text-slate-400 ml-1.5">/ {jobs.length} total</span>
-          </p>
+          <div className="flex items-baseline gap-1.5">
+            <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+              {activeJobsCount}
+            </p>
+            <span className="text-xs font-medium text-slate-400">/ {jobs.length} total</span>
+          </div>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-sky-500 rounded-full"
+              style={{ width: `${jobs.length > 0 ? (activeJobsCount / jobs.length) * 100 : 0}%` }}
+            />
+          </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Total Applicants</span>
-            <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Total Applicants</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
             {applications.length}
           </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-full bg-blue-500 rounded-full" style={{ width: '100%' }} />
+          </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 relative overflow-hidden transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">New / Pending</span>
-            <Inbox className="w-4 h-4 text-amber-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">New Submissions</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <Inbox className="w-4 h-4" />
+            </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+            <p className="text-2xl font-extrabold text-amber-600 dark:text-amber-400">
               {newAppsCount}
             </p>
             {newAppsCount > 0 && (
@@ -239,22 +334,38 @@ export default function RecruiterDashboard() {
               </span>
             )}
           </div>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-amber-500 rounded-full"
+              style={{ width: `${applications.length > 0 ? (newAppsCount / applications.length) * 100 : 0}%` }}
+            />
+          </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">In Pipeline</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">In Pipeline</span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
-            {shortlistedCount + interviewCount}
-            <span className="text-xs font-normal text-slate-400 ml-1.5">({hiredCount} hired)</span>
-          </p>
+          <div className="flex items-baseline gap-1.5">
+            <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+              {shortlistedCount + interviewCount}
+            </p>
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">({hiredCount} hired 🎉)</span>
+          </div>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-emerald-500 rounded-full"
+              style={{ width: `${applications.length > 0 ? ((shortlistedCount + interviewCount) / applications.length) * 100 : 0}%` }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* SECTION 1: NEW & RECENT APPLICATIONS */}
-      <div className="space-y-4">
+      {/* SECTION 1: CANDIDATE APPLICATIONS */}
+      <div id="candidates" className="space-y-4 pt-2">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-1 border-b border-slate-200/80 dark:border-slate-800">
           <div>
             <div className="flex items-center gap-2">
@@ -531,7 +642,7 @@ export default function RecruiterDashboard() {
       </div>
 
       {/* SECTION 2: POSTED JOBS */}
-      <div className="space-y-4 pt-4">
+      <div id="vacancies" className="space-y-4 pt-4">
         <div className="flex justify-between items-center pb-1 border-b border-slate-200/80 dark:border-slate-800">
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">

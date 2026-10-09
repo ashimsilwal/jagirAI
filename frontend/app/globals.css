@@ -20,15 +20,140 @@
   --radius-xs: 1px;
   --radius-sm: 2px;
   --radius-md: 4px;
-  --radius-lg: 6px;
+  --radius-lg: 4px;
   --radius-xl: 6px;
-  --radius-2xl: 8px;
+  --radius-2xl: 6px;
   --radius-3xl: 8px;
-  --radius-4xl: 10px;
+  --radius-4xl: 8px;
+}
+
+/* Sharp, modern enterprise border radiuses (less curve) */
+.rounded-3xl {
+  border-radius: 8px !important;
+}
+
+.rounded-2xl {
+  border-radius: 6px !important;
+}
+
+.rounded-xl {
+  border-radius: 6px !important;
+}
+
+.rounded-lg {
+  border-radius: 4px !important;
+}
+
+.rounded-md {
+  border-radius: 4px !important;
+}
+
+.rounded {
+  border-radius: 3px !important;
+}
+
+.rounded-sm {
+  border-radius: 2px !important;
+}
+
+.rounded-t-2xl, .rounded-t-xl {
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
+}
+
+.rounded-b-2xl, .rounded-b-xl {
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+}
+
+.rounded-t-lg, .rounded-t-md {
+  border-top-left-radius: 4px !important;
+  border-top-right-radius: 4px !important;
+}
+
+.rounded-b-lg, .rounded-b-md {
+  border-bottom-left-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Professional, restrained animations for public landing page */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 550ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+
+/* Accessibility: respect user prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

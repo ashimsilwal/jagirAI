@@ -98,7 +98,7 @@ export const WhyChooseUs: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
+        <div className="text-center max-w-3xl mx-auto space-y-4 animate-fade-in-up">
           
 
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -142,14 +142,15 @@ export const WhyChooseUs: React.FC = () => {
           </div>
         </div>
 
-        {/* Benefits Grid */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Benefits Grid with smooth fade-in on tab change */}
+        <div key={activeTab} className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up">
           {benefits.map((item, index) => {
             const IconComponent = item.icon;
             return (
               <div
                 key={index}
-                className="group bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-500/50 p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+                style={{ animationDelay: `${index * 80}ms` }}
+                className="group bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-500/50 p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between animate-fade-in-up"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -177,7 +178,7 @@ export const WhyChooseUs: React.FC = () => {
         </div>
 
         {/* Targeted Bottom Call-to-Action Bar */}
-        <div className="mt-12 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-12 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6 animate-fade-in-up animation-delay-200">
           <div className="text-center sm:text-left space-y-1">
             <h4 className="text-lg font-bold text-slate-900 dark:text-white">
               {activeTab === 'seeker'

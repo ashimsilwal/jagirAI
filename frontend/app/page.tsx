@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { apiFetch, Job } from '@/lib/api';
 import { JobCard } from '@/components/JobCard';
 import { WhyChooseUs } from '@/components/WhyChooseUs';
+import { ScrollReveal } from '@/components/ScrollReveal';
 import {
   Search,
   MapPin,
@@ -330,25 +331,25 @@ export default function HomePage() {
       ) : (
         /* GUEST / VISITOR MARKETING HERO */
         <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 text-slate-900 dark:text-slate-100 py-20 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800/80 transition-colors duration-200">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_50%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.10),transparent_50%)] pointer-events-none" />
           <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-slate-900 dark:text-white">
+            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-slate-900 dark:text-white animate-fade-in-up">
               Connecting Top Talent with <br className="hidden sm:inline" />
               <span className="bg-gradient-to-r from-sky-600 via-blue-600 to-cyan-600 dark:from-sky-400 dark:via-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
                 Visionary Companies
               </span>
             </h1>
 
-            <p className="max-w-2xl mx-auto text-slate-600 dark:text-slate-300 text-base sm:text-lg">
+            <p className="max-w-2xl mx-auto text-slate-600 dark:text-slate-300 text-base sm:text-lg animate-fade-in-up animation-delay-100">
               Browse verified job vacancies, apply seamlessly with your resume, and track your career trajectory in real time.
             </p>
 
             {/* Search Bar Form */}
             <form
               onSubmit={handleSearchSubmit}
-              className="mt-8 bg-white dark:bg-slate-900 p-2.5 sm:p-3 rounded-lg shadow-xl shadow-sky-900/5 dark:shadow-none flex flex-col md:flex-row gap-2 max-w-4xl mx-auto border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100"
+              className="mt-8 bg-white dark:bg-slate-900 p-2.5 sm:p-3 rounded-xl shadow-xl shadow-sky-900/5 dark:shadow-none flex flex-col md:flex-row gap-2 max-w-4xl mx-auto border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 animate-fade-in-up animation-delay-200 hover:border-sky-300 dark:hover:border-slate-700 transition-all"
             >
-              <div className="flex-1 flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-md">
+              <div className="flex-1 flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-lg">
                 <Search className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
                 <input
                   type="text"
@@ -361,7 +362,7 @@ export default function HomePage() {
 
               <div className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
 
-              <div className="flex-1 flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-md">
+              <div className="flex-1 flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-lg">
                 <MapPin className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
                 <input
                   type="text"
@@ -374,7 +375,7 @@ export default function HomePage() {
 
               <div className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
 
-              <div className="flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-md">
+              <div className="flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-lg">
                 <Filter className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2" />
                 <select
                   value={employmentType}
@@ -392,21 +393,40 @@ export default function HomePage() {
 
               <button
                 type="submit"
-                className="px-6 py-3 rounded-md bg-sky-600 hover:bg-sky-700 text-white font-semibold text-sm transition shadow-sm shadow-sky-200 dark:shadow-none flex items-center justify-center gap-2 cursor-pointer"
+                className="px-6 py-3 rounded-lg bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold text-sm transition-all duration-200 shadow-sm shadow-sky-200 dark:shadow-none flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
               >
                 Search Jobs
               </button>
             </form>
+
+            {/* Quick popular tags with staggered fade in */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-slate-500 dark:text-slate-400 animate-fade-in animation-delay-300">
+              <span className="font-semibold text-slate-600 dark:text-slate-300">Popular Searches:</span>
+              {['Frontend Developer', 'Python Engineer', 'Product Manager', 'Data Analyst', 'Remote'].map((tag, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setSearch(tag);
+                    fetchJobs();
+                  }}
+                  className="px-2.5 py-1 rounded-md bg-white/80 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 hover:text-sky-600 dark:hover:text-sky-400 transition-colors duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-sky-500"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
       {/* 2. JOB LISTINGS SECTION */}
       <section id="jobs" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full">
-        {/* Results Toolbar */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        {/* Results Toolbar with ScrollReveal */}
+        <ScrollReveal durationMs={500} distance={14}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               {showSavedOnly
                 ? 'Saved & Bookmarked Jobs'
                 : showUnappliedOnly
@@ -471,6 +491,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        </ScrollReveal>
 
         {/* Listings Content */}
         {loading ? (
@@ -524,20 +545,29 @@ export default function HomePage() {
           </div>
         ) : (
           <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3.5"}>
-            {displayedJobs.map((job) => (
-              <JobCard
+            {displayedJobs.map((job, idx) => (
+              <div
                 key={job.id}
-                job={job}
-                isApplied={appliedJobIds.has(job.id)}
-                layout={layout}
-              />
+                style={{ animationDelay: `${Math.min(idx * 60, 480)}ms` }}
+                className="animate-fade-in-up"
+              >
+                <JobCard
+                  job={job}
+                  isApplied={appliedJobIds.has(job.id)}
+                  layout={layout}
+                />
+              </div>
             ))}
           </div>
         )}
       </section>
 
       {/* 3. ONLY SHOW MARKETING PROMO FOR NON-JOB-SEEKERS (GUESTS) */}
-      {!isSeeker && <WhyChooseUs />}
+      {!isSeeker && (
+        <ScrollReveal durationMs={550} distance={20}>
+          <WhyChooseUs />
+        </ScrollReveal>
+      )}
     </div>
   );
 }

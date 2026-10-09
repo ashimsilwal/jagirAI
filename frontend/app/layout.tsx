@@ -5,6 +5,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { AppShell } from '@/components/AppShell';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -50,7 +51,9 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <Navbar />
-            <main className="flex-1 flex flex-col">{children}</main>
+            <AppShell>
+              <main className="flex-1 flex flex-col">{children}</main>
+            </AppShell>
             <Footer />
           </AuthProvider>
         </ThemeProvider>

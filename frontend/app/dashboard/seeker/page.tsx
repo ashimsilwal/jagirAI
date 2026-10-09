@@ -17,6 +17,7 @@ import {
   Sparkles,
   ExternalLink
 } from 'lucide-react';
+import { DonutChart, AreaTrendChart } from '@/components/charts';
 
 export default function SeekerDashboard() {
   const { user } = useAuth();
@@ -48,7 +49,46 @@ export default function SeekerDashboard() {
       shortlisted: applications.filter((a) => a.status === 'SHORTLISTED').length,
       interview: applications.filter((a) => a.status === 'INTERVIEW').length,
       hired: applications.filter((a) => a.status === 'HIRED').length,
+      rejected: applications.filter((a) => a.status === 'REJECTED').length,
     };
+  }, [applications]);
+
+  // Chart data for status breakdown donut chart
+  const donutSegments = useMemo(() => {
+    return [
+      { label: 'Under Review', value: stats.applied, color: '#0284c7' },
+      { label: 'Shortlisted', value: stats.shortlisted, color: '#f59e0b' },
+      { label: 'Interviews', value: stats.interview, color: '#a855f7' },
+      { label: 'Hired 🎉', value: stats.hired, color: '#10b981' },
+      { label: 'Not Selected', value: stats.rejected, color: '#f43f5e' },
+    ];
+  }, [stats]);
+
+  // Chart data for monthly trend activity
+  const trendPoints = useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonth = new Date().getMonth();
+    const lastMonths = [4, 3, 2, 1, 0].map((offset) => {
+      const idx = (currentMonth - offset + 12) % 12;
+      return months[idx];
+    });
+
+    const monthCounts: Record<string, number> = {};
+    lastMonths.forEach((m) => (monthCounts[m] = 0));
+
+    applications.forEach((app) => {
+      if (app.applied_at) {
+        const m = months[new Date(app.applied_at).getMonth()];
+        if (monthCounts[m] !== undefined) {
+          monthCounts[m] += 1;
+        }
+      }
+    });
+
+    return lastMonths.map((label) => ({
+      label,
+      value: monthCounts[label] || 0,
+    }));
   }, [applications]);
 
   const filteredApplications = useMemo(() => {
@@ -134,58 +174,107 @@ export default function SeekerDashboard() {
         </div>
       </div>
 
-      {/* Quick Metrics Bar */}
+      {/* Section 1: Visual Analytics & Performance Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart 1: Donut breakdown of candidate application statuses */}
+        <DonutChart
+          title="Application Pipeline Breakdown"
+          description="Distribution of your current submissions across hiring stages"
+          segments={donutSegments}
+          centerLabel="Applications"
+          centerValue={stats.total}
+        />
+
+        {/* Chart 2: Monthly application activity trend curve */}
+        <AreaTrendChart
+          title="Application Activity Trend"
+          description="Submission cadence and candidate activity over recent months"
+          points={trendPoints}
+          lineColor="#0284c7"
+        />
+      </div>
+
+      {/* Section 2: Quick Metrics Key Performance Indicators */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1 transition-colors">
+        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Total Applied</span>
-            <Briefcase className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Applied</span>
+            <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+              <Briefcase className="w-4 h-4" />
+            </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
             {stats.total}
           </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-full bg-sky-500 rounded-full" style={{ width: '100%' }} />
+          </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1 transition-colors">
+        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Under Review</span>
-            <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Under Review</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
             {stats.applied}
           </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-500 rounded-full"
+              style={{ width: `${stats.total > 0 ? (stats.applied / stats.total) * 100 : 0}%` }}
+            />
+          </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1 transition-colors">
+        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">Shortlisted</span>
-            <UserCheck className="w-4 h-4 text-amber-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Shortlisted</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <UserCheck className="w-4 h-4" />
+            </div>
           </div>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+          <p className="text-2xl font-extrabold text-amber-600 dark:text-amber-400">
             {stats.shortlisted}
           </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-amber-500 rounded-full"
+              style={{ width: `${stats.total > 0 ? (stats.shortlisted / stats.total) * 100 : 0}%` }}
+            />
+          </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1 transition-colors">
+        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">Interviews</span>
-            <Calendar className="w-4 h-4 text-purple-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Interviews</span>
+            <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+              <Calendar className="w-4 h-4" />
+            </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+            <p className="text-2xl font-extrabold text-purple-600 dark:text-purple-400">
               {stats.interview}
             </p>
             {stats.hired > 0 && (
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                ({stats.hired} hired)
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                ({stats.hired} hired 🎉)
               </span>
             )}
+          </div>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-purple-500 rounded-full"
+              style={{ width: `${stats.total > 0 ? (stats.interview / stats.total) * 100 : 0}%` }}
+            />
           </div>
         </div>
       </div>
 
       {/* Applications Section */}
-      <div className="space-y-4">
+      <div id="applications" className="space-y-4 pt-2">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex items-center gap-2.5">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">

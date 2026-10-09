@@ -322,9 +322,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
   return (
     <div
       onClick={handleCardClick}
-      className="group relative bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 hover:border-sky-300/80 dark:hover:border-sky-500/50 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+      className="group relative bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 hover:border-sky-300/80 dark:hover:border-sky-500/50 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between h-full cursor-pointer"
     >
-      <div className="space-y-4">
+      <div className="space-y-4 flex-1 flex flex-col">
         {/* Top Header Row: Company Logo (Left) & Bookmark / Date (Right) */}
         <div className="flex items-start justify-between gap-3">
           {/* Company Avatar / Logo */}
@@ -399,7 +399,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
         </div>
 
         {/* Key Metadata Row: Location, Employment Type, Salary */}
-        <div className="flex flex-wrap items-center gap-2 pt-0.5">
+        <div className="flex flex-wrap items-center gap-2 pt-0.5 min-h-[28px]">
           {/* Location */}
           <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700 max-w-[180px]">
             <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -421,27 +421,36 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
           )}
         </div>
 
-        {/* Short 1–2 Line Job Description */}
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+        {/* Short 2-Line Job Description with fixed min-height for uniformity */}
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed min-h-[40px]">
           {job.description}
         </p>
 
-        {/* Technology / Skill Tags */}
-        {skills.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            {skills.map((skill, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700 group-hover:border-slate-300 dark:group-hover:border-slate-600 transition-colors"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Technology / Skill Tags with consistent spacing */}
+        <div className="flex-1 flex flex-col justify-end pt-1">
+          {skills.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {skills.slice(0, 4).map((skill, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700 group-hover:border-slate-300 dark:group-hover:border-slate-600 transition-colors"
+                >
+                  {skill}
+                </span>
+              ))}
+              {skills.length > 4 && (
+                <span className="text-[10px] text-slate-400 font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800">
+                  +{skills.length - 4}
+                </span>
+              )}
+            </div>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
       </div>
 
-      {/* Card Action / View Job Button */}
+      {/* Card Action / View Job Button - pinned to the bottom */}
       <div className="pt-4 mt-5 border-t border-slate-100 dark:border-slate-800">
         <Link
           href={`/jobs/${job.id}`}

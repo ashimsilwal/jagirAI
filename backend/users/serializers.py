@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import JobSeekerProfile, RecruiterProfile
+from .models import JobSeekerProfile, RecruiterProfile, SupportTicket
 
 User = get_user_model()
 
@@ -240,4 +240,66 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
         if User.objects.filter(username__iexact=value).exclude(pk=user.pk).exists():
             raise serializers.ValidationError("A user with this username already exists.")
         return value
+
+
+class SupportTicketSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    user_username = serializers.CharField(source='user.username', read_only=True)
+    user_role = serializers.CharField(source='user.role', read_only=True)
+    resolved_by_username = serializers.CharField(source='resolved_by.username', read_only=True, default=None)
+
+    class Meta:
+        model = SupportTicket
+        fields = (
+            'id',
+            'user',
+            'user_email',
+            'user_username',
+            'user_role',
+            'subject',
+            'category',
+            'priority',
+            'message',
+            'status',
+            'admin_response',
+            'resolved_by',
+            'resolved_by_username',
+            'created_at',
+            'updated_at',
+        )
+        read_only_fields = ('id', 'user', 'created_at', 'updated_at', 'resolved_by')
+
+
+class SupportTicketCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportTicket
+        fields = (
+            'id',
+            'subject',
+            'category',
+            'priority',
+            'message',
+            'status',
+            'created_at',
+        )
+        read_only_fields = ('id', 'status', 'created_at')
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return SupportTicket.objects.create(user=user, **validated_data)
+
+
+class AdminSupportTicketUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportTicket
+        fields = ('status', 'admin_response')
+
+    def update(self, instance, validated_data):
+        request = self.context.get('request')
+        instance.status = validated_data.get('status', instance.status)
+        instance.admin_response = validated_data.get('admin_response', instance.admin_response)
+        if request and request.user.is_authenticated:
+            instance.resolved_by = request.user
+        instance.save()
+        return instance
 
