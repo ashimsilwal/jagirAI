@@ -24,6 +24,11 @@ export const Navbar: React.FC = () => {
 
   const isActive = (path: string) => pathname === path;
 
+  // Hide Navbar completely on setup pages for full-screen Google-style onboarding
+  if (pathname?.startsWith('/dashboard/setup')) {
+    return null;
+  }
+
   return (
     <>
       {/* Top Announcement Bar - only shown for non-logged-in visitors */}

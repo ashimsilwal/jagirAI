@@ -31,8 +31,12 @@ class ApplicationSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'job', 'applicant', 'status', 'applied_at', 'updated_at')
 
     def get_applicant_profile(self, obj):
-        if hasattr(obj.applicant, 'job_seeker_profile'):
-            return JobSeekerProfileSerializer(obj.applicant.job_seeker_profile, context=self.context).data
+        try:
+            profile = getattr(obj.applicant, 'job_seeker_profile', None)
+            if profile:
+                return JobSeekerProfileSerializer(profile, context=self.context).data
+        except Exception:
+            pass
         return None
 
 

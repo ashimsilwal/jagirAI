@@ -7,6 +7,7 @@ from .views import (
     CurrentUserView,
     JobSeekerProfileView,
     RecruiterProfileView,
+    ProfileSetupView,
     AdminStatsView,
     AdminUserListView,
     AdminUserDetailView,
@@ -25,6 +26,7 @@ urlpatterns = [
     path('auth/me/', CurrentUserView.as_view(), name='auth_me'),
 
     # Profile Endpoints
+    path('profile/setup/', ProfileSetupView.as_view(), name='profile_setup'),
     path('profile/job-seeker/', JobSeekerProfileView.as_view(), name='job_seeker_profile'),
     path('profile/recruiter/', RecruiterProfileView.as_view(), name='recruiter_profile'),
 

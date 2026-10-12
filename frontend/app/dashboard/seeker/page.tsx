@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { apiFetch, Application } from '@/lib/api';
+import { apiFetch, Application, getMediaUrl } from '@/lib/api';
 import { 
   Briefcase, 
   Clock, 
@@ -15,17 +15,19 @@ import {
   UserCheck,
   Calendar,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  Camera
 } from 'lucide-react';
 import { DonutChart, AreaTrendChart } from '@/components/charts';
 
 export default function SeekerDashboard() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
   useEffect(() => {
+    refreshUser();
     const fetchApplications = async () => {
       try {
         const data = await apiFetch<any>('/applications/my-applications/');
@@ -146,14 +148,37 @@ export default function SeekerDashboard() {
         <div className="pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 bg-blue-500/10 dark:bg-indigo-500/10 rounded-full blur-3xl" />
 
         <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <div className="space-y-2">
-            
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Welcome, <span className="text-sky-600 dark:text-sky-400">{user?.username}</span>!
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm max-w-xl">
-              Track your job applications, recruitment stages, and status updates in real time.
-            </p>
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard/seeker/profile" className="shrink-0 group relative block" title="Click to view/edit profile & photo">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 shadow-md ring-4 ring-white/80 dark:ring-slate-800/80 group-hover:scale-105 transition-all">
+                <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-slate-900 flex items-center justify-center aspect-square">
+                  {user?.profile_picture ? (
+                    <img
+                      key={user.profile_picture}
+                      src={getMediaUrl(user.profile_picture) || ''}
+                      alt={user.username || 'Candidate'}
+                      className="w-full h-full object-cover rounded-full aspect-square block"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 text-white font-extrabold text-xl sm:text-2xl flex items-center justify-center">
+                      {user?.username?.charAt(0).toUpperCase() || 'C'}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="absolute bottom-0 right-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-sky-600 text-white flex items-center justify-center shadow-md ring-2 ring-white dark:ring-slate-900 group-hover:bg-sky-500 transition-colors">
+                <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              </div>
+            </Link>
+
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Welcome, <span className="text-sky-600 dark:text-sky-400">{user?.username}</span>!
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm max-w-xl">
+                Track your job applications, recruitment stages, and status updates in real time.
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
@@ -198,12 +223,12 @@ export default function SeekerDashboard() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Applied</span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Applied</span>
             <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
               <Briefcase className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+          <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             {stats.total}
           </p>
           <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -213,12 +238,12 @@ export default function SeekerDashboard() {
 
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Under Review</span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400">Under Review</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+          <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             {stats.applied}
           </p>
           <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -231,12 +256,12 @@ export default function SeekerDashboard() {
 
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Shortlisted</span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">Shortlisted</span>
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
               <UserCheck className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-amber-600 dark:text-amber-400">
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 tracking-tight">
             {stats.shortlisted}
           </p>
           <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">

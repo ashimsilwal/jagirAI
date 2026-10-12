@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { apiFetch, Job, Application } from '@/lib/api';
+import { apiFetch, Job, Application, getMediaUrl } from '@/lib/api';
 import { 
   Briefcase, 
   PlusCircle, 
@@ -235,7 +235,7 @@ export default function RecruiterDashboard() {
       {/* Recruiter Header */}
       <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-sky-100/80 dark:border-slate-800 rounded-lg p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
             Welcome, {user?.username}!
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1">
@@ -283,13 +283,13 @@ export default function RecruiterDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Jobs</span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Jobs</span>
             <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
               <Briefcase className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
-            <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+            <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               {activeJobsCount}
             </p>
             <span className="text-xs font-medium text-slate-400">/ {jobs.length} total</span>
@@ -304,12 +304,12 @@ export default function RecruiterDashboard() {
 
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Total Applicants</span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400">Total Applicants</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+          <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             {applications.length}
           </p>
           <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -319,13 +319,13 @@ export default function RecruiterDashboard() {
 
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 relative overflow-hidden transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">New Submissions</span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">New Submissions</span>
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
               <Inbox className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-2xl font-extrabold text-amber-600 dark:text-amber-400">
+            <p className="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
               {newAppsCount}
             </p>
             {newAppsCount > 0 && (
@@ -475,6 +475,7 @@ export default function RecruiterDashboard() {
               const resumeUrl = app.resume || app.applicant_profile?.resume;
               const isExpanded = !!expandedLetters[app.id];
               const candidateName = app.applicant.username || 'Candidate';
+              const candidateAvatar = app.applicant_profile?.profile_picture || app.applicant?.profile_picture;
               const skillsList = app.applicant_profile?.skills 
                 ? app.applicant_profile.skills.split(',').map((s) => s.trim()).filter(Boolean)
                 : [];
@@ -487,8 +488,19 @@ export default function RecruiterDashboard() {
                   {/* Top Row: Candidate info + Job applied info + Status updater */}
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-start gap-3.5">
-                      <div className="w-11 h-11 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
-                        {getInitials(candidateName)}
+                      <div className="w-11 h-11 rounded-xl overflow-hidden bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm border border-slate-200/60 dark:border-slate-700">
+                        {candidateAvatar ? (
+                          <img
+                            src={getMediaUrl(candidateAvatar) || ''}
+                            alt={candidateName}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <span>{getInitials(candidateName)}</span>
+                        )}
                       </div>
                       <div className="space-y-0.5">
                         <div className="flex flex-wrap items-center gap-2">

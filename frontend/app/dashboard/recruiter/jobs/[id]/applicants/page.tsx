@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { apiFetch, Application, Job } from '@/lib/api';
+import { apiFetch, Application, Job, getMediaUrl } from '@/lib/api';
 import { 
   Users, 
   ArrowLeft, 
@@ -123,6 +123,7 @@ export default function JobApplicantsPage() {
         <div className="space-y-4">
           {applications.map((app) => {
             const candidateName = app.applicant.username || 'Candidate';
+            const candidateAvatar = app.applicant_profile?.profile_picture || app.applicant?.profile_picture;
             const resumeUrl = app.resume || app.applicant_profile?.resume;
             const skillsList = app.applicant_profile?.skills 
               ? app.applicant_profile.skills.split(',').map((s) => s.trim()).filter(Boolean)
@@ -135,8 +136,19 @@ export default function JobApplicantsPage() {
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-slate-100 dark:border-slate-800 border-b">
                   <div className="flex items-start gap-3.5">
-                    <div className="w-11 h-11 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
-                      {getInitials(candidateName)}
+                    <div className="w-11 h-11 rounded-xl overflow-hidden bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm border border-slate-200/60 dark:border-slate-700">
+                      {candidateAvatar ? (
+                        <img
+                          src={getMediaUrl(candidateAvatar) || ''}
+                          alt={candidateName}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <span>{getInitials(candidateName)}</span>
+                      )}
                     </div>
                     <div>
                       <h3 className="font-bold text-base text-slate-900 dark:text-white">

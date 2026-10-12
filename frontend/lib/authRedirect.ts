@@ -9,6 +9,12 @@ import { User } from './api';
  */
 export function getSafeRedirectUrl(nextUrl: string | null | undefined, user: User): string {
   const isAdmin = !!(user.is_staff || user.is_superuser);
+
+  // First-time onboarding / profile setup check
+  if (!isAdmin && user.is_profile_setup === false) {
+    return '/dashboard/setup';
+  }
+
   const defaultDashboard = isAdmin
     ? '/dashboard/admin'
     : user.role === 'JOB_RECRUITER'
@@ -28,8 +34,8 @@ export function getSafeRedirectUrl(nextUrl: string | null | undefined, user: Use
   // Strip query/hash for path validation
   const cleanPath = nextUrl.split('?')[0].split('#')[0];
 
-  // Prevent redirect loops back to auth pages
-  if (cleanPath === '/login' || cleanPath === '/register') {
+  // Prevent redirect loops back to auth pages or restricted public landing pages
+  if (cleanPath === '/login' || cleanPath === '/register' || cleanPath === '/about') {
     return defaultDashboard;
   }
 

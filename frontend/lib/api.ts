@@ -1,10 +1,21 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
+export function getMediaUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:') || url.startsWith('data:')) {
+    return url;
+  }
+  const backendBase = API_BASE_URL.replace(/\/api\/?$/, '');
+  return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
 export interface User {
   id: number;
   username: string;
   email: string;
   role: 'JOB_SEEKER' | 'JOB_RECRUITER';
+  profile_picture?: string | null;
+  is_profile_setup?: boolean;
   is_staff?: boolean;
   is_superuser?: boolean;
   is_active?: boolean;

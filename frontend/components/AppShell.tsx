@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { Menu } from 'lucide-react';
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
+  const pathname = usePathname();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  // If user is not logged in, render children directly in the public layout
-  if (!user) {
+  // If user is not logged in or on profile setup page, render children directly without sidebar
+  if (!user || pathname?.startsWith('/dashboard/setup')) {
     return <>{children}</>;
   }
 

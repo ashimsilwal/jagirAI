@@ -57,6 +57,25 @@ export default function SupportPage() {
     }
   }, [user]);
 
+  // Lock background body & html scroll completely when support modal is open
+  useEffect(() => {
+    if (isCreateOpen || selectedTicket) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      document.documentElement.classList.add('modal-open');
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.classList.remove('modal-open');
+        document.documentElement.classList.remove('modal-open');
+      };
+    }
+  }, [isCreateOpen, selectedTicket]);
+
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !message.trim()) return;
@@ -209,7 +228,7 @@ export default function SupportPage() {
               {user.role === 'JOB_RECRUITER' ? 'Recruiter Help Desk' : 'Candidate Help Desk'}
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mt-1.5">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1.5">
             Support Tickets & Inquiries
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1 max-w-2xl">
@@ -393,10 +412,16 @@ export default function SupportPage() {
 
       {/* CREATE TICKET MODAL */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overscroll-none"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsCreateOpen(false);
+          }}
+        >
           <form
             onSubmit={handleCreateTicket}
-            className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100 dark:border-slate-800 space-y-5 animate-in fade-in duration-150"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col p-6 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in fade-in duration-150 overscroll-contain"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -416,7 +441,7 @@ export default function SupportPage() {
               </button>
             </div>
 
-            <div className="space-y-4 text-xs">
+            <div className="flex-1 overflow-y-auto space-y-4 text-xs pr-1 py-1 overscroll-contain">
               <div>
                 <label className="block font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                   Subject *
@@ -505,8 +530,16 @@ export default function SupportPage() {
 
       {/* VIEW TICKET DETAILS MODAL */}
       {selectedTicket && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 shadow-xl border border-slate-100 dark:border-slate-800 space-y-5 animate-in fade-in duration-150">
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overscroll-none"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedTicket(null);
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full max-h-[90vh] flex flex-col p-6 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in fade-in duration-150 overscroll-contain"
+          >
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -530,43 +563,46 @@ export default function SupportPage() {
               </button>
             </div>
 
-            {/* Original Problem Message */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-                Your Submitted Query:
-              </span>
-              <div className="p-3.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-100 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
-                {selectedTicket.message}
-              </div>
-              <span className="text-[11px] text-slate-400 block">
-                Logged on {new Date(selectedTicket.created_at).toLocaleString()}
-              </span>
-            </div>
-
-            {/* Admin Response / Resolution Box */}
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300">
-                  Admin Resolution & Response:
+            {/* Middle Content */}
+            <div className="flex-1 overflow-y-auto space-y-4 my-3 pr-1 overscroll-contain">
+              {/* Original Problem Message */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+                  Your Submitted Query:
+                </span>
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-100 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
+                  {selectedTicket.message}
+                </div>
+                <span className="text-[11px] text-slate-400 block">
+                  Logged on {new Date(selectedTicket.created_at).toLocaleString()}
                 </span>
               </div>
-              {selectedTicket.admin_response ? (
-                <div className="p-4 bg-emerald-50/80 dark:bg-emerald-950/40 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 space-y-2">
-                  <p className="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed whitespace-pre-wrap font-medium">
-                    {selectedTicket.admin_response}
-                  </p>
-                  <div className="flex items-center justify-between text-[11px] text-emerald-700/80 dark:text-emerald-400/80 pt-1 border-t border-emerald-200/60 dark:border-emerald-800/60">
-                    <span>Resolved by Platform Administration</span>
-                    <span>Updated on {new Date(selectedTicket.updated_at).toLocaleDateString()}</span>
+
+              {/* Admin Response / Resolution Box */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300">
+                    Admin Resolution & Response:
+                  </span>
+                </div>
+                {selectedTicket.admin_response ? (
+                  <div className="p-4 bg-emerald-50/80 dark:bg-emerald-950/40 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 space-y-2">
+                    <p className="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed whitespace-pre-wrap font-medium">
+                      {selectedTicket.admin_response}
+                    </p>
+                    <div className="flex items-center justify-between text-[11px] text-emerald-700/80 dark:text-emerald-400/80 pt-1 border-t border-emerald-200/60 dark:border-emerald-800/60">
+                      <span>Resolved by Platform Administration</span>
+                      <span>Updated on {new Date(selectedTicket.updated_at).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span>An administrator has received this ticket and is preparing a solution. You will be updated here.</span>
-                </div>
-              )}
+                ) : (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>An administrator has received this ticket and is preparing a solution. You will be updated here.</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">

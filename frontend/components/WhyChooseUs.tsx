@@ -94,11 +94,11 @@ export const WhyChooseUs: React.FC = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white via-sky-50/20 to-slate-50/50 dark:from-slate-950 dark:via-slate-900/60 dark:to-slate-950 py-20 border-t border-slate-200/70 dark:border-slate-800 transition-colors duration-200">
       {/* Background Decorative Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-sky-200/20 dark:bg-sky-500/10 blur-[120px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-sky-200/20 dark:bg-sky-500/10 blur-[120px] pointer-events-none rounded-full animate-hero-glow-slow" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 animate-fade-in-up">
+        <div className="text-center max-w-3xl mx-auto space-y-4 animate-hero-fade-in-up">
           
 
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -143,14 +143,14 @@ export const WhyChooseUs: React.FC = () => {
         </div>
 
         {/* Benefits Grid with smooth fade-in on tab change */}
-        <div key={activeTab} className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up">
+        <div key={activeTab} className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-hero-fade-in-up">
           {benefits.map((item, index) => {
             const IconComponent = item.icon;
             return (
               <div
                 key={index}
-                style={{ animationDelay: `${index * 80}ms` }}
-                className="group bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-500/50 p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between animate-fade-in-up"
+                style={{ animationDelay: `${index * 120}ms` }}
+                className="group bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-500/50 p-6 shadow-sm hover:shadow-xl hover:shadow-sky-500/8 dark:hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between animate-hero-fade-in-up"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">

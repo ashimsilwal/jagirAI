@@ -156,7 +156,7 @@ export default function HomePage() {
                     {jobs.length} Verified Vacancies
                   </span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mt-1.5">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1.5">
                   Find Your Next Role, <span className="text-sky-600 dark:text-sky-400">{user?.username}</span>
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-xl">
@@ -330,24 +330,28 @@ export default function HomePage() {
         </section>
       ) : (
         /* GUEST / VISITOR MARKETING HERO */
-        <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 text-slate-900 dark:text-slate-100 py-20 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800/80 transition-colors duration-200">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.10),transparent_50%)] pointer-events-none" />
+        <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 text-slate-900 dark:text-slate-100 py-20 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800/80 transition-colors duration-500">
+          {/* Subtle slow-motion ambient background glows */}
+          <div className="absolute -top-24 right-1/4 w-96 h-96 bg-sky-400/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none animate-hero-ambient-slow" />
+          <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none animate-hero-glow-slow" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_55%)] pointer-events-none" />
+
           <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-slate-900 dark:text-white animate-fade-in-up">
+            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight text-slate-900 dark:text-white animate-hero-fade-in-up">
               Connecting Top Talent with <br className="hidden sm:inline" />
               <span className="bg-gradient-to-r from-sky-600 via-blue-600 to-cyan-600 dark:from-sky-400 dark:via-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
                 Visionary Companies
               </span>
             </h1>
 
-            <p className="max-w-2xl mx-auto text-slate-600 dark:text-slate-300 text-base sm:text-lg animate-fade-in-up animation-delay-100">
+            <p className="max-w-2xl mx-auto text-slate-600 dark:text-slate-300 text-base sm:text-lg animate-hero-fade-in-up hero-delay-200">
               Browse verified job vacancies, apply seamlessly with your resume, and track your career trajectory in real time.
             </p>
 
             {/* Search Bar Form */}
             <form
               onSubmit={handleSearchSubmit}
-              className="mt-8 bg-white dark:bg-slate-900 p-2.5 sm:p-3 rounded-xl shadow-xl shadow-sky-900/5 dark:shadow-none flex flex-col md:flex-row gap-2 max-w-4xl mx-auto border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 animate-fade-in-up animation-delay-200 hover:border-sky-300 dark:hover:border-slate-700 transition-all"
+              className="mt-8 bg-white dark:bg-slate-900 p-2.5 sm:p-3 rounded-xl shadow-xl shadow-sky-900/5 dark:shadow-none flex flex-col md:flex-row gap-2 max-w-4xl mx-auto border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 animate-hero-fade-in-up hero-delay-400 hover:border-sky-300 dark:hover:border-slate-700 transition-all"
             >
               <div className="flex-1 flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-lg">
                 <Search className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
@@ -400,7 +404,7 @@ export default function HomePage() {
             </form>
 
             {/* Quick popular tags with staggered fade in */}
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-slate-500 dark:text-slate-400 animate-fade-in animation-delay-300">
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-slate-500 dark:text-slate-400 animate-hero-fade-in hero-delay-650">
               <span className="font-semibold text-slate-600 dark:text-slate-300">Popular Searches:</span>
               {['Frontend Developer', 'Python Engineer', 'Product Manager', 'Data Analyst', 'Remote'].map((tag, idx) => (
                 <button
@@ -495,7 +499,7 @@ export default function HomePage() {
           );
 
           return !isSeeker ? (
-            <ScrollReveal durationMs={500} distance={14}>
+            <ScrollReveal durationMs={1200} distance={20}>
               {toolbarContent}
             </ScrollReveal>
           ) : (
@@ -558,8 +562,8 @@ export default function HomePage() {
             {displayedJobs.map((job, idx) => (
               <div
                 key={job.id}
-                style={!isSeeker ? { animationDelay: `${Math.min(idx * 60, 480)}ms` } : undefined}
-                className={!isSeeker ? 'animate-fade-in-up' : ''}
+                style={!isSeeker ? { animationDelay: `${Math.min(idx * 80, 640)}ms` } : undefined}
+                className={!isSeeker ? 'animate-hero-fade-in-up' : ''}
               >
                 <JobCard
                   job={job}
@@ -574,7 +578,7 @@ export default function HomePage() {
 
       {/* 3. ONLY SHOW MARKETING PROMO FOR NON-JOB-SEEKERS (GUESTS) */}
       {!isSeeker && (
-        <ScrollReveal durationMs={550} distance={20}>
+        <ScrollReveal durationMs={1200} distance={24}>
           <WhyChooseUs />
         </ScrollReveal>
       )}

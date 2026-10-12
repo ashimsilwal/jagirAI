@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { apiFetch } from '@/lib/api';
 import {
   LayoutDashboard,
   Briefcase,
@@ -34,6 +35,7 @@ interface SidebarItem {
   href: string;
   icon: React.ElementType;
   badge?: string;
+  badgeColor?: string;
   exact?: boolean;
 }
 
@@ -64,10 +66,48 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.classList.add('modal-open');
+      document.documentElement.classList.add('modal-open');
+      return () => {
+        document.body.classList.remove('modal-open');
+        document.documentElement.classList.remove('modal-open');
+      };
+    }
+  }, [mobileOpen]);
+
   if (!user) return null;
 
   const isAdmin = !!(user.is_staff || user.is_superuser);
   const isRecruiter = user.role === 'JOB_RECRUITER';
+
+  // Live support ticket alert counter for admin
+  const [openTicketsCount, setOpenTicketsCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const fetchTicketCount = () => {
+      apiFetch<any>('/admin/tickets/?status=OPEN')
+        .then((data) => {
+          const list = Array.isArray(data) ? data : data.results || [];
+          setOpenTicketsCount(list.length);
+        })
+        .catch(() => {});
+    };
+
+    fetchTicketCount();
+    const interval = setInterval(fetchTicketCount, 15000);
+
+    const handleCustomEvent = () => fetchTicketCount();
+    window.addEventListener('ticket-updated', handleCustomEvent);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('ticket-updated', handleCustomEvent);
+    };
+  }, [isAdmin]);
 
   // Role-based Nav items
   let navItems: SidebarItem[] = [];
@@ -80,24 +120,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         icon: ShieldCheck,
       },
       {
-        label: 'User Management',
-        href: '/dashboard/admin#users',
-        icon: Users,
-      },
-      {
         label: 'Support Tickets',
-        href: '/dashboard/admin#tickets',
+        href: '/dashboard/admin/tickets',
         icon: LifeBuoy,
-      },
-      {
-        label: 'Job Vacancies',
-        href: '/dashboard/admin#jobs',
-        icon: Briefcase,
-      },
-      {
-        label: 'Platform Front',
-        href: '/',
-        icon: ExternalLink,
+        badge: openTicketsCount > 0 ? `${openTicketsCount} Open` : undefined,
+        badgeColor: 'bg-amber-100 dark:bg-amber-950/90 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse',
       },
     ];
   } else if (isRecruiter) {
@@ -143,11 +170,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const secondaryNavItems: SidebarItem[] = isAdmin
     ? []
     : [
-        {
-          label: 'About Jagir AI',
-          href: '/about',
-          icon: Info,
-        },
         {
           label: 'Help & Support',
           href: '/dashboard/support',
@@ -218,7 +240,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     href={item.href}
                     onClick={onMobileClose}
                     title={collapsed ? item.label : undefined}
-                    className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                    className={`relative group flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                       active
                         ? 'bg-sky-50 dark:bg-sky-950/70 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/60 shadow-xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
@@ -235,9 +257,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       <span className="truncate flex-1">{item.label}</span>
                     )}
                     {!collapsed && item.badge && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 dark:bg-sky-900/80 text-sky-700 dark:text-sky-300">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        item.badgeColor || 'bg-sky-100 dark:bg-sky-900/80 text-sky-700 dark:text-sky-300'
+                      }`}>
                         {item.badge}
                       </span>
+                    )}
+                    {collapsed && item.badge && (
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 absolute top-2 right-2 ring-2 ring-white dark:ring-slate-900 animate-pulse" />
                     )}
                   </Link>
                 );

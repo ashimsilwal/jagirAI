@@ -13,10 +13,28 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for returning user details safely (no password).
     """
+    profile_picture = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'is_staff', 'is_superuser', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'email', 'role', 'is_staff', 'is_superuser', 'is_active', 'date_joined', 'is_profile_setup', 'profile_picture')
         read_only_fields = ('id', 'date_joined')
+
+    def get_profile_picture(self, obj):
+        try:
+            if hasattr(obj, 'job_seeker_profile') and obj.job_seeker_profile.profile_picture:
+                request = self.context.get('request')
+                if request:
+                    return request.build_absolute_uri(obj.job_seeker_profile.profile_picture.url)
+                return obj.job_seeker_profile.profile_picture.url
+            elif hasattr(obj, 'recruiter_profile') and obj.recruiter_profile.company_logo:
+                request = self.context.get('request')
+                if request:
+                    return request.build_absolute_uri(obj.recruiter_profile.company_logo.url)
+                return obj.recruiter_profile.company_logo.url
+        except Exception:
+            pass
+        return None
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -115,21 +133,26 @@ class JobSeekerProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'user', 'created_at', 'updated_at')
 
     def validate_resume(self, value):
-        if value:
+        if value and hasattr(value, 'name'):
             valid_extensions = ['.pdf', '.doc', '.docx']
             ext = os.path.splitext(value.name)[1].lower()
             if ext not in valid_extensions:
                 raise serializers.ValidationError("Resume must be a PDF or Word document (.pdf, .doc, .docx).")
             # 5 MB maximum size
-            if value.size > 5 * 1024 * 1024:
+            if hasattr(value, 'size') and value.size > 5 * 1024 * 1024:
                 raise serializers.ValidationError("Resume file size cannot exceed 5MB.")
         return value
 
     def validate_profile_picture(self, value):
-        if value:
+        if value and hasattr(value, 'size'):
             # 2 MB maximum size
             if value.size > 2 * 1024 * 1024:
                 raise serializers.ValidationError("Profile picture file size cannot exceed 2MB.")
+            if hasattr(value, 'name'):
+                ext = os.path.splitext(value.name)[1].lower()
+                valid_image_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+                if ext not in valid_image_extensions:
+                    raise serializers.ValidationError("Profile picture must be an image file (.jpg, .jpeg, .png, .webp).")
         return value
 
 

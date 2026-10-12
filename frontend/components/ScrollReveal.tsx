@@ -2,11 +2,13 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
+export type ScrollRevealDirection = 'up' | 'down' | 'left' | 'right' | 'none';
+
 interface ScrollRevealProps {
   children: React.ReactNode;
   className?: string;
   delayMs?: number;
-  direction?: 'up' | 'down' | 'none';
+  direction?: ScrollRevealDirection;
   distance?: number;
   durationMs?: number;
 }
@@ -58,6 +60,8 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     if (isVisible) return 'translate3d(0, 0, 0)';
     if (direction === 'up') return `translate3d(0, ${distance}px, 0)`;
     if (direction === 'down') return `translate3d(0, -${distance}px, 0)`;
+    if (direction === 'left') return `translate3d(-${distance}px, 0, 0)`;
+    if (direction === 'right') return `translate3d(${distance}px, 0, 0)`;
     return 'translate3d(0, 0, 0)';
   };
 

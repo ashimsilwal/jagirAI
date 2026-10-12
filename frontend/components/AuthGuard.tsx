@@ -45,6 +45,15 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   const pathname = usePathname();
   const router = useRouter();
 
+  const isAdminUser = !!(user && (user.is_staff || user.is_superuser));
+
+  // First-Time Profile Setup Guard: Call hook unconditionally at the top of the component
+  React.useEffect(() => {
+    if (!loading && user && !isAdminUser && user.is_profile_setup === false && pathname !== '/dashboard/setup') {
+      router.replace('/dashboard/setup');
+    }
+  }, [loading, user, isAdminUser, pathname, router]);
+
   // 1. Loading State - Protect private content during initial token verification
   if (loading) {
     return (
@@ -60,6 +69,16 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
         <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
           Verifying security clearance...
         </p>
+      </div>
+    );
+  }
+
+  // 1.5 First-Time Profile Setup Loading State
+  if (user && !isAdminUser && user.is_profile_setup === false && pathname !== '/dashboard/setup') {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-3">
+        <div className="w-9 h-9 rounded-full border-2 border-sky-600 border-t-transparent animate-spin" />
+        <p className="text-xs text-slate-500 font-medium">Redirecting to profile setup...</p>
       </div>
     );
   }

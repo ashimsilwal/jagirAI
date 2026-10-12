@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { getMediaUrl } from '@/lib/api';
 import {
   User as UserIcon,
   LayoutDashboard,
@@ -99,9 +100,17 @@ export const ProfileDropdown: React.FC = () => {
       >
         {/* Avatar with Online Presence Badge */}
         <div className="relative">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm ring-2 ring-white dark:ring-slate-900 group-hover:scale-105 transition-transform">
-            {initials}
-          </div>
+          {user.profile_picture ? (
+            <img
+              src={getMediaUrl(user.profile_picture) || ''}
+              alt={user.username}
+              className="w-9 h-9 rounded-full object-cover ring-2 ring-white dark:ring-slate-900 group-hover:scale-105 transition-transform"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm ring-2 ring-white dark:ring-slate-900 group-hover:scale-105 transition-transform">
+              {initials}
+            </div>
+          )}
           {/* Active online green dot */}
           <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
         </div>
@@ -129,9 +138,17 @@ export const ProfileDropdown: React.FC = () => {
           {/* Header Card: User Info */}
           <div className="px-4 py-3 mx-2 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/70 dark:from-slate-800/80 dark:to-slate-800/40 border border-slate-200/60 dark:border-slate-700/60">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-base font-bold shadow-md ring-2 ring-white dark:ring-slate-800 shrink-0">
-                {initials}
-              </div>
+              {user.profile_picture ? (
+                <img
+                  src={getMediaUrl(user.profile_picture) || ''}
+                  alt={user.username}
+                  className="w-12 h-12 rounded-full object-cover shadow-md ring-2 ring-white dark:ring-slate-800 shrink-0"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-base font-bold shadow-md ring-2 ring-white dark:ring-slate-800 shrink-0">
+                  {initials}
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
                   {user.username}

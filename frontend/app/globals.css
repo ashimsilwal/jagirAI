@@ -15,8 +15,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-geist: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-poppins: var(--font-poppins), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --radius-xs: 1px;
   --radius-sm: 2px;
   --radius-md: 4px;
@@ -76,10 +78,124 @@
   border-bottom-right-radius: 4px !important;
 }
 
+/* ==========================================================================
+   PRIMARY FONT: GEIST SANS
+   Default for UI, headings, navigation, buttons, metrics, and interactive elements
+   ========================================================================== */
+html {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 body {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--background);
   color: var(--foreground);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.011em;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Ensure all interactive and form controls inherit Geist Sans */
+button,
+input,
+optgroup,
+select,
+textarea,
+.font-geist {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Headings scale with Geist Sans */
+h1 {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+h2 {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+h3 {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+h4, h5, h6 {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.015em;
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   SECONDARY FONT: POPPINS
+   Used for paragraphs, subtitles, hero descriptions, job descriptions, helper text, empty states
+   ========================================================================== */
+p,
+.font-poppins,
+.text-description,
+.subheading,
+.subtitle {
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.625;
+  letter-spacing: -0.005em;
+}
+
+/* Poppins Subtitles & Emphasized supporting copy */
+.subtitle,
+.font-poppins-medium {
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.font-poppins-semibold {
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+}
+
+/* Global Thin Blue Scrollbar (Firefox, Chrome, Safari, Edge) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #0284c7 transparent;
+}
+
+.dark * {
+  scrollbar-color: #38bdf8 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #0284c7;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #0369a1;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #0284c7;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #38bdf8;
 }
 
 /* Professional, restrained animations for public landing page */
@@ -146,6 +262,81 @@ body {
   animation-delay: 500ms;
 }
 
+/* Slower, graceful animations with longer duration for landing hero */
+@keyframes heroFadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes heroAmbientFloat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate3d(14px, -12px, 0) scale(1.08);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(-10px, 8px, 0) scale(0.96);
+    opacity: 0.5;
+  }
+}
+
+@keyframes heroAmbientGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.1);
+  }
+}
+
+.animate-hero-fade-in-up {
+  animation: heroFadeInUp 1200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-hero-fade-in {
+  animation: heroFadeIn 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-hero-ambient-slow {
+  animation: heroAmbientFloat 14s ease-in-out infinite alternate;
+}
+
+.animate-hero-glow-slow {
+  animation: heroAmbientGlow 10s ease-in-out infinite;
+}
+
+.hero-delay-200 {
+  animation-delay: 200ms;
+}
+
+.hero-delay-400 {
+  animation-delay: 400ms;
+}
+
+.hero-delay-650 {
+  animation-delay: 650ms;
+}
+
 /* Accessibility: respect user prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -157,3 +348,58 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   GLOBAL THIN BLUE SCROLLBARS (Entire Project)
+   ========================================================================== */
+
+/* Firefox standard scrollbars */
+html,
+body,
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #0284c7 transparent;
+}
+
+.dark,
+.dark * {
+  scrollbar-color: #38bdf8 transparent;
+}
+
+/* WebKit / Chromium / Edge / Safari custom thin blue scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #0284c7;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #0369a1;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #38bdf8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #0ea5e9;
+}
+
+/* Bulletproof background lock: prevent any background movement/scrolling when pop up forms are open */
+html.modal-open,
+body.modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none;
+}
+
