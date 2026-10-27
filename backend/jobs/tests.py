@@ -121,3 +121,95 @@ class JobTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.data['results'] if 'results' in response.data else response.data
         self.assertEqual(len(data), 2)
+
+
+class PaginationTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.recruiter = User.objects.create_user(
+            email="recruiter_page@test.com",
+            username="recruiter_page",
+            password="Password123!",
+            role=User.Role.JOB_RECRUITER
+        )
+        self.other_recruiter = User.objects.create_user(
+            email="other_recruiter@test.com",
+            username="other_recruiter",
+            password="Password123!",
+            role=User.Role.JOB_RECRUITER
+        )
+        # Create 25 jobs for testing pagination
+        jobs = []
+        for i in range(25):
+            jobs.append(Job(
+                recruiter=self.recruiter,
+                title=f"Engineer #{i+1:02d}",
+                description=f"Description for job {i+1}",
+                location="Kathmandu" if i % 2 == 0 else "Pokhara",
+                employment_type=Job.EmploymentType.REMOTE if i % 3 == 0 else Job.EmploymentType.FULL_TIME,
+                status=Job.JobStatus.ACTIVE
+            ))
+        Job.objects.bulk_create(jobs)
+
+    def test_default_page_size_is_10(self):
+        response = self.client.get('/api/jobs/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('count', response.data)
+        self.assertIn('results', response.data)
+        self.assertEqual(response.data['count'], 25)
+        self.assertEqual(len(response.data['results']), 10)
+        self.assertIsNotNone(response.data['next'])
+        self.assertIsNone(response.data['previous'])
+
+    def test_custom_page_size_query_param(self):
+        response = self.client.get('/api/jobs/?page_size=15')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 15)
+        self.assertEqual(response.data['count'], 25)
+
+    def test_max_page_size_enforced_at_100(self):
+        response = self.client.get('/api/jobs/?page_size=200')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # With 25 total jobs, requesting 200 should be capped at 100 max_page_size, returning all 25
+        self.assertEqual(len(response.data['results']), 25)
+
+    def test_pagination_navigation_pages(self):
+        # Page 2
+        p2_res = self.client.get('/api/jobs/?page=2')
+        self.assertEqual(p2_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(p2_res.data['results']), 10)
+        self.assertIsNotNone(p2_res.data['previous'])
+        self.assertIsNotNone(p2_res.data['next'])
+
+        # Page 3 (final page with 5 items remaining)
+        p3_res = self.client.get('/api/jobs/?page=3')
+        self.assertEqual(p3_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(p3_res.data['results']), 5)
+        self.assertIsNotNone(p3_res.data['previous'])
+        self.assertIsNone(p3_res.data['next'])
+
+    def test_invalid_and_out_of_range_page_returns_404(self):
+        response = self.client.get('/api/jobs/?page=999')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_filtering_and_search_with_pagination(self):
+        # Filter by remote (every 3rd job: i in 0, 3, 6, 9, 12, 15, 18, 21, 24 => 9 jobs)
+        response = self.client.get('/api/jobs/?employment_type=REMOTE')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 9)
+        self.assertEqual(len(response.data['results']), 9)
+        self.assertIsNone(response.data['next'])
+
+    def test_recruiter_my_jobs_pagination_and_isolation(self):
+        self.client.force_authenticate(user=self.recruiter)
+        res = self.client.get('/api/jobs/my-jobs/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['count'], 25)
+        self.assertEqual(len(res.data['results']), 10)
+
+        # Other recruiter sees 0 of these jobs
+        self.client.force_authenticate(user=self.other_recruiter)
+        other_res = self.client.get('/api/jobs/my-jobs/')
+        self.assertEqual(other_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(other_res.data['count'], 0)
+        self.assertEqual(len(other_res.data['results']), 0)

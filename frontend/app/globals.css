@@ -403,3 +403,167 @@ body.modal-open {
   touch-action: none;
 }
 
+/* ==========================================================================
+   ACCESSIBILITY SYSTEM STYLES (WCAG 2.2 AA)
+   ========================================================================== */
+
+/* Universal Focus Visible Rings (restricted to keyboard-focused non-inputs) */
+:focus-visible:not(input):not(textarea):not(select) {
+  outline: 2px solid #0284c7;
+  outline-offset: 2px;
+}
+
+.dark :focus-visible:not(input):not(textarea):not(select) {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   INPUT & SEARCH FOCUS RESET: NO BLUE OUTLINE / NO BLUE BORDER ON CLICK
+   ========================================================================== */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+[type="text"]:focus,
+[type="text"]:focus-visible,
+[type="search"]:focus,
+[type="search"]:focus-visible,
+[type="email"]:focus,
+[type="email"]:focus-visible,
+[type="password"]:focus,
+[type="password"]:focus-visible,
+[type="number"]:focus,
+[type="number"]:focus-visible,
+[type="tel"]:focus,
+[type="tel"]:focus-visible,
+[type="url"]:focus,
+[type="url"]:focus-visible {
+  outline: none !important;
+  outline-style: none !important;
+  outline-width: 0 !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-color: transparent !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-width: 0px !important;
+}
+
+/* 1. Predictable Text Scaling (relative rem preservation) */
+html[data-a11y-text-scale="90"] {
+  font-size: 90%;
+}
+html[data-a11y-text-scale="100"] {
+  font-size: 100%;
+}
+html[data-a11y-text-scale="110"] {
+  font-size: 110%;
+}
+html[data-a11y-text-scale="120"] {
+  font-size: 120%;
+}
+html[data-a11y-text-scale="130"] {
+  font-size: 130%;
+}
+html[data-a11y-text-scale="140"] {
+  font-size: 140%;
+}
+
+/* 2. High Contrast Mode */
+html.a11y-high-contrast {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+
+html.a11y-high-contrast.dark {
+  --background: #030712;
+  --foreground: #ffffff;
+}
+
+html.a11y-high-contrast body {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+html.a11y-high-contrast button,
+html.a11y-high-contrast input,
+html.a11y-high-contrast select,
+html.a11y-high-contrast textarea,
+html.a11y-high-contrast [class*="border-"] {
+  border-color: currentColor !important;
+  border-width: 1.5px !important;
+}
+
+html.a11y-high-contrast *:focus-visible {
+  outline: 3px solid #0284c7 !important;
+  outline-offset: 3px !important;
+}
+
+html.a11y-high-contrast.dark *:focus-visible {
+  outline: 3px solid #38bdf8 !important;
+  outline-offset: 3px !important;
+}
+
+/* 3. Dyslexia-Friendly Legible Font */
+html.a11y-dyslexic-font,
+html.a11y-dyslexic-font body,
+html.a11y-dyslexic-font button,
+html.a11y-dyslexic-font input,
+html.a11y-dyslexic-font select,
+html.a11y-dyslexic-font textarea,
+html.a11y-dyslexic-font h1,
+html.a11y-dyslexic-font h2,
+html.a11y-dyslexic-font h3,
+html.a11y-dyslexic-font h4,
+html.a11y-dyslexic-font h5,
+html.a11y-dyslexic-font h6,
+html.a11y-dyslexic-font p,
+html.a11y-dyslexic-font span {
+  font-family: var(--font-lexend), 'Comic Sans MS', 'Atkinson Hyperlegible', sans-serif !important;
+  letter-spacing: 0.03em !important;
+  word-spacing: 0.08em !important;
+  line-height: 1.7 !important;
+}
+
+/* 4. Link Highlighting & Underlining */
+html.a11y-highlight-links a:not([role="button"]):not(.no-a11y-highlight) {
+  background-color: #fef08a !important;
+  color: #0f172a !important;
+  padding-left: 3px !important;
+  padding-right: 3px !important;
+  border-radius: 3px !important;
+  box-shadow: 0 0 0 1px #eab308 !important;
+}
+
+html.a11y-highlight-links.dark a:not([role="button"]):not(.no-a11y-highlight) {
+  background-color: #854d0e !important;
+  color: #fef9c3 !important;
+  box-shadow: 0 0 0 1px #ca8a04 !important;
+}
+
+html.a11y-underline-links a:not([role="button"]):not(.no-a11y-underline) {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 3px !important;
+}
+
+/* 5. Reduced Motion Enforcement */
+html.a11y-reduced-motion *,
+html.a11y-reduced-motion *::before,
+html.a11y-reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+

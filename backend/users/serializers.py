@@ -9,16 +9,75 @@ from .models import JobSeekerProfile, RecruiterProfile, SupportTicket
 User = get_user_model()
 
 
+import re
+
 class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for returning user details safely (no password).
     """
     profile_picture = serializers.SerializerMethodField()
+    is_org_owner = serializers.SerializerMethodField()
+    org_permissions = serializers.SerializerMethodField()
+    org_role = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'is_staff', 'is_superuser', 'is_active', 'date_joined', 'is_profile_setup', 'profile_picture')
-        read_only_fields = ('id', 'date_joined')
+        fields = (
+            'id',
+            'username',
+            'email',
+            'role',
+            'is_staff',
+            'is_superuser',
+            'is_active',
+            'date_joined',
+            'is_profile_setup',
+            'must_change_password',
+            'is_org_owner',
+            'org_permissions',
+            'org_role',
+            'profile_picture',
+        )
+        read_only_fields = ('id', 'date_joined', 'must_change_password', 'is_org_owner', 'org_permissions', 'org_role')
+
+    def get_is_org_owner(self, obj):
+        try:
+            from organizations.models import Organization
+            return Organization.objects.filter(owner=obj).exists()
+        except Exception:
+            return False
+
+    def get_org_permissions(self, obj):
+        try:
+            if obj.is_staff or obj.is_superuser:
+                from organizations.constants import ALL_PERMISSIONS
+                return list(ALL_PERMISSIONS.keys())
+            from organizations.services import get_or_create_user_organization, get_user_membership
+            from organizations.constants import ALL_PERMISSIONS
+            org = get_or_create_user_organization(obj)
+            if org.owner_id == obj.id:
+                return list(ALL_PERMISSIONS.keys())
+            membership = get_user_membership(obj, org.id)
+            if membership and membership.status == 'ACTIVE':
+                return list(membership.get_effective_permissions())
+            return []
+        except Exception:
+            return []
+
+    def get_org_role(self, obj):
+        try:
+            if obj.is_staff or obj.is_superuser:
+                return {'name': 'Administrator', 'slug': 'admin'}
+            from organizations.services import get_or_create_user_organization, get_user_membership
+            org = get_or_create_user_organization(obj)
+            if org.owner_id == obj.id:
+                return {'name': 'Organization Owner', 'slug': 'owner'}
+            membership = get_user_membership(obj, org.id)
+            if membership and membership.status == 'ACTIVE':
+                return {'name': membership.role.name, 'slug': membership.role.slug}
+            return None
+        except Exception:
+            return None
 
     def get_profile_picture(self, obj):
         try:
@@ -35,6 +94,24 @@ class UserSerializer(serializers.ModelSerializer):
         except Exception:
             pass
         return None
+
+
+class ChangeInitialPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password]
+    )
+    confirm_password = serializers.CharField(
+        write_only=True,
+        required=True
+    )
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+        return attrs
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -60,9 +137,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'password', 'confirm_password', 'role')
 
     def validate_email(self, value):
-        if User.objects.filter(email__iexact=value).exists():
+        val = value.strip().lower()
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, val):
+            raise serializers.ValidationError("Please provide a valid email address (e.g., name@domain.com).")
+        if User.objects.filter(email__iexact=val).exists():
             raise serializers.ValidationError("A user with this email already exists.")
-        return value.lower()
+        return val
+
+    def validate_username(self, value):
+        val = value.strip()
+        if len(val) < 3:
+            raise serializers.ValidationError("Username must be at least 3 characters.")
+        if not re.match(r'^[a-zA-Z0-9_.-]+$', val):
+            raise serializers.ValidationError("Username may only contain letters, numbers, underscores, periods, and hyphens.")
+        if User.objects.filter(username__iexact=val).exists():
+            raise serializers.ValidationError("A user with this username already exists.")
+        return val
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:

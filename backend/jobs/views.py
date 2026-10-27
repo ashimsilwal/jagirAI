@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -53,6 +54,31 @@ class JobViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def perform_create(self, serializer):
+        from organizations.services import get_or_create_user_organization
+        from organizations.permissions import check_org_permission
+        from rest_framework.exceptions import PermissionDenied
+
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            raise PermissionDenied("Authentication credentials were not provided.")
+
+        org = get_or_create_user_organization(user)
+        if not check_org_permission(user, org, 'vacancy.create'):
+            raise PermissionDenied("You do not have permission to create vacancies in this organization.")
+
+        serializer.save()
+
+
     @action(
         detail=False,
         methods=['get'],
@@ -61,16 +87,34 @@ class JobViewSet(viewsets.ModelViewSet):
     )
     def my_jobs(self, request):
         """
-        Returns all jobs (DRAFT, ACTIVE, CLOSED) posted by the logged-in recruiter.
+        Returns all jobs (DRAFT, ACTIVE, CLOSED) posted within the logged-in recruiter's organization.
         """
-        queryset = Job.objects.filter(recruiter=request.user).select_related(
-            'recruiter', 'recruiter__recruiter_profile'
+        from organizations.services import get_or_create_user_organization
+        from organizations.permissions import check_org_permission
+        from rest_framework.exceptions import PermissionDenied
+
+        org = get_or_create_user_organization(request.user)
+        if not check_org_permission(request.user, org, 'vacancy.view'):
+            raise PermissionDenied("You do not have permission to view organization vacancies.")
+
+        queryset = Job.objects.filter(
+            Q(organization=org) | Q(recruiter=request.user)
+        ).select_related(
+            'recruiter', 'recruiter__recruiter_profile', 'organization'
         ).order_by('-created_at')
 
         # Optional filter by status within recruiter's own jobs
         status_param = request.query_params.get('status')
         if status_param:
             queryset = queryset.filter(status=status_param)
+
+        # Optional search within recruiter's own jobs
+        search_param = request.query_params.get('search')
+        if search_param:
+            queryset = queryset.filter(
+                Q(title__icontains=search_param) |
+                Q(location__icontains=search_param)
+            )
 
         page = self.paginate_queryset(queryset)
         if page is not None:

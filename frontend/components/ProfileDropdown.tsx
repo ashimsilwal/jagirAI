@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { getMediaUrl } from '@/lib/api';
+import { getMediaUrl, hasPermission } from '@/lib/api';
 import {
   User as UserIcon,
   LayoutDashboard,
@@ -69,6 +69,10 @@ export const ProfileDropdown: React.FC = () => {
     : isRecruiter 
     ? 'Recruiter / Employer' 
     : 'Job Candidate';
+
+  const canAccessCompanyProfile = isRecruiter && (hasPermission(user, 'organization.view') || hasPermission(user, 'organization.update'));
+  const canUpdateCompanyProfile = isRecruiter && hasPermission(user, 'organization.update');
+  const canCreateVacancy = isRecruiter && hasPermission(user, 'vacancy.create');
 
   const profileHref = isAdmin
     ? '/dashboard/admin'
@@ -179,19 +183,25 @@ export const ProfileDropdown: React.FC = () => {
           {/* Primary Navigation Links */}
           <div className="px-2 space-y-0.5">
             {/* Direct Link to Profile Modification */}
-            <Link
-              href={profileHref}
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
-            >
-              <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
-                <UserIcon className="w-4 h-4" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold leading-tight">View & Edit Profile</p>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500">Update personal details & credentials</p>
-              </div>
-            </Link>
+            {(isAdmin || !isRecruiter || canAccessCompanyProfile) && (
+              <Link
+                href={profileHref}
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+                  <UserIcon className="w-4 h-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold leading-tight">
+                    {isRecruiter && !canUpdateCompanyProfile ? 'View Company Profile' : 'View & Edit Profile'}
+                  </p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                    {isRecruiter && !canUpdateCompanyProfile ? 'Organization details & identity' : 'Update personal details & credentials'}
+                  </p>
+                </div>
+              </Link>
+            )}
 
             {/* Dashboard Link */}
             <Link
@@ -225,7 +235,7 @@ export const ProfileDropdown: React.FC = () => {
               </Link>
             )}
 
-            {!isAdmin && isRecruiter && (
+            {!isAdmin && isRecruiter && canCreateVacancy && (
               <Link
                 href="/dashboard/recruiter/jobs/new"
                 onClick={() => setIsOpen(false)}

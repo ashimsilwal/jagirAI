@@ -42,8 +42,9 @@ export default function SupportPage() {
   const fetchTickets = async () => {
     try {
       setLoading(true);
-      const data = await apiFetch<SupportTicket[]>('/support/tickets/');
-      setTickets(Array.isArray(data) ? data : []);
+      const data = await apiFetch<any>('/support/tickets/?page_size=100');
+      const list = Array.isArray(data) ? data : data?.results || [];
+      setTickets(list);
     } catch (err: any) {
       console.error('Failed to load support tickets:', err);
     } finally {

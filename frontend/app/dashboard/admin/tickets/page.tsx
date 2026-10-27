@@ -47,7 +47,7 @@ export default function AdminTicketsPage() {
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<any>('/admin/tickets/');
+      const data = await apiFetch<any>('/admin/tickets/?page_size=100');
       const list = Array.isArray(data) ? data : data.results || [];
       setTickets(list);
     } catch (err) {

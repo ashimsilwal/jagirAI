@@ -19,18 +19,21 @@ import {
   Camera
 } from 'lucide-react';
 import { DonutChart, AreaTrendChart } from '@/components/charts';
+import { Pagination } from '@/components/Pagination';
 
 export default function SeekerDashboard() {
   const { user, refreshUser } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [appPage, setAppPage] = useState<number>(1);
+  const [appPageSize, setAppPageSize] = useState<number>(10);
 
   useEffect(() => {
     refreshUser();
     const fetchApplications = async () => {
       try {
-        const data = await apiFetch<any>('/applications/my-applications/');
+        const data = await apiFetch<any>('/applications/my-applications/?page_size=100');
         const list = Array.isArray(data) ? data : data.results || [];
         setApplications(list);
       } catch (err) {
@@ -97,6 +100,11 @@ export default function SeekerDashboard() {
     if (statusFilter === 'ALL') return applications;
     return applications.filter((app) => app.status === statusFilter);
   }, [applications, statusFilter]);
+
+  const displayedApplications = useMemo(() => {
+    const start = (appPage - 1) * appPageSize;
+    return filteredApplications.slice(start, start + appPageSize);
+  }, [filteredApplications, appPage, appPageSize]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -189,7 +197,7 @@ export default function SeekerDashboard() {
               Edit Profile & Resume
             </Link>
             <Link
-              href="/"
+              href="/jobs"
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-sm shadow-sky-500/25 transition cursor-pointer"
             >
               <span>Browse More Jobs</span>
@@ -365,7 +373,7 @@ export default function SeekerDashboard() {
             </div>
             {statusFilter === 'ALL' ? (
               <Link
-                href="/"
+                href="/jobs"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 shadow-sm shadow-sky-500/25 transition cursor-pointer"
               >
                 <span>Explore Vacancies</span>
@@ -382,52 +390,73 @@ export default function SeekerDashboard() {
             )}
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800/80 shadow-sm overflow-hidden transition-colors">
-            {filteredApplications.map((app) => (
-              <div
-                key={app.id}
-                className="p-5 sm:p-6 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group"
-              >
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-bold text-base text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                      {app.job.title}
-                    </h3>
-                    <span className="text-xs text-slate-300 dark:text-slate-600">•</span>
-                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                      <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                      {app.job.company_name}
-                    </span>
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800/80 shadow-sm overflow-hidden transition-colors">
+              {displayedApplications.map((app) => (
+                <div
+                  key={app.id}
+                  className="p-5 sm:p-6 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group"
+                >
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-bold text-base text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                        {app.job.title}
+                      </h3>
+                      <span className="text-xs text-slate-300 dark:text-slate-600">•</span>
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                        {app.job.company_name}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                        {app.job.location}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                        Applied on {new Date(app.applied_at).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                      {app.job.location}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                      Applied on {new Date(app.applied_at).toLocaleDateString(undefined, {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </span>
+                  <div className="flex items-center gap-3.5 self-end sm:self-center shrink-0">
+                    {getStatusBadge(app.status)}
+                    <Link
+                      href={`/jobs/${app.job.id}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-100 dark:border-sky-800/60 transition"
+                    >
+                      <span>View Job</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <div className="flex items-center gap-3.5 self-end sm:self-center shrink-0">
-                  {getStatusBadge(app.status)}
-                  <Link
-                    href={`/jobs/${app.job.id}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-100 dark:border-sky-800/60 transition"
-                  >
-                    <span>View Job</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
+            {/* Pagination Controls */}
+            {filteredApplications.length > 0 && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 px-4 py-1 shadow-sm">
+                <Pagination
+                  currentPage={appPage}
+                  totalPages={Math.max(1, Math.ceil(filteredApplications.length / appPageSize))}
+                  totalCount={filteredApplications.length}
+                  pageSize={appPageSize}
+                  onPageChange={setAppPage}
+                  onPageSizeChange={(newSize) => {
+                    setAppPageSize(newSize);
+                    setAppPage(1);
+                  }}
+                  pageSizeOptions={[5, 10, 20, 50]}
+                  itemName="applications"
+                />
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>

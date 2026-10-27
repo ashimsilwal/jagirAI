@@ -28,8 +28,11 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     const el = ref.current;
     if (!el) return;
 
-    // Trigger immediately if user prefers reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Trigger immediately if user prefers reduced motion (OS or Accessibility panel)
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.classList.contains('a11y-reduced-motion')
+    ) {
       setIsVisible(true);
       return;
     }

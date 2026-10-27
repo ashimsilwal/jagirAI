@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
+import { apiFetch, hasPermission } from '@/lib/api';
 import { 
   Briefcase, 
   MapPin, 
@@ -11,11 +12,25 @@ import {
   Calendar, 
   PlusCircle, 
   ArrowLeft, 
-  AlertCircle 
+  AlertCircle,
+  ShieldAlert
 } from 'lucide-react';
 
 export default function NewJobPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+
+  const canCreateVacancy = hasPermission(user, 'vacancy.create');
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role !== 'JOB_RECRUITER') {
+        router.replace('/jobs');
+      } else if (!canCreateVacancy) {
+        router.replace('/dashboard/recruiter');
+      }
+    }
+  }, [user, authLoading, canCreateVacancy, router]);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -32,19 +47,37 @@ export default function NewJobPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    const trimmedTitle = title.trim();
+    const trimmedDesc = description.trim();
+    const trimmedLoc = location.trim();
+
+    if (!trimmedTitle) {
+      setError('Job title is required.');
+      return;
+    }
+    if (!trimmedDesc) {
+      setError('Job description is required.');
+      return;
+    }
+    if (!trimmedLoc) {
+      setError('Job location is required.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       await apiFetch('/jobs/', {
         method: 'POST',
         body: JSON.stringify({
-          title,
-          description,
-          requirements,
-          responsibilities,
-          location,
-          salary,
+          title: trimmedTitle,
+          description: trimmedDesc,
+          requirements: requirements.trim(),
+          responsibilities: responsibilities.trim(),
+          location: trimmedLoc,
+          salary: salary.trim(),
           employment_type: employmentType,
           deadline: deadline || null,
           status,
@@ -58,6 +91,28 @@ export default function NewJobPage() {
       setLoading(false);
     }
   };
+
+  if (!canCreateVacancy) {
+    return (
+      <div className="max-w-xl mx-auto py-16 px-4 text-center space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto shadow-sm">
+          <ShieldAlert className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+          Access Restricted
+        </h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Your organization role does not include the &apos;vacancy.create&apos; permission. Only authorized team members can publish new job vacancies.
+        </p>
+        <Link
+          href="/dashboard/recruiter"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-sm transition"
+        >
+          Return to Recruiter Dashboard
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-6">

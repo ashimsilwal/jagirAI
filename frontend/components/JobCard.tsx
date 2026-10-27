@@ -215,7 +215,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
           <div className="relative shrink-0">
             {job.company_logo && !logoError ? (
               <div className="w-12 h-12 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 p-1 flex items-center justify-center overflow-hidden shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={job.company_logo}
                   alt={`${job.company_name} logo`}
@@ -223,8 +222,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
                   onError={() => setLogoError(true)}
                 />
               </div>
+
             ) : (
-              <div className={`w-12 h-12 rounded-lg border flex items-center justify-center font-bold text-sm tracking-wider shadow-sm ${palette}`}>
+              <div aria-hidden="true" className={`w-12 h-12 rounded-lg border flex items-center justify-center font-bold text-sm tracking-wider shadow-sm ${palette}`}>
                 {initials}
               </div>
             )}
@@ -240,7 +240,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
               </Link>
               {isApplied && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 shrink-0">
-                  <CheckCircle2 className="w-3 h-3" />
+                  <CheckCircle2 aria-hidden="true" className="w-3 h-3" />
                   <span>Applied</span>
                 </span>
               )}
@@ -248,25 +248,25 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
 
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-400 font-medium">
               <span className="flex items-center gap-1 text-slate-800 dark:text-slate-200">
-                <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                {job.company_name}
+                <Building2 aria-hidden="true" className="w-3.5 h-3.5 text-slate-400" />
+                <span>{job.company_name}</span>
               </span>
-              <span className="text-slate-300 dark:text-slate-600">•</span>
+              <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">•</span>
               <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                {job.location}
+                <MapPin aria-hidden="true" className="w-3.5 h-3.5 text-slate-400" />
+                <span>{job.location}</span>
               </span>
-              <span className="text-slate-300 dark:text-slate-600">•</span>
+              <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">•</span>
               <span className="flex items-center gap-1">
-                <Briefcase className="w-3.5 h-3.5 text-sky-500" />
-                {formatEmploymentType(job.employment_type)}
+                <Briefcase aria-hidden="true" className="w-3.5 h-3.5 text-sky-500" />
+                <span>{formatEmploymentType(job.employment_type)}</span>
               </span>
               {job.salary && (
                 <>
-                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">•</span>
                   <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-                    <Banknote className="w-3.5 h-3.5" />
-                    {job.salary}
+                    <Banknote aria-hidden="true" className="w-3.5 h-3.5" />
+                    <span>{job.salary}</span>
                   </span>
                 </>
               )}
@@ -290,20 +290,20 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-400 font-medium flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
+              <Clock aria-hidden="true" className="w-3.5 h-3.5" />
               <span>{formatPostedDate(job.created_at)}</span>
             </span>
             <button
               type="button"
               onClick={handleBookmarkToggle}
-              aria-label={saved ? 'Remove bookmark' : 'Bookmark job'}
+              aria-label={saved ? `Remove bookmark for ${job.title} at ${job.company_name}` : `Bookmark ${job.title} at ${job.company_name}`}
               className={`p-2 rounded-lg border transition-all cursor-pointer ${
                 saved
                   ? 'bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border-sky-200/80 dark:border-sky-800'
                   : 'bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200/80 dark:border-slate-700 hover:text-sky-600 dark:hover:text-sky-400'
               }`}
             >
-              <Bookmark className={`w-4 h-4 ${saved ? 'fill-sky-600 text-sky-600 dark:fill-sky-400 dark:text-sky-400' : ''}`} />
+              <Bookmark aria-hidden="true" className={`w-4 h-4 ${saved ? 'fill-sky-600 text-sky-600 dark:fill-sky-400 dark:text-sky-400' : ''}`} />
             </button>
           </div>
 
@@ -312,12 +312,14 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
             className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm shadow-sky-500/20 transition-all cursor-pointer"
           >
             <span>View Job</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span className="sr-only">for {job.title} at {job.company_name}</span>
+            <ArrowRight aria-hidden="true" className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
     );
   }
+
 
   return (
     <div
@@ -331,7 +333,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
           <div className="relative">
             {job.company_logo && !logoError ? (
               <div className="w-12 h-12 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-sky-200 dark:group-hover:border-sky-500 transition-colors">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={job.company_logo}
                   alt={`${job.company_name} logo`}
@@ -339,8 +340,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
                   onError={() => setLogoError(true)}
                 />
               </div>
+
             ) : (
               <div
+                aria-hidden="true"
                 className={`w-12 h-12 rounded-md border flex items-center justify-center font-bold text-sm tracking-wider shadow-sm transition-transform group-hover:scale-105 ${palette}`}
               >
                 {initials}
@@ -352,20 +355,20 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
           <div className="flex items-center gap-1.5 shrink-0">
             {isApplied && (
               <span className="text-[11px] font-bold flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800">
-                <CheckCircle2 className="w-3 h-3" />
+                <CheckCircle2 aria-hidden="true" className="w-3 h-3" />
                 <span>Applied</span>
               </span>
             )}
 
             <span className="text-xs text-slate-400 dark:text-slate-400 font-medium flex items-center gap-1 bg-slate-50 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-100 dark:border-slate-700">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <Clock aria-hidden="true" className="w-3.5 h-3.5 text-slate-400" />
               <span>{formatPostedDate(job.created_at)}</span>
             </span>
 
             <button
               type="button"
               onClick={handleBookmarkToggle}
-              aria-label={saved ? 'Remove bookmark' : 'Bookmark job'}
+              aria-label={saved ? `Remove bookmark for ${job.title} at ${job.company_name}` : `Bookmark ${job.title} at ${job.company_name}`}
               title={saved ? 'Bookmarked' : 'Save job'}
               className={`p-2 rounded-md border transition-all duration-200 cursor-pointer ${
                 saved
@@ -374,6 +377,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
               }`}
             >
               <Bookmark
+                aria-hidden="true"
                 className={`w-4 h-4 transition-transform active:scale-90 ${
                   saved ? 'fill-sky-600 text-sky-600 dark:fill-sky-400 dark:text-sky-400' : ''
                 }`}
@@ -393,7 +397,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
             </h3>
           </Link>
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">
-            <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <Building2 aria-hidden="true" className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate">{job.company_name}</span>
           </div>
         </div>
@@ -402,20 +406,20 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
         <div className="flex flex-wrap items-center gap-2 pt-0.5 min-h-[28px]">
           {/* Location */}
           <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700 max-w-[180px]">
-            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <MapPin aria-hidden="true" className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate">{job.location}</span>
           </div>
 
           {/* Employment Type */}
           <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-900/60">
-            <Briefcase className="w-3 h-3 text-sky-600 dark:text-sky-400 shrink-0" />
+            <Briefcase aria-hidden="true" className="w-3 h-3 text-sky-600 dark:text-sky-400 shrink-0" />
             <span>{formatEmploymentType(job.employment_type)}</span>
           </div>
 
           {/* Salary when available */}
           {job.salary && (
             <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/60">
-              <Banknote className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <Banknote aria-hidden="true" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="truncate">{job.salary}</span>
             </div>
           )}
@@ -457,9 +461,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
           className="w-full py-2.5 px-4 rounded-md bg-slate-50 dark:bg-slate-800 group-hover:bg-sky-600 dark:group-hover:bg-sky-600 text-slate-700 dark:text-slate-200 group-hover:text-white dark:group-hover:text-white border border-slate-200/80 dark:border-slate-700 group-hover:border-transparent dark:group-hover:border-transparent text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 shadow-sm group/btn cursor-pointer"
         >
           <span>View Job</span>
-          <ArrowRight className="w-4 h-4 text-slate-400 dark:text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+          <span className="sr-only">for {job.title} at {job.company_name}</span>
+          <ArrowRight aria-hidden="true" className="w-4 h-4 text-slate-400 dark:text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
         </Link>
       </div>
     </div>
   );
+
 };

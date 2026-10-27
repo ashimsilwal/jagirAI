@@ -19,7 +19,17 @@ export interface User {
   is_staff?: boolean;
   is_superuser?: boolean;
   is_active?: boolean;
+  must_change_password?: boolean;
+  is_org_owner?: boolean;
+  org_permissions?: string[];
+  org_role?: { name: string; slug: string } | null;
   date_joined: string;
+}
+
+export function hasPermission(user: User | null | undefined, permissionCode: string): boolean {
+  if (!user) return false;
+  if (user.is_staff || user.is_superuser || user.is_org_owner) return true;
+  return Array.isArray(user.org_permissions) && user.org_permissions.includes(permissionCode);
 }
 
 export interface AdminUser extends User {
@@ -123,6 +133,89 @@ export interface SupportTicket {
   resolved_by_username?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
+export interface Organization {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  logo: string | null;
+  website: string;
+  location: string;
+  phone: string;
+  owner?: User;
+  members_count: number;
+  open_vacancies_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganizationRole {
+  id: number;
+  organization: number | null;
+  name: string;
+  slug: string;
+  description: string;
+  is_predefined: boolean;
+  permissions: string[];
+  permissions_display?: { code: string; description: string }[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface OrganizationMembership {
+  id: number;
+  organization: number;
+  user: User;
+  role: OrganizationRole;
+  custom_permissions: string[];
+  status: 'ACTIVE' | 'SUSPENDED' | 'LEFT';
+  joined_at: string;
+  updated_at: string;
+  effective_permissions: string[];
+  is_owner: boolean;
+}
+
+export interface OrganizationInvitation {
+  id: number;
+  organization: number;
+  email: string;
+  role: OrganizationRole;
+  custom_permissions: string[];
+  status: 'PENDING' | 'ACCEPTED' | 'REVOKED' | 'EXPIRED';
+  invited_by_username: string;
+  expires_at: string;
+  created_at: string;
+  accepted_at: string | null;
+  is_expired: boolean;
+}
+
+export interface OrganizationActivityLog {
+  id: number;
+  organization: number;
+  actor_username: string;
+  actor_email: string;
+  action: string;
+  target_type: string;
+  target_id: string;
+  target_repr: string;
+  metadata: Record<string, any>;
+  ip_address: string | null;
+  created_at: string;
+}
+
+export interface PermissionDefinition {
+  code: string;
+  description: string;
+  category: string;
 }
 
 export async function apiFetch<T = any>(

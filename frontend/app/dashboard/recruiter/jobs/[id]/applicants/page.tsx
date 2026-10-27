@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { apiFetch, Application, Job, getMediaUrl } from '@/lib/api';
+import { apiFetch, Application, Job, getMediaUrl, hasPermission } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 import { 
   Users, 
   ArrowLeft, 
@@ -12,7 +13,8 @@ import {
   Mail, 
   Phone, 
   Clock,
-  Briefcase
+  Briefcase,
+  ShieldAlert
 } from 'lucide-react';
 
 function getInitials(name: string): string {
@@ -26,20 +28,29 @@ function getInitials(name: string): string {
 
 export default function JobApplicantsPage() {
   const { id } = useParams();
+  const router = useRouter();
+  const { user } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusUpdating, setStatusUpdating] = useState<number | null>(null);
 
+  const canViewApplications = hasPermission(user, 'application.view');
+  const canUpdateStatus = hasPermission(user, 'application.update_status');
+
   const fetchApplicants = async () => {
+    if (!canViewApplications) {
+      setLoading(false);
+      return;
+    }
     try {
       // Load Job info
       const jobData = await apiFetch<Job>(`/jobs/${id}/`);
       setJob(jobData);
 
       // Load Applicants
-      const data = await apiFetch<any>(`/applications/job/${id}/`);
-      const list = Array.isArray(data) ? data : data.results || [];
+      const data = await apiFetch<any>(`/applications/job/${id}/?page_size=100`);
+      const list = Array.isArray(data) ? data : data?.results || [];
       setApplications(list);
     } catch (err) {
       console.error('Failed to load applicants:', err);
@@ -104,8 +115,27 @@ export default function JobApplicantsPage() {
         </Link>
       </div>
 
-      {/* Candidate List */}
-      {loading ? (
+      {/* Candidate List or Access Restricted */}
+      {!canViewApplications ? (
+        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 rounded-lg p-8 text-center space-y-3">
+          <ShieldAlert className="w-10 h-10 text-amber-600 dark:text-amber-400 mx-auto" />
+          <h2 className="text-base font-bold text-amber-900 dark:text-amber-200">
+            Access Restricted
+          </h2>
+          <p className="text-xs text-amber-700 dark:text-amber-300 max-w-md mx-auto">
+            Your staff account does not have permission to view applicants for this vacancy. Please contact your organization administrator if you need candidate review access.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/dashboard/recruiter"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-sky-600 dark:hover:bg-sky-500 transition shadow-sm"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Return to Recruiter Dashboard
+            </Link>
+          </div>
+        </div>
+      ) : loading ? (
         <div className="space-y-4 animate-pulse">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-40 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 p-6" />
@@ -175,31 +205,57 @@ export default function JobApplicantsPage() {
                     </div>
                   </div>
 
-                  {/* Status selector */}
+                  {/* Status indicator or selector */}
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Status:</span>
-                    <select
-                      value={app.status}
-                      disabled={statusUpdating === app.id}
-                      onChange={(e) => handleStatusChange(app.id, e.target.value)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-bold border transition cursor-pointer ${
-                        app.status === 'APPLIED'
-                          ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800'
+                    {canUpdateStatus ? (
+                      <select
+                        value={app.status}
+                        disabled={statusUpdating === app.id}
+                        onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                        className={`px-3 py-1.5 rounded-md text-xs font-bold border transition cursor-pointer ${
+                          app.status === 'APPLIED'
+                            ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800'
+                            : app.status === 'SHORTLISTED'
+                            ? 'bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800'
+                            : app.status === 'INTERVIEW'
+                            ? 'bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800'
+                            : app.status === 'HIRED'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800'
+                            : 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200/80 dark:border-rose-800'
+                        }`}
+                      >
+                        <option value="APPLIED">Applied (New)</option>
+                        <option value="SHORTLISTED">Shortlisted</option>
+                        <option value="INTERVIEW">Interview</option>
+                        <option value="HIRED">Hired</option>
+                        <option value="REJECTED">Rejected</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={`px-3 py-1 rounded-md text-xs font-bold border ${
+                          app.status === 'APPLIED'
+                            ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800'
+                            : app.status === 'SHORTLISTED'
+                            ? 'bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800'
+                            : app.status === 'INTERVIEW'
+                            ? 'bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800'
+                            : app.status === 'HIRED'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800'
+                            : 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200/80 dark:border-rose-800'
+                        }`}
+                      >
+                        {app.status === 'APPLIED'
+                          ? 'Applied (New)'
                           : app.status === 'SHORTLISTED'
-                          ? 'bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800'
+                          ? 'Shortlisted'
                           : app.status === 'INTERVIEW'
-                          ? 'bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800'
+                          ? 'Interview'
                           : app.status === 'HIRED'
-                          ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800'
-                          : 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200/80 dark:border-rose-800'
-                      }`}
-                    >
-                      <option value="APPLIED">Applied (New)</option>
-                      <option value="SHORTLISTED">Shortlisted</option>
-                      <option value="INTERVIEW">Interview</option>
-                      <option value="HIRED">Hired</option>
-                      <option value="REJECTED">Rejected</option>
-                    </select>
+                          ? 'Hired'
+                          : 'Rejected'}
+                      </span>
+                    )}
                   </div>
                 </div>
 

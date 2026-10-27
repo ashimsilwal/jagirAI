@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -11,7 +11,10 @@ import {
   PlusCircle, 
   Search,
   Sun,
-  Moon
+  Moon,
+  Home,
+  Menu,
+  X
 } from 'lucide-react';
 import { AnnouncementBar } from './AnnouncementBar';
 import { ProfileDropdown } from './ProfileDropdown';
@@ -19,6 +22,7 @@ import { ProfileDropdown } from './ProfileDropdown';
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const isAdmin = !!(user && (user.is_staff || user.is_superuser));
 
@@ -35,7 +39,7 @@ export const Navbar: React.FC = () => {
       {!user && <AnnouncementBar />}
 
       {/* Main Navbar */}
-      <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-sm transition-colors duration-200">
+      <header role="banner" className="sticky top-0 z-40 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-sm transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-18">
           
@@ -43,9 +47,10 @@ export const Navbar: React.FC = () => {
           {!user ? (
             <Link
               href="/"
+              aria-label="Jagir AI Homepage"
               className="flex items-center gap-2.5 group"
             >
-              <div className="w-10 h-10 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-sm shadow-sky-200 group-hover:scale-105 transition-transform">
+              <div aria-hidden="true" className="w-10 h-10 rounded-md bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-sm shadow-sky-200 group-hover:scale-105 transition-transform">
                 <Briefcase className="w-5 h-5 text-white" />
               </div>
               <div className="flex flex-col">
@@ -63,21 +68,36 @@ export const Navbar: React.FC = () => {
 
           {/* Navigation Links - ONLY displayed for visitors who are NOT logged in */}
           {!user && (
-            <nav className="hidden md:flex items-center gap-1">
+            <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1">
               <Link
                 href="/"
+                aria-current={isActive('/') ? 'page' : undefined}
                 className={`px-3.5 py-2 rounded-md text-[15px] font-medium transition-colors flex items-center gap-1.5 ${
                   isActive('/') 
                     ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
                     : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800'
                 }`}
               >
-                <Search className="w-4 h-4" />
+                <Home aria-hidden="true" className="w-4 h-4" />
+                <span>Home</span>
+              </Link>
+
+              <Link
+                href="/jobs"
+                aria-current={isActive('/jobs') ? 'page' : undefined}
+                className={`px-3.5 py-2 rounded-md text-[15px] font-medium transition-colors flex items-center gap-1.5 ${
+                  isActive('/jobs') 
+                    ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
+                    : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800'
+                }`}
+              >
+                <Search aria-hidden="true" className="w-4 h-4" />
                 <span>Find Jobs</span>
               </Link>
 
               <Link
                 href="/about"
+                aria-current={isActive('/about') ? 'page' : undefined}
                 className={`px-3.5 py-2 rounded-md text-[15px] font-medium transition-colors ${
                   isActive('/about') 
                     ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
@@ -89,6 +109,7 @@ export const Navbar: React.FC = () => {
 
               <Link
                 href="/contact"
+                aria-current={isActive('/contact') ? 'page' : undefined}
                 className={`px-3.5 py-2 rounded-md text-[15px] font-medium transition-colors ${
                   isActive('/contact') 
                     ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
@@ -99,6 +120,8 @@ export const Navbar: React.FC = () => {
               </Link>
             </nav>
           )}
+
+
 
           {/* Right Action Bar: Theme Toggle + User Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -136,11 +159,81 @@ export const Navbar: React.FC = () => {
                 >
                   Get Started
                 </Link>
+
+                {/* Mobile Menu Toggle Button */}
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  aria-label="Toggle navigation menu"
+                  aria-expanded={mobileMenuOpen}
+                  className="md:hidden p-2 rounded-md text-gray-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+                >
+                  {mobileMenuOpen ? (
+                    <X className="w-5 h-5" />
+                  ) : (
+                    <Menu className="w-5 h-5" />
+                  )}
+                </button>
               </div>
             )}
           </div>
 
         </div>
+
+        {/* Mobile Navigation Drawer for Visitors */}
+        {!user && mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive('/') 
+                  ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
+                  : 'text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              <Home className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <span>Home</span>
+            </Link>
+
+            <Link
+              href="/jobs"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive('/jobs') 
+                  ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
+                  : 'text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              <Search className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <span>Find Jobs</span>
+            </Link>
+
+            <Link
+              href="/about"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive('/about') 
+                  ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
+                  : 'text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              <span>About Us</span>
+            </Link>
+
+            <Link
+              href="/contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive('/contact') 
+                  ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
+                  : 'text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              <span>Contact</span>
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   </>

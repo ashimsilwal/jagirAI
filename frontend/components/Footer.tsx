@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
   if (user || pathname?.startsWith('/dashboard/setup')) return null;
 
   return (
-    <footer className="bg-gradient-to-b from-sky-600 to-sky-700 dark:from-slate-900 dark:to-slate-950 border-t border-sky-500/40 dark:border-slate-800 text-white mt-auto transition-colors duration-200">
+    <footer role="contentinfo" className="bg-gradient-to-b from-sky-600 to-sky-700 dark:from-slate-900 dark:to-slate-950 border-t border-sky-500/40 dark:border-slate-800 text-white mt-auto transition-colors duration-200">
       {/* Main Footer Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">

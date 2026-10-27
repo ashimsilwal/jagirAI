@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
     # Local apps
     'users',
+    'organizations',
     'jobs',
     'applications',
 ]
@@ -76,6 +77,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'config.pagination.StandardResultsSetPagination',
+    'PAGE_SIZE': 10,
 }
 
 from datetime import timedelta
@@ -175,3 +178,4 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+

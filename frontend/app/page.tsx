@@ -81,15 +81,10 @@ export default function HomePage() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (location) params.append('location', location);
-      if (employmentType) params.append('employment_type', employmentType);
-
-      const queryString = params.toString() ? `?${params.toString()}` : '';
-      const data = await apiFetch<any>(`/jobs/${queryString}`);
+      // Home page displays only the 12 newest job applications
+      const data = await apiFetch<any>('/jobs/?page_size=12');
       const jobList = Array.isArray(data) ? data : data.results || [];
-      setJobs(jobList);
+      setJobs(jobList.slice(0, 12));
     } catch (err) {
       console.error('Failed to load jobs:', err);
     } finally {
@@ -99,11 +94,15 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchJobs();
-  }, [employmentType]);
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchJobs();
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (location) params.append('location', location);
+    if (employmentType) params.append('employment_type', employmentType);
+    router.push(`/jobs${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   const handleResetFilters = () => {
@@ -112,13 +111,10 @@ export default function HomePage() {
     setEmploymentType('');
     setShowSavedOnly(false);
     setShowUnappliedOnly(false);
-    // Fetch reset jobs
-    apiFetch<any>('/jobs/').then((data) => {
-      setJobs(Array.isArray(data) ? data : data.results || []);
-    });
+    fetchJobs();
   };
 
-  // Filter & Sort Jobs locally
+  // Filter & Sort Jobs locally (capped at newest 10)
   const displayedJobs = useMemo(() => {
     let list = [...jobs];
 
@@ -138,7 +134,7 @@ export default function HomePage() {
       list.sort((a, b) => a.title.localeCompare(b.title));
     }
 
-    return list;
+    return list.slice(0, 12);
   }, [jobs, showSavedOnly, showUnappliedOnly, savedJobIds, appliedJobIds, sortBy]);
 
   return (
@@ -191,12 +187,15 @@ export default function HomePage() {
             {/* Seeker Search Bar */}
             <form
               onSubmit={handleSearchSubmit}
+              role="search"
+              aria-label="Search jobs"
               className="bg-white dark:bg-slate-900 p-2 sm:p-2.5 rounded-xl shadow-sm border border-slate-200/90 dark:border-slate-800 flex flex-col md:flex-row gap-2"
             >
               <div className="flex-1 flex items-center px-3 py-2 bg-slate-50/80 dark:bg-slate-800/60 md:bg-transparent dark:md:bg-transparent rounded-lg">
-                <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
+                <Search aria-hidden="true" className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
                 <input
                   type="text"
+                  aria-label="Search by job title, keywords, or tech stack"
                   placeholder="Job title, keywords, or tech stack (e.g. Python, React)..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -204,12 +203,13 @@ export default function HomePage() {
                 />
               </div>
 
-              <div className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
+              <div aria-hidden="true" className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
 
               <div className="flex-1 flex items-center px-3 py-2 bg-slate-50/80 dark:bg-slate-800/60 md:bg-transparent dark:md:bg-transparent rounded-lg">
-                <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
+                <MapPin aria-hidden="true" className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
                 <input
                   type="text"
+                  aria-label="Filter by location or remote"
                   placeholder="Location or Remote..."
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
@@ -217,11 +217,12 @@ export default function HomePage() {
                 />
               </div>
 
-              <div className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
+              <div aria-hidden="true" className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
 
               <div className="flex items-center px-3 py-2 bg-slate-50/80 dark:bg-slate-800/60 md:bg-transparent dark:md:bg-transparent rounded-lg">
-                <Filter className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mr-2" />
+                <Filter aria-hidden="true" className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mr-2" />
                 <select
+                  aria-label="Filter by employment type"
                   value={employmentType}
                   onChange={(e) => setEmploymentType(e.target.value)}
                   className="text-xs sm:text-sm bg-transparent focus:outline-none font-medium text-slate-700 dark:text-slate-200 cursor-pointer"
@@ -237,12 +238,14 @@ export default function HomePage() {
 
               <button
                 type="submit"
+                aria-label="Search vacancies"
                 className="px-5 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs sm:text-sm transition shadow-sm shadow-sky-500/20 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
               >
-                <Search className="w-4 h-4" />
+                <Search aria-hidden="true" className="w-4 h-4" />
                 <span>Search</span>
               </button>
             </form>
+
 
             {/* Quick Filter Chips */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
@@ -351,12 +354,15 @@ export default function HomePage() {
             {/* Search Bar Form */}
             <form
               onSubmit={handleSearchSubmit}
-              className="mt-8 bg-white dark:bg-slate-900 p-2.5 sm:p-3 rounded-xl shadow-xl shadow-sky-900/5 dark:shadow-none flex flex-col md:flex-row gap-2 max-w-4xl mx-auto border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 animate-hero-fade-in-up hero-delay-400 hover:border-sky-300 dark:hover:border-slate-700 transition-all"
+              role="search"
+              aria-label="Search jobs catalog"
+              className="mt-8 bg-white dark:bg-slate-900 p-2.5 sm:p-3 rounded-xl shadow-xl shadow-slate-900/5 dark:shadow-none flex flex-col md:flex-row gap-2 max-w-4xl mx-auto border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 animate-hero-fade-in-up hero-delay-400 hover:border-slate-300 dark:hover:border-slate-700 focus-within:border-slate-300 dark:focus-within:border-slate-700 transition-all"
             >
               <div className="flex-1 flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-lg">
-                <Search className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
+                <Search aria-hidden="true" className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
                 <input
                   type="text"
+                  aria-label="Search by job title, keywords, or skills"
                   placeholder="Job title, keywords, or skills..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -364,12 +370,13 @@ export default function HomePage() {
                 />
               </div>
 
-              <div className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
+              <div aria-hidden="true" className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
 
               <div className="flex-1 flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-lg">
-                <MapPin className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
+                <MapPin aria-hidden="true" className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
                 <input
                   type="text"
+                  aria-label="Filter by city, state, or remote"
                   placeholder="City, state, or Remote"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
@@ -377,11 +384,12 @@ export default function HomePage() {
                 />
               </div>
 
-              <div className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
+              <div aria-hidden="true" className="hidden md:block w-px bg-slate-200 dark:bg-slate-800 my-1" />
 
               <div className="flex items-center px-3 py-2 bg-slate-50 dark:bg-slate-800/50 md:bg-transparent dark:md:bg-transparent rounded-lg">
-                <Filter className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2" />
+                <Filter aria-hidden="true" className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0 mr-2" />
                 <select
+                  aria-label="Filter by job type"
                   value={employmentType}
                   onChange={(e) => setEmploymentType(e.target.value)}
                   className="text-sm bg-transparent focus:outline-none font-medium text-slate-700 dark:text-slate-200 cursor-pointer"
@@ -397,11 +405,13 @@ export default function HomePage() {
 
               <button
                 type="submit"
+                aria-label="Search job listings"
                 className="px-6 py-3 rounded-lg bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold text-sm transition-all duration-200 shadow-sm shadow-sky-200 dark:shadow-none flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
               >
                 Search Jobs
               </button>
             </form>
+
 
             {/* Quick popular tags with staggered fade in */}
             <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-slate-500 dark:text-slate-400 animate-hero-fade-in hero-delay-650">
@@ -410,10 +420,7 @@ export default function HomePage() {
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => {
-                    setSearch(tag);
-                    fetchJobs();
-                  }}
+                  onClick={() => router.push(`/jobs?search=${encodeURIComponent(tag)}`)}
                   className="px-2.5 py-1 rounded-md bg-white/80 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 hover:text-sky-600 dark:hover:text-sky-400 transition-colors duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-sky-500"
                 >
                   {tag}
@@ -431,17 +438,17 @@ export default function HomePage() {
           const toolbarContent = (
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div>
+                <div className="flex items-center gap-2 mb-1">
+                </div>
                 <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                   {showSavedOnly
                     ? 'Saved & Bookmarked Jobs'
                     : showUnappliedOnly
                     ? 'Opportunities You Haven’t Applied To'
-                    : isSeeker
-                    ? 'Explore Available Vacancies'
-                    : 'Explore Active Positions'}
+                    : 'Latest Job Openings'}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                  Showing {displayedJobs.length} {displayedJobs.length === 1 ? 'verified position' : 'verified positions'}
+                  Displaying the 12 newest vacancies from over 1,000+ active positions across Nepal and remote.
                   {isSeeker && appliedCount > 0 && (
                     <span className="text-sky-600 dark:text-sky-400 ml-1.5 font-medium">
                       • {appliedCount} applied
@@ -451,6 +458,14 @@ export default function HomePage() {
               </div>
 
               <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <Link
+                  href="/jobs"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline mr-1"
+                >
+                  <span>Browse All 1,000+ Jobs</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+
                 {/* Sort Dropdown */}
                 <div className="flex items-center gap-1.5 text-xs">
                   <span className="text-slate-400 font-medium">Sort:</span>
@@ -558,21 +573,44 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3.5"}>
-            {displayedJobs.map((job, idx) => (
-              <div
-                key={job.id}
-                style={!isSeeker ? { animationDelay: `${Math.min(idx * 80, 640)}ms` } : undefined}
-                className={!isSeeker ? 'animate-hero-fade-in-up' : ''}
-              >
-                <JobCard
-                  job={job}
-                  isApplied={appliedJobIds.has(job.id)}
-                  layout={layout}
-                />
+          <>
+            <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3.5"}>
+              {displayedJobs.map((job, idx) => (
+                <div
+                  key={job.id}
+                  style={!isSeeker ? { animationDelay: `${Math.min(idx * 80, 640)}ms` } : undefined}
+                  className={!isSeeker ? 'animate-hero-fade-in-up' : ''}
+                >
+                  <JobCard
+                    job={job}
+                    isApplied={appliedJobIds.has(job.id)}
+                    layout={layout}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Browse More Jobs Section */}
+            <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50/70 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-sky-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+              <div className="text-center sm:text-left space-y-1.5">
+                
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                  Looking for More Opportunities?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl">
+                  Explore our complete jobs catalog with advanced salary filters, company search, and remote openings across all categories.
+                </p>
               </div>
-            ))}
-          </div>
+
+              <Link
+                href="/jobs"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm shadow-md shadow-sky-600/20 hover:shadow-lg transition-all shrink-0 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>Browse More Jobs</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </>
         )}
       </section>
 

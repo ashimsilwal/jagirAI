@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { getSafeRedirectUrl } from '@/lib/authRedirect';
-import { Briefcase, Lock, Mail, User, AlertCircle, ArrowRight, UserCheck, Building, Info } from 'lucide-react';
+import { Briefcase, Lock, Mail, User, AlertCircle, ArrowRight, UserCheck, Building, Info, Eye, EyeOff } from 'lucide-react';
 
 function RegisterForm() {
   const { register } = useAuth();
@@ -21,12 +21,44 @@ function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) {
+      setError('Please choose a username.');
+      return;
+    }
+    if (trimmedUsername.length < 3) {
+      setError('Username must be at least 3 characters long.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmedUsername)) {
+      setError('Username can only contain letters, numbers, and underscores.');
+      return;
+    }
+
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail) {
+      setError('Please provide an email address.');
+      return;
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError('Please provide a valid email address (e.g. name@company.com).');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
@@ -37,8 +69,8 @@ function RegisterForm() {
 
     try {
       const user = await register({
-        username,
-        email,
+        username: trimmedUsername,
+        email: trimmedEmail,
         password,
         confirm_password: confirmPassword,
         role,
@@ -65,12 +97,12 @@ function RegisterForm() {
     <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-slate-900 p-8 sm:p-10 rounded-xl shadow-xl shadow-slate-200/60 dark:shadow-none border border-slate-100 dark:border-slate-800 transition-colors">
         <div className="text-center">
-          <div className="mx-auto w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-400 to-blue-500 flex items-center justify-center text-white shadow-md shadow-sky-200 dark:shadow-none mb-4">
+          <div aria-hidden="true" className="mx-auto w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-400 to-blue-500 flex items-center justify-center text-white shadow-md shadow-sky-200 dark:shadow-none mb-4">
             <Briefcase className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             Create an Account
-          </h2>
+          </h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             Join Jagir AI as a Job Seeker or Recruiter.
           </p>
@@ -78,15 +110,21 @@ function RegisterForm() {
 
         {nextParam && (
           <div className="rounded-lg bg-sky-50 dark:bg-sky-950/50 border border-sky-200/80 dark:border-sky-900/60 p-3.5 flex items-start gap-2.5 text-sky-800 dark:text-sky-300 text-xs">
-            <Info className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+            <Info aria-hidden="true" className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
             <p>Create an account to access your requested page.</p>
           </div>
         )}
 
         {/* Role Selector Tabs */}
-        <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-lg border border-transparent dark:border-slate-700/50">
+        <div
+          role="radiogroup"
+          aria-label="Select Account Type"
+          className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-lg border border-transparent dark:border-slate-700/50"
+        >
           <button
             type="button"
+            role="radio"
+            aria-checked={role === 'JOB_SEEKER'}
             onClick={() => setRole('JOB_SEEKER')}
             className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-semibold transition cursor-pointer ${
               role === 'JOB_SEEKER'
@@ -94,11 +132,13 @@ function RegisterForm() {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <UserCheck className="w-4 h-4" />
-            Job Seeker
+            <UserCheck aria-hidden="true" className="w-4 h-4" />
+            <span>Job Seeker</span>
           </button>
           <button
             type="button"
+            role="radio"
+            aria-checked={role === 'JOB_RECRUITER'}
             onClick={() => setRole('JOB_RECRUITER')}
             className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-semibold transition cursor-pointer ${
               role === 'JOB_RECRUITER'
@@ -106,30 +146,42 @@ function RegisterForm() {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Building className="w-4 h-4" />
-            Job Recruiter
+            <Building aria-hidden="true" className="w-4 h-4" />
+            <span>Job Recruiter</span>
           </button>
         </div>
 
         {error && (
-          <div className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-4 flex items-start gap-3 text-rose-800 dark:text-rose-300 text-sm">
-            <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+          <div
+            id="register-error"
+            role="alert"
+            aria-live="polite"
+            className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-4 flex items-start gap-3 text-rose-800 dark:text-rose-300 text-sm"
+          >
+            <AlertCircle aria-hidden="true" className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
             <p>{error}</p>
           </div>
         )}
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-              Username
+            <label
+              htmlFor="reg-username"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+            >
+              Username <span className="text-rose-500" aria-hidden="true">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <div aria-hidden="true" className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                 <User className="w-4 h-4" />
               </div>
               <input
+                id="reg-username"
                 type="text"
                 required
+                autoComplete="username"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? 'register-error' : undefined}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="johndoe"
@@ -139,16 +191,23 @@ function RegisterForm() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-              Email Address
+            <label
+              htmlFor="reg-email"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+            >
+              Email Address <span className="text-rose-500" aria-hidden="true">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <div aria-hidden="true" className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                 <Mail className="w-4 h-4" />
               </div>
               <input
+                id="reg-email"
                 type="email"
                 required
+                autoComplete="email"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? 'register-error' : undefined}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
@@ -158,40 +217,80 @@ function RegisterForm() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-              Password
+            <label
+              htmlFor="reg-password"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+            >
+              Password <span className="text-rose-500" aria-hidden="true">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <div aria-hidden="true" className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                 <Lock className="w-4 h-4" />
               </div>
               <input
-                type="password"
+                id="reg-password"
+                type={showPassword ? 'text' : 'password'}
                 required
+                autoComplete="new-password"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? 'register-error' : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-800 transition"
+                className="w-full pl-10 pr-11 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-800 transition"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-sky-500 rounded"
+              >
+                {showPassword ? (
+                  <EyeOff aria-hidden="true" className="w-4 h-4" />
+                ) : (
+                  <Eye aria-hidden="true" className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-              Confirm Password
+            <label
+              htmlFor="reg-confirm-password"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+            >
+              Confirm Password <span className="text-rose-500" aria-hidden="true">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <div aria-hidden="true" className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                 <Lock className="w-4 h-4" />
               </div>
               <input
-                type="password"
+                id="reg-confirm-password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 required
+                autoComplete="new-password"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? 'register-error' : undefined}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-800 transition"
+                className="w-full pl-10 pr-11 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-800 transition"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                aria-pressed={showConfirmPassword}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-sky-500 rounded"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff aria-hidden="true" className="w-4 h-4" />
+                ) : (
+                  <Eye aria-hidden="true" className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
 
@@ -205,11 +304,12 @@ function RegisterForm() {
             ) : (
               <>
                 <span>Sign Up as {role === 'JOB_RECRUITER' ? 'Recruiter' : 'Job Seeker'}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight aria-hidden="true" className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
+
 
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
           <p className="text-sm text-slate-600 dark:text-slate-400">

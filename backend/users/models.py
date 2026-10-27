@@ -20,6 +20,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_profile_setup = models.BooleanField(default=False)
+    must_change_password = models.BooleanField(
+        default=False,
+        help_text="Designates whether the user must change their temporary password upon login."
+    )
     date_joined = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, hasPermission } from '@/lib/api';
 import {
   LayoutDashboard,
   Briefcase,
@@ -92,7 +92,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       apiFetch<any>('/admin/tickets/?status=OPEN')
         .then((data) => {
           const list = Array.isArray(data) ? data : data.results || [];
-          setOpenTicketsCount(list.length);
+          setOpenTicketsCount(typeof data.count === 'number' ? data.count : list.length);
         })
         .catch(() => {});
     };
@@ -134,17 +134,34 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         href: '/dashboard/recruiter',
         icon: LayoutDashboard,
       },
-      {
-        label: 'Post New Vacancy',
-        href: '/dashboard/recruiter/jobs/new',
-        icon: PlusCircle,
-        badge: 'New',
-      },
-      {
-        label: 'Company Profile',
-        href: '/dashboard/recruiter/profile',
-        icon: Building2,
-      },
+      ...(hasPermission(user, 'vacancy.create')
+        ? [
+            {
+              label: 'Post New Vacancy',
+              href: '/dashboard/recruiter/jobs/new',
+              icon: PlusCircle,
+              badge: 'New',
+            },
+          ]
+        : []),
+      ...(hasPermission(user, 'team.view')
+        ? [
+            {
+              label: 'Team & Staff',
+              href: '/dashboard/recruiter/team',
+              icon: Users,
+            },
+          ]
+        : []),
+      ...(hasPermission(user, 'organization.view') || hasPermission(user, 'organization.update')
+        ? [
+            {
+              label: 'Company Profile',
+              href: '/dashboard/recruiter/profile',
+              icon: Building2,
+            },
+          ]
+        : []),
     ];
   } else {
     // Job Seeker
@@ -156,7 +173,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       },
       {
         label: 'Find Jobs',
-        href: '/',
+        href: '/jobs',
         icon: Briefcase,
       },
       {
@@ -213,16 +230,19 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
           {/* Desktop Collapse Toggle */}
           <button
+            type="button"
             onClick={toggleCollapse}
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? 'Expand sidebar navigation' : 'Collapse sidebar navigation'}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-sky-500"
           >
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            {collapsed ? <ChevronRight aria-hidden="true" className="w-4 h-4" /> : <ChevronLeft aria-hidden="true" className="w-4 h-4" />}
           </button>
         </div>
 
         {/* Navigation Link List - Scrollable if content overflows */}
-        <nav className="p-3 space-y-4 flex-1 overflow-y-auto">
+        <nav aria-label="Dashboard navigation" className="p-3 space-y-4 flex-1 overflow-y-auto">
           <div>
             {!collapsed && (
               <p className="px-3 pt-2 pb-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
@@ -239,6 +259,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     key={idx}
                     href={item.href}
                     onClick={onMobileClose}
+                    aria-current={active ? 'page' : undefined}
                     title={collapsed ? item.label : undefined}
                     className={`relative group flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                       active
@@ -247,6 +268,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     } ${collapsed ? 'justify-center px-2' : ''}`}
                   >
                     <Icon
+                      aria-hidden="true"
                       className={`w-4 h-4 shrink-0 transition-colors ${
                         active
                           ? 'text-sky-600 dark:text-sky-400'
@@ -264,13 +286,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       </span>
                     )}
                     {collapsed && item.badge && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 absolute top-2 right-2 ring-2 ring-white dark:ring-slate-900 animate-pulse" />
+                      <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full bg-amber-500 absolute top-2 right-2 ring-2 ring-white dark:ring-slate-900 animate-pulse" />
                     )}
                   </Link>
                 );
               })}
             </div>
           </div>
+
 
           {secondaryNavItems.length > 0 && (
             <div>

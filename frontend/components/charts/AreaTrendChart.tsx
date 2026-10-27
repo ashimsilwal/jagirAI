@@ -87,15 +87,19 @@ export const AreaTrendChart: React.FC<AreaTrendChartProps> = ({
 
       <div className="relative w-full">
         <svg
+          role="img"
+          aria-label={`${title || 'Trend chart'}: ${points.map((p) => `${p.label}: ${p.value}`).join(', ')}`}
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto overflow-visible"
         >
+          <title>{title || 'Trend activity chart'}</title>
           <defs>
             <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={gradientFrom} />
               <stop offset="100%" stopColor={gradientTo} />
             </linearGradient>
           </defs>
+
 
           {/* Horizontal Grid lines */}
           <line

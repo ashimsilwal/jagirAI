@@ -221,8 +221,8 @@ export default function JobDetailPage() {
                 </Link>
               </div>
             ) : applySuccess ? (
-              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-md text-center space-y-2">
-                <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
+              <div role="status" aria-live="polite" className="p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-md text-center space-y-2">
+                <CheckCircle2 aria-hidden="true" className="w-8 h-8 text-emerald-600 mx-auto" />
                 <h4 className="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Application Submitted!</h4>
                 <p className="text-xs text-emerald-700 dark:text-emerald-300">
                   The recruiter will review your profile and contact you soon.
@@ -237,17 +237,26 @@ export default function JobDetailPage() {
             ) : user?.role === 'JOB_SEEKER' ? (
               <form onSubmit={handleApply} className="space-y-4">
                 {applyError && (
-                  <div className="p-3 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 rounded-md text-rose-800 dark:text-rose-200 text-xs flex gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  <div
+                    id="apply-error"
+                    role="alert"
+                    aria-live="polite"
+                    className="p-3 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 rounded-md text-rose-800 dark:text-rose-200 text-xs flex gap-2"
+                  >
+                    <AlertCircle aria-hidden="true" className="w-4 h-4 shrink-0" />
                     <span>{applyError}</span>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label
+                    htmlFor="cover-letter"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
+                  >
                     Cover Letter (Optional)
                   </label>
                   <textarea
+                    id="cover-letter"
                     rows={4}
                     value={coverLetter}
                     onChange={(e) => setCoverLetter(e.target.value)}
@@ -257,20 +266,27 @@ export default function JobDetailPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label
+                    htmlFor="custom-resume"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
+                  >
                     Custom Resume (PDF/Word, optional)
                   </label>
                   <div className="flex items-center gap-2">
-                    <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-sky-300 rounded-md text-xs text-slate-600 dark:text-slate-300 hover:text-sky-600 cursor-pointer bg-slate-50 dark:bg-slate-800/60 transition">
-                      <FileUp className="w-4 h-4" />
+                    <label
+                      htmlFor="custom-resume"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-500 rounded-md text-xs text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 cursor-pointer bg-slate-50 dark:bg-slate-800/60 focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500 transition"
+                    >
+                      <FileUp aria-hidden="true" className="w-4 h-4" />
                       <span className="truncate">
                         {customResume ? customResume.name : 'Upload New Resume'}
                       </span>
                       <input
+                        id="custom-resume"
                         type="file"
                         accept=".pdf,.doc,.docx"
                         onChange={(e) => setCustomResume(e.target.files?.[0] || null)}
-                        className="hidden"
+                        className="sr-only"
                       />
                     </label>
                   </div>
@@ -282,18 +298,19 @@ export default function JobDetailPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-md shadow-sky-200 dark:shadow-none cursor-pointer disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-md shadow-sky-200 dark:shadow-none cursor-pointer disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-sky-500"
                 >
                   {submitting ? (
                     <span>Submitting Application...</span>
                   ) : (
                     <>
-                      <Send className="w-4 h-4" />
+                      <Send aria-hidden="true" className="w-4 h-4" />
                       <span>Submit Application</span>
                     </>
                   )}
                 </button>
               </form>
+
             ) : user?.role === 'JOB_RECRUITER' ? (
               <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-md text-xs text-slate-600 dark:text-slate-300">
                 You are currently signed in as a Recruiter. Only Job Seekers can apply for jobs.

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { apiFetch, AdminUser, AdminStats, SupportTicket } from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 import {
   ShieldCheck,
   Users,
@@ -48,6 +49,8 @@ export default function AdminDashboardPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'JOB_SEEKER' | 'JOB_RECRUITER' | 'ADMIN'>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
+  const [userPage, setUserPage] = useState<number>(1);
+  const [userPageSize, setUserPageSize] = useState<number>(10);
 
   // Modals state
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
@@ -90,12 +93,12 @@ export default function AdminDashboardPage() {
       setLoading(true);
       const [statsData, usersData, ticketsData] = await Promise.all([
         apiFetch<AdminStats>('/admin/stats/'),
-        apiFetch<AdminUser[]>('/admin/users/'),
-        apiFetch<SupportTicket[]>('/admin/tickets/').catch(() => [])
+        apiFetch<any>('/admin/users/?page_size=100'),
+        apiFetch<any>('/admin/tickets/?page_size=100').catch(() => [])
       ]);
       setStats(statsData);
-      setUsers(usersData);
-      setTickets(Array.isArray(ticketsData) ? ticketsData : []);
+      setUsers(Array.isArray(usersData) ? usersData : usersData?.results || []);
+      setTickets(Array.isArray(ticketsData) ? ticketsData : ticketsData?.results || []);
     } catch (err: any) {
       console.error('Failed to load admin data:', err);
       setFeedbackMsg({
@@ -248,6 +251,17 @@ export default function AdminDashboardPage() {
       return matchesSearch && matchesRole && matchesStatus;
     });
   }, [users, search, roleFilter, statusFilter]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setUserPage(1);
+  }, [search, roleFilter, statusFilter]);
+
+  // Paginated users slice
+  const displayedUsers = useMemo(() => {
+    const start = (userPage - 1) * userPageSize;
+    return filteredUsers.slice(start, start + userPageSize);
+  }, [filteredUsers, userPage, userPageSize]);
 
   const openTicketsCount = useMemo(() => {
     return tickets.filter((t) => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length;
@@ -651,7 +665,7 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {filteredUsers.map((u) => {
+                    {displayedUsers.map((u) => {
                       const isSelf = user?.id === u.id;
                       return (
                         <tr key={u.id} className="hover:bg-sky-50/30 dark:hover:bg-slate-800/40 transition-colors">
@@ -797,10 +811,21 @@ export default function AdminDashboardPage() {
               )}
             </div>
 
-            {/* Table Footer Info */}
-            <div className="py-3 px-5 bg-slate-50/60 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-              <span>Showing {filteredUsers.length} of {users.length} users</span>
-              <span className="text-[11px]">Admin Control Panel • Jagir AI</span>
+            {/* Table Footer with Pagination */}
+            <div className="py-2.5 px-5 bg-slate-50/60 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800">
+              <Pagination
+                currentPage={userPage}
+                totalPages={Math.max(1, Math.ceil(filteredUsers.length / userPageSize))}
+                totalCount={filteredUsers.length}
+                pageSize={userPageSize}
+                onPageChange={setUserPage}
+                onPageSizeChange={(newSize) => {
+                  setUserPageSize(newSize);
+                  setUserPage(1);
+                }}
+                pageSizeOptions={[10, 25, 50, 100]}
+                itemName="users"
+              />
             </div>
       </div>
 

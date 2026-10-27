@@ -20,6 +20,13 @@ class Job(models.Model):
         on_delete=models.CASCADE,
         related_name='jobs'
     )
+    organization = models.ForeignKey(
+        'organizations.Organization',
+        on_delete=models.CASCADE,
+        related_name='jobs',
+        null=True,
+        blank=True
+    )
     title = models.CharField(max_length=255, db_index=True)
     description = models.TextField()
     requirements = models.TextField(blank=True)

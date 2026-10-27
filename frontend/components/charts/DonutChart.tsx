@@ -69,11 +69,14 @@ export const DonutChart: React.FC<DonutChartProps> = ({
         {/* SVG Donut */}
         <div className="relative shrink-0 flex items-center justify-center" style={{ width: size, height: size }}>
           <svg
+            role="img"
+            aria-label={`${title || 'Donut chart'}: ${segments.map((s) => `${s.label}: ${s.value}`).join(', ')}. Total: ${displayCenterValue}`}
             width={size}
             height={size}
             viewBox={`0 0 ${size} ${size}`}
             className="transform -rotate-90 origin-center drop-shadow-sm"
           >
+            <title>{title || 'Status distribution chart'}</title>
             {/* Background Track */}
             <circle
               cx={size / 2}
@@ -108,6 +111,28 @@ export const DonutChart: React.FC<DonutChartProps> = ({
                 );
               })}
           </svg>
+
+          {/* Hidden data table for screen readers */}
+          <table className="sr-only">
+            <caption>{title || 'Chart data breakdown'}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Status</th>
+                <th scope="col">Count</th>
+                <th scope="col">Percentage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {segmentArcs.map((arc, index) => (
+                <tr key={index}>
+                  <td>{arc.label}</td>
+                  <td>{arc.value}</td>
+                  <td>{arc.percentage}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
 
           {/* Centered Stat Content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-4">

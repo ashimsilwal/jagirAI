@@ -5,6 +5,7 @@ from .views import (
     CustomTokenObtainPairView,
     LogoutView,
     CurrentUserView,
+    ChangeInitialPasswordView,
     JobSeekerProfileView,
     RecruiterProfileView,
     ProfileSetupView,
@@ -24,6 +25,7 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view(), name='auth_refresh'),
     path('auth/logout/', LogoutView.as_view(), name='auth_logout'),
     path('auth/me/', CurrentUserView.as_view(), name='auth_me'),
+    path('auth/change-initial-password/', ChangeInitialPasswordView.as_view(), name='auth_change_initial_password'),
 
     # Profile Endpoints
     path('profile/setup/', ProfileSetupView.as_view(), name='profile_setup'),

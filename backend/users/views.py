@@ -9,9 +9,11 @@ from jobs.models import Job
 from applications.models import Application
 from .models import JobSeekerProfile, RecruiterProfile, SupportTicket
 from .permissions import IsJobSeeker, IsRecruiter, IsSuperAdminUser
+from rest_framework.exceptions import PermissionDenied
 from .serializers import (
     RegisterSerializer,
     UserSerializer,
+    ChangeInitialPasswordSerializer,
     CustomTokenObtainPairSerializer,
     LogoutSerializer,
     JobSeekerProfileSerializer,
@@ -87,6 +89,30 @@ class CurrentUserView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class ChangeInitialPasswordView(APIView):
+    """
+    Endpoint: POST /api/auth/change-initial-password/
+    Allows a user with a one-time/temporary password to set their permanent password.
+    Clears must_change_password and returns updated user details.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangeInitialPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_password = serializer.validated_data['password']
+
+        user = request.user
+        user.set_password(new_password)
+        user.must_change_password = False
+        user.save(update_fields=['password', 'must_change_password'])
+
+        return Response({
+            "message": "Your password has been successfully established. You now have full access to your organization features.",
+            "user": UserSerializer(user, context={'request': request}).data
+        }, status=status.HTTP_200_OK)
+
+
 class JobSeekerProfileView(generics.RetrieveUpdateAPIView):
     """
     Endpoint: GET, PUT, PATCH /api/profile/job-seeker/
@@ -113,15 +139,65 @@ class JobSeekerProfileView(generics.RetrieveUpdateAPIView):
 class RecruiterProfileView(generics.RetrieveUpdateAPIView):
     """
     Endpoint: GET, PUT, PATCH /api/profile/recruiter/
-    Allows authenticated Recruiters to view and update their company profile.
+    Allows authenticated Recruiters to view and update company profile based on permissions.
+    - View: requires organization.view or organization.update (or owner)
+    - Update: requires organization.update (or owner)
     """
     serializer_class = RecruiterProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsRecruiter]
     parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
 
     def get_object(self):
-        profile, _ = RecruiterProfile.objects.get_or_create(user=self.request.user)
+        from organizations.services import get_or_create_user_organization
+        from organizations.permissions import check_org_permission
+
+        user = self.request.user
+        org = get_or_create_user_organization(user)
+
+        if self.request.method in ['PUT', 'PATCH', 'POST']:
+            if not check_org_permission(user, org, 'organization.update'):
+                raise PermissionDenied("You do not have permission to update the organization profile.")
+        else:
+            if not (check_org_permission(user, org, 'organization.view') or check_org_permission(user, org, 'organization.update')):
+                raise PermissionDenied("You do not have permission to view the organization profile.")
+
+        # Always return the organization owner's recruiter profile to represent company branding
+        profile, _ = RecruiterProfile.objects.get_or_create(user=org.owner)
         return profile
+
+    def perform_update(self, serializer):
+        profile = serializer.save()
+        # Keep organization profile synchronized with recruiter profile
+        try:
+            from organizations.services import get_or_create_user_organization, log_activity
+            from organizations.models import OrganizationActivityLog
+            org = get_or_create_user_organization(self.request.user)
+            if org:
+                if profile.company_name and org.name != profile.company_name:
+                    org.name = profile.company_name
+                if profile.company_description:
+                    org.description = profile.company_description
+                if profile.company_logo:
+                    org.logo = profile.company_logo
+                if profile.company_website:
+                    org.website = profile.company_website
+                if profile.location:
+                    org.location = profile.location
+                if profile.phone:
+                    org.phone = profile.phone
+                org.save()
+
+                log_activity(
+                    organization=org,
+                    actor=self.request.user,
+                    action=OrganizationActivityLog.Action.ORG_UPDATED,
+                    target_type='Organization',
+                    target_id=str(org.id),
+                    target_repr=org.name,
+                    metadata={'updated_by': self.request.user.email}
+                )
+        except Exception:
+            pass
 
 
 class ProfileSetupView(APIView):

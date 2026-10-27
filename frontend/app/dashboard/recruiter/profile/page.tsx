@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { apiFetch, RecruiterProfile } from '@/lib/api';
+import { apiFetch, RecruiterProfile, hasPermission } from '@/lib/api';
 import { 
   Building2, 
   Globe, 
@@ -15,7 +15,9 @@ import {
   Save, 
   ArrowLeft,
   FileUp,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Info,
+  Lock
 } from 'lucide-react';
 
 export default function RecruiterProfilePage() {
@@ -23,11 +25,18 @@ export default function RecruiterProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<RecruiterProfile | null>(null);
 
+  const canEdit = hasPermission(user, 'organization.update');
+  const canView = hasPermission(user, 'organization.view') || canEdit;
+
   useEffect(() => {
-    if (!authLoading && user && (user.is_staff || user.is_superuser)) {
-      router.replace('/dashboard/admin');
+    if (!authLoading && user) {
+      if (user.is_staff || user.is_superuser) {
+        router.replace('/dashboard/admin');
+      } else if (!canView) {
+        router.replace('/dashboard/recruiter');
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, canView, router]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -63,17 +72,30 @@ export default function RecruiterProfilePage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
     setMessage('');
     setError('');
 
+    const trimmedName = companyName.trim();
+    if (!trimmedName) {
+      setError('Company name is required.');
+      return;
+    }
+
+    const trimmedWebsite = companyWebsite.trim();
+    if (trimmedWebsite && !/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i.test(trimmedWebsite)) {
+      setError('Please provide a valid website URL (e.g. https://example.com).');
+      return;
+    }
+
+    setSaving(true);
+
     try {
       const formData = new FormData();
-      formData.append('company_name', companyName);
-      formData.append('company_description', companyDescription);
-      formData.append('company_website', companyWebsite);
-      formData.append('location', location);
-      formData.append('phone', phone);
+      formData.append('company_name', trimmedName);
+      formData.append('company_description', companyDescription.trim());
+      formData.append('company_website', trimmedWebsite);
+      formData.append('location', location.trim());
+      formData.append('phone', phone.trim());
       if (companyLogo) {
         formData.append('company_logo', companyLogo);
       }
@@ -136,6 +158,15 @@ export default function RecruiterProfilePage() {
           </div>
         )}
 
+        {!canEdit && (
+          <div className="p-3.5 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2.5">
+            <Lock className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <span>
+              <strong>View-Only Access:</strong> You are authorized to review this organization's company details. Only administrators or the organization owner can edit branding and credentials.
+            </span>
+          </div>
+        )}
+
         <form onSubmit={handleSave} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -145,10 +176,11 @@ export default function RecruiterProfilePage() {
               <input
                 type="text"
                 required
+                disabled={!canEdit}
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="e.g. Acme Corporation"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition disabled:opacity-70 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -158,10 +190,11 @@ export default function RecruiterProfilePage() {
               </label>
               <input
                 type="text"
+                disabled={!canEdit}
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. New York, NY / Global"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition disabled:opacity-70 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -171,10 +204,11 @@ export default function RecruiterProfilePage() {
               </label>
               <input
                 type="url"
+                disabled={!canEdit}
                 value={companyWebsite}
                 onChange={(e) => setCompanyWebsite(e.target.value)}
                 placeholder="https://company.example.com"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition disabled:opacity-70 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -184,10 +218,11 @@ export default function RecruiterProfilePage() {
               </label>
               <input
                 type="text"
+                disabled={!canEdit}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 (555) 123-4567"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition disabled:opacity-70 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -198,17 +233,18 @@ export default function RecruiterProfilePage() {
             </label>
             <textarea
               rows={4}
+              disabled={!canEdit}
               value={companyDescription}
               onChange={(e) => setCompanyDescription(e.target.value)}
               placeholder="Tell candidates about your mission, product, culture, and achievements..."
-              className="w-full p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 dark:focus:ring-sky-400/30 dark:focus:border-sky-400 dark:focus:bg-slate-800 transition disabled:opacity-70 disabled:cursor-not-allowed"
             />
           </div>
 
           {/* Logo Upload Box */}
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-              Company Logo (PNG, JPG, max 2MB)
+              Company Logo
             </label>
 
             {profile?.company_logo && (
@@ -221,34 +257,40 @@ export default function RecruiterProfilePage() {
                   />
                   <span className="truncate">Current logo on file</span>
                 </div>
-                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                  Select new image below to update
-                </span>
+                {canEdit && (
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                    Select new image below to update
+                  </span>
+                )}
               </div>
             )}
 
-            <label className="flex items-center justify-center gap-2.5 p-5 border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 rounded-xl text-xs text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 cursor-pointer bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-100/50 dark:hover:bg-slate-800/80 transition-all">
-              <FileUp className="w-4 h-4" />
-              <span>{companyLogo ? companyLogo.name : 'Upload New Logo Image'}</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setCompanyLogo(e.target.files?.[0] || null)}
-                className="hidden"
-              />
-            </label>
+            {canEdit && (
+              <label className="flex items-center justify-center gap-2.5 p-5 border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 rounded-xl text-xs text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 cursor-pointer bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-100/50 dark:hover:bg-slate-800/80 transition-all">
+                <FileUp className="w-4 h-4" />
+                <span>{companyLogo ? companyLogo.name : 'Upload New Logo Image (PNG, JPG, max 2MB)'}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setCompanyLogo(e.target.files?.[0] || null)}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-md shadow-sky-500/20 transition cursor-pointer disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" />
-              <span>{saving ? 'Saving...' : 'Save Company Profile'}</span>
-            </button>
-          </div>
+          {canEdit && (
+            <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="submit"
+                disabled={saving}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-md shadow-sky-500/20 transition cursor-pointer disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{saving ? 'Saving...' : 'Save Company Profile'}</span>
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>
