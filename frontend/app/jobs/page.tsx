@@ -229,8 +229,8 @@ function JobsContent() {
   return (
     <div className="flex-1 flex flex-col bg-slate-50/60 dark:bg-slate-950 min-h-screen">
       {/* 1. HERO / SEARCH HEADER */}
-      <section className="bg-gradient-to-b from-sky-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 border-b border-sky-100/80 dark:border-slate-800 py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <section className="bg-gradient-to-b from-sky-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 border-b border-sky-100/80 dark:border-slate-800 py-8 sm:py-10 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
@@ -435,7 +435,7 @@ function JobsContent() {
       </section>
 
       {/* 2. RESULTS CATALOG */}
-      <section id="jobs-results-header" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full scroll-mt-6">
+      <section id="jobs-results-header" className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 scroll-mt-6">
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
@@ -506,11 +506,11 @@ function JobsContent() {
 
         {/* Loading Skeleton */}
         {loading ? (
-          <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
+          <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6" : "space-y-4"}>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
               <div
                 key={i}
-                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-sm animate-pulse space-y-4 flex flex-col justify-between"
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-sm animate-pulse space-y-4 flex flex-col justify-between min-w-0"
               >
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">
@@ -573,9 +573,9 @@ function JobsContent() {
         ) : (
           /* Job Cards Grid/List */
           <>
-            <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3.5"}>
+            <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6" : "space-y-3.5"}>
               {displayedJobs.map((job) => (
-                <div key={job.id}>
+                <div key={job.id} className="min-w-0 h-full">
                   <JobCard
                     job={job}
                     isApplied={appliedJobIds.has(job.id)}

@@ -14,7 +14,8 @@ import {
   Phone, 
   Clock,
   Briefcase,
-  ShieldAlert
+  ShieldAlert,
+  Eye
 } from 'lucide-react';
 
 function getInitials(name: string): string {
@@ -84,7 +85,7 @@ export default function JobApplicantsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-6">
+    <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 min-w-0">
       <Link
         href="/dashboard/recruiter"
         className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 transition"
@@ -181,9 +182,12 @@ export default function JobApplicantsPage() {
                       )}
                     </div>
                     <div>
-                      <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                      <Link
+                        href={`/dashboard/recruiter/applications/${app.id}`}
+                        className="font-bold text-base text-slate-900 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 transition"
+                      >
                         {candidateName}
-                      </h3>
+                      </Link>
                       <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
                         <span className="flex items-center gap-1">
                           <Mail className="w-3.5 h-3.5 text-slate-400" />
@@ -290,26 +294,34 @@ export default function JobApplicantsPage() {
                   </div>
                 )}
 
-                {/* Resume download */}
-                <div className="pt-2 flex justify-between items-center text-xs">
+                {/* Bottom actions & links */}
+                <div className="pt-2 flex flex-wrap justify-between items-center gap-3 text-xs">
                   <span className="text-slate-400 dark:text-slate-500 flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" />
                     Applied on {new Date(app.applied_at).toLocaleDateString()}
                   </span>
 
-                  {resumeUrl ? (
-                    <a
-                      href={resumeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md font-semibold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-100 dark:border-sky-800 transition"
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/dashboard/recruiter/applications/${app.id}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-xs"
                     >
-                      <FileText className="w-4 h-4" />
-                      <span>Download / View Resume</span>
-                    </a>
-                  ) : (
-                    <span className="text-slate-400 dark:text-slate-500 italic">No resume attached</span>
-                  )}
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Review Application & CV</span>
+                    </Link>
+
+                    {resumeUrl && (
+                      <a
+                        href={resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700 transition"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>CV (New Tab)</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             );

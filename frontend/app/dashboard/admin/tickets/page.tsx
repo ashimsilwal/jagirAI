@@ -583,7 +583,7 @@ export default function AdminTicketsPage() {
               )}
             </div>
           ) : (
-            <table className="w-full text-left text-xs sm:text-sm border-collapse">
+            <table className="w-full min-w-[850px] text-left text-xs sm:text-sm border-collapse">
               <thead>
                 <tr className="bg-slate-50/80 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-100 dark:border-slate-800">
                   <th className="py-4 px-6">Ticket #</th>

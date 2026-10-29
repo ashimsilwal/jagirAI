@@ -137,7 +137,7 @@ export const ProfileDropdown: React.FC = () => {
         <div
           role="menu"
           aria-orientation="vertical"
-          className="absolute right-0 mt-2.5 w-76 sm:w-80 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200/80 dark:border-slate-800 py-2.5 z-50 transform origin-top-right transition-all animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-0 mt-2.5 w-[calc(100vw-1.5rem)] sm:w-80 max-w-xs rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200/80 dark:border-slate-800 py-2.5 z-50 transform origin-top-right transition-all animate-in fade-in zoom-in-95 duration-150 max-h-[85vh] overflow-y-auto"
         >
           {/* Header Card: User Info */}
           <div className="px-4 py-3 mx-2 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/70 dark:from-slate-800/80 dark:to-slate-800/40 border border-slate-200/60 dark:border-slate-700/60">

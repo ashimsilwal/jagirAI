@@ -599,12 +599,12 @@ export default function TeamManagementPage() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 min-w-0">
       {/* 1. Header & Organization Identity */}
-      <div className="w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20 text-xl font-bold overflow-hidden shrink-0">
+      <div className="w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-6 shadow-sm min-w-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
+          <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20 text-lg sm:text-xl font-bold overflow-hidden shrink-0">
               {org?.logo && !logoFailed ? (
                 <img
                   src={getMediaUrl(org.logo) || ''}
@@ -616,16 +616,16 @@ export default function TeamManagementPage() {
                 org?.name?.slice(0, 2).toUpperCase() || 'OG'
               )}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white break-words">
                   {org?.name}
                 </h1>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 shrink-0">
                   {isOwner ? 'Organization Owner' : currentMembership?.role?.name || 'Team Member'}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 break-words">
                 {org?.description || 'Manage your recruitment team members, roles, permissions, and security credentials.'}
               </p>
             </div>
@@ -637,9 +637,9 @@ export default function TeamManagementPage() {
                 setAddMemberModalOpen(true);
                 if (roles.length === 0) loadRolesAndCatalog();
               }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold transition shadow-sm shadow-sky-500/20 cursor-pointer shrink-0"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold transition shadow-sm shadow-sky-500/20 cursor-pointer shrink-0 w-full sm:w-auto"
             >
-              <UserPlus className="w-4 h-4" />
+              <UserPlus className="w-4 h-4 shrink-0" />
               <span>Add Team Member</span>
             </button>
           )}
@@ -670,16 +670,16 @@ export default function TeamManagementPage() {
         )}
 
         {/* Navigation Tabs Bar */}
-        <div className="flex items-center gap-2 mt-6 border-t border-slate-100 dark:border-slate-800 pt-4 overflow-x-auto w-full">
+        <div className="flex items-center gap-2 mt-6 border-t border-slate-100 dark:border-slate-800 pt-4 overflow-x-auto w-full pb-1">
           <button
             onClick={() => setActiveTab('members')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer shrink-0 ${
               activeTab === 'members'
                 ? 'bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
             }`}
           >
-            <Users className="w-4 h-4" />
+            <Users className="w-4 h-4 shrink-0" />
             <span>Team Members</span>
             <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {org?.members_count || membersTotal || members.length}
@@ -688,13 +688,13 @@ export default function TeamManagementPage() {
 
           <button
             onClick={() => setActiveTab('roles')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer shrink-0 ${
               activeTab === 'roles'
                 ? 'bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
             }`}
           >
-            <Shield className="w-4 h-4" />
+            <Shield className="w-4 h-4 shrink-0" />
             <span>Roles & Permissions</span>
             <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {roles.length}
@@ -704,15 +704,15 @@ export default function TeamManagementPage() {
           {canViewActivity && (
             <button
               onClick={() => setActiveTab('activity')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer shrink-0 ${
                 activeTab === 'activity'
                   ? 'bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <History className="w-4 h-4" />
-              <span>Activity Log</span>
-            </button>
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
+            }`}
+          >
+            <History className="w-4 h-4 shrink-0" />
+            <span>Activity Log</span>
+          </button>
           )}
         </div>
       </div>
@@ -745,66 +745,66 @@ export default function TeamManagementPage() {
           </div>
 
           {/* Metric Overview Strip */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm space-y-2">
-              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Members</span>
-                <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-2 min-w-0">
+              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Total Members</span>
+                <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
                   <Users className="w-4 h-4" />
                 </div>
               </div>
-              <div className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <div className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white break-words">
                 {memberMetrics.total}
               </div>
-              <p className="text-xs text-slate-500">Active roster count</p>
+              <p className="text-xs text-slate-500 break-words">Active roster count</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm space-y-2">
-              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Active Staff</span>
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-2 min-w-0">
+              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400 truncate">Active Staff</span>
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <UserCheck className="w-4 h-4" />
                 </div>
               </div>
-              <div className="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+              <div className="text-xl sm:text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 break-words">
                 {memberMetrics.active}
               </div>
-              <p className="text-xs text-slate-500">Authorized & active accounts</p>
+              <p className="text-xs text-slate-500 break-words">Authorized & active accounts</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm space-y-2">
-              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">Suspended</span>
-                <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-2 min-w-0">
+              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400 truncate">Suspended</span>
+                <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                   <UserX className="w-4 h-4" />
                 </div>
               </div>
-              <div className="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
+              <div className="text-xl sm:text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 break-words">
                 {memberMetrics.suspended}
               </div>
-              <p className="text-xs text-slate-500">Temporarily disabled accounts</p>
+              <p className="text-xs text-slate-500 break-words">Temporarily disabled accounts</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm space-y-2">
-              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Roles Configured</span>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-2 min-w-0">
+              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Roles Configured</span>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
               </div>
-              <div className="text-2xl font-bold tracking-tight text-slate-700 dark:text-slate-300">
+              <div className="text-xl sm:text-2xl font-bold tracking-tight text-slate-700 dark:text-slate-300 break-words">
                 {roles.length || 6}
               </div>
-              <p className="text-xs text-slate-500">Granular permission profiles</p>
+              <p className="text-xs text-slate-500 break-words">Granular permission profiles</p>
             </div>
           </div>
 
           {/* Unified Members Table Card */}
-          <div className="w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-sm">
+          <div className="w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-sm min-w-0">
             {/* Toolbar Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full">
-              <div className="relative w-full sm:w-80">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <div className="p-3.5 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 w-full min-w-0">
+              <div className="relative w-full md:w-80 min-w-0">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 shrink-0" />
                 <input
                   type="text"
                   placeholder="Search team member name or email..."
@@ -813,18 +813,18 @@ export default function TeamManagementPage() {
                     setMemberSearch(e.target.value);
                     setMemberPage(1);
                   }}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition"
+                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition min-w-0"
                 />
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <select
                   value={memberRoleFilter}
                   onChange={(e) => {
                     setMemberRoleFilter(e.target.value);
                     setMemberPage(1);
                   }}
-                  className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
+                  className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer min-w-0"
                 >
                   <option value="">All Roles</option>
                   {roles.map((r) => (
@@ -840,7 +840,7 @@ export default function TeamManagementPage() {
                     setMemberStatusFilter(e.target.value);
                     setMemberPage(1);
                   }}
-                  className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
+                  className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer min-w-0"
                 >
                   <option value="">All Statuses</option>
                   <option value="ACTIVE">Active</option>
@@ -856,9 +856,9 @@ export default function TeamManagementPage() {
                     loadMembers();
                   }}
                   title="Reset filters and refresh"
-                  className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition cursor-pointer"
+                  className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition cursor-pointer shrink-0"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <RefreshCw className="w-4 h-4 shrink-0" />
                 </button>
               </div>
             </div>
@@ -892,15 +892,15 @@ export default function TeamManagementPage() {
               </div>
             ) : (
               <div className="overflow-x-auto w-full">
-                <table className="w-full text-left border-collapse table-auto">
+                <table className="w-full min-w-[720px] text-left border-collapse table-auto">
                   <thead>
                     <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                      <th className="py-3 px-4 w-[28%]">Member</th>
-                      <th className="py-3 px-4 w-[16%]">Assigned Role</th>
-                      <th className="py-3 px-4 w-[12%]">Status</th>
-                      <th className="py-3 px-4 w-[16%]">Permissions</th>
-                      <th className="py-3 px-4 w-[12%]">Joined Date</th>
-                      <th className="py-3 px-4 w-[16%] text-right">Actions</th>
+                      <th className="py-3 px-4 min-w-[190px]">Member</th>
+                      <th className="py-3 px-4 min-w-[140px]">Assigned Role</th>
+                      <th className="py-3 px-4 min-w-[110px]">Status</th>
+                      <th className="py-3 px-4 min-w-[140px]">Permissions</th>
+                      <th className="py-3 px-4 min-w-[110px]">Joined Date</th>
+                      <th className="py-3 px-4 min-w-[140px] text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
@@ -910,8 +910,8 @@ export default function TeamManagementPage() {
 
                       return (
                         <tr key={member.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center gap-3">
+                          <td className="py-3.5 px-4 min-w-0">
+                            <div className="flex items-center gap-3 min-w-0">
                               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
                                 {member.user.profile_picture ? (
                                   <img src={getMediaUrl(member.user.profile_picture) || ''} alt={member.user.username} className="w-full h-full object-cover rounded-full" />
@@ -919,20 +919,20 @@ export default function TeamManagementPage() {
                                   member.user.username.slice(0, 2).toUpperCase()
                                 )}
                               </div>
-                              <div>
-                                <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                  <span>{member.user.username}</span>
+                              <div className="min-w-0 flex-1">
+                                <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+                                  <span className="break-words">{member.user.username}</span>
                                   {isCurrentUser && (
-                                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">You</span>
+                                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium shrink-0">You</span>
                                   )}
                                 </div>
-                                <div className="text-[11px] text-slate-500">{member.user.email}</div>
+                                <div className="text-[11px] text-slate-500 break-all">{member.user.email}</div>
                               </div>
                             </div>
                           </td>
 
                           <td className="py-3.5 px-4">
-                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 ${
                               isMemberOwner
                                 ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300'
                                 : member.role.slug === 'admin'
@@ -946,7 +946,7 @@ export default function TeamManagementPage() {
                           </td>
 
                           <td className="py-3.5 px-4">
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
                               member.status === 'ACTIVE'
                                 ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300'
                                 : 'bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300'
@@ -957,20 +957,20 @@ export default function TeamManagementPage() {
                           </td>
 
                           <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
-                            <div className="flex items-center gap-1">
+                            <div className="flex flex-wrap items-center gap-1">
                               <span className="font-semibold text-slate-800 dark:text-slate-200">
                                 {member.effective_permissions?.length || 0}
                               </span>
                               <span>capabilities</span>
                               {member.custom_permissions?.length > 0 && (
-                                <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/70 text-sky-600 dark:text-sky-400 font-semibold">
+                                <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/70 text-sky-600 dark:text-sky-400 font-semibold shrink-0">
                                   +{member.custom_permissions.length} custom
                                 </span>
                               )}
                             </div>
                           </td>
 
-                          <td className="py-3.5 px-4 text-slate-500 text-[11px]">
+                          <td className="py-3.5 px-4 text-slate-500 text-[11px] whitespace-nowrap">
                             {new Date(member.joined_at).toLocaleDateString(undefined, {
                               year: 'numeric',
                               month: 'short',
@@ -979,7 +979,7 @@ export default function TeamManagementPage() {
                           </td>
 
                           <td className="py-3.5 px-4 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
+                            <div className="flex items-center justify-end gap-1.5 shrink-0">
                               {/* Edit Role & Permissions */}
                               {canManageTeam && !isMemberOwner && (
                                 <button
@@ -1084,41 +1084,41 @@ export default function TeamManagementPage() {
           </div>
 
           {/* Roles Cards List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full">
             {roles.map((role) => (
               <div
                 key={role.id}
-                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm space-y-3 flex flex-col justify-between"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-3 flex flex-col justify-between min-w-0"
               >
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/70 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-xs">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/70 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-xs shrink-0">
                         <Shield className="w-4 h-4" />
                       </div>
-                      <h3 className="font-bold text-slate-900 dark:text-white text-sm">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-sm break-words min-w-0">
                         {role.name}
                       </h3>
                     </div>
                     {role.is_predefined ? (
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0">
                         Predefined
                       </span>
                     ) : (
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 shrink-0">
                         Custom
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 break-words">
                     {role.description || 'Predefined system role.'}
                   </p>
                 </div>
 
-                <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500">Capabilities:</span>
-                    <span className="font-bold text-sky-600 dark:text-sky-400">
+                <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 min-w-0">
+                  <div className="flex items-center justify-between text-xs gap-2">
+                    <span className="text-slate-500 shrink-0">Capabilities:</span>
+                    <span className="font-bold text-sky-600 dark:text-sky-400 truncate">
                       {role.permissions?.length || 0} granted
                     </span>
                   </div>
@@ -1127,13 +1127,13 @@ export default function TeamManagementPage() {
                     {(role.permissions || []).slice(0, 6).map((perm) => (
                       <span
                         key={perm}
-                        className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                        className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 break-all"
                       >
                         {perm}
                       </span>
                     ))}
                     {(role.permissions || []).length > 6 && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold shrink-0">
                         +{(role.permissions || []).length - 6} more
                       </span>
                     )}
@@ -1156,7 +1156,7 @@ export default function TeamManagementPage() {
           </div>
 
           {/* Granular Permissions Matrix Table */}
-          <div className="w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-sm">
+          <div className="w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-sm min-w-0">
             <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 Detailed Permissions Matrix by Category
@@ -1167,7 +1167,7 @@ export default function TeamManagementPage() {
             </div>
 
             <div className="overflow-x-auto w-full">
-              <table className="w-full text-left border-collapse table-auto text-xs">
+              <table className="w-full min-w-[640px] text-left border-collapse table-auto text-xs">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60 font-semibold text-slate-600 dark:text-slate-300">
                     <th className="py-3 px-4 min-w-[240px]">Permission Capability</th>
@@ -1333,21 +1333,21 @@ export default function TeamManagementPage() {
                 </div>
               ) : (
                 activities.map((act) => (
-                  <div key={act.id} className="p-4 sm:p-5 flex items-start justify-between gap-4 text-xs hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-900 dark:text-white">
+                  <div key={act.id} className="p-3.5 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 text-xs hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition min-w-0">
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-slate-900 dark:text-white break-words">
                           {act.actor_username || 'System'}
                         </span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border border-sky-200/60 dark:border-sky-800">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 border border-sky-200/60 dark:border-sky-800 shrink-0">
                           {act.action.replace(/_/g, ' ')}
                         </span>
                       </div>
-                      <p className="text-slate-600 dark:text-slate-300">
+                      <p className="text-slate-600 dark:text-slate-300 break-words">
                         {act.target_repr || `${act.target_type} #${act.target_id}`}
                       </p>
                     </div>
-                    <div className="text-[11px] text-slate-400 shrink-0 text-right">
+                    <div className="text-[11px] text-slate-400 shrink-0 text-left sm:text-right">
                       {new Date(act.created_at).toLocaleString()}
                     </div>
                   </div>
@@ -1360,12 +1360,12 @@ export default function TeamManagementPage() {
 
       {/* 5. MODAL: Add Team Member (Direct Account Creation) */}
       {addMemberModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-bold text-base">
-                {createdOtpData ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : <UserPlus className="w-5 h-5" />}
-                <span>{createdOtpData ? 'Member Account Created' : 'Add Team Member'}</span>
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-bold text-base min-w-0">
+                {createdOtpData ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <UserPlus className="w-5 h-5 shrink-0" />}
+                <span className="truncate">{createdOtpData ? 'Member Account Created' : 'Add Team Member'}</span>
               </div>
               <button
                 onClick={() => {
@@ -1376,33 +1376,33 @@ export default function TeamManagementPage() {
                   setAddMemberRoleId('');
                   setAddMemberCustomPerms([]);
                 }}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 cursor-pointer shrink-0 p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {createdOtpData ? (
-              <div className="space-y-4 py-2">
+              <div className="space-y-4 py-2 min-w-0">
                 <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-200">
-                  <p className="font-semibold text-emerald-900 dark:text-emerald-100">
+                  <p className="font-semibold text-emerald-900 dark:text-emerald-100 break-words">
                     Team member account for {createdOtpData.fullName} has been created!
                   </p>
-                  <p className="mt-1 text-slate-600 dark:text-slate-300">
+                  <p className="mt-1 text-slate-600 dark:text-slate-300 break-words">
                     A temporary one-time password (OTP) has been generated below. Provide these login details to the member.
                   </p>
                 </div>
 
-                <div className="space-y-3 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                <div className="space-y-3 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs min-w-0">
                   <div>
                     <span className="text-slate-500 block text-[11px] font-semibold">Employee Email:</span>
-                    <span className="font-mono text-sm font-bold text-slate-900 dark:text-white select-all">{createdOtpData.email}</span>
+                    <span className="font-mono text-sm font-bold text-slate-900 dark:text-white select-all break-all">{createdOtpData.email}</span>
                   </div>
 
                   <div>
                     <span className="text-slate-500 block text-[11px] font-semibold mb-1">One-Time Password (OTP):</span>
-                    <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                      <span className="font-mono text-base font-extrabold tracking-wider text-sky-600 dark:text-sky-400 select-all">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 min-w-0">
+                      <span className="font-mono text-base font-extrabold tracking-wider text-sky-600 dark:text-sky-400 select-all break-all">
                         {createdOtpData.otp}
                       </span>
                       <button
@@ -1413,7 +1413,7 @@ export default function TeamManagementPage() {
                           setCopiedOtp(true);
                           setTimeout(() => setCopiedOtp(false), 3000);
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold cursor-pointer transition shadow-xs"
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold cursor-pointer transition shadow-xs shrink-0"
                       >
                         {copiedOtp ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                         <span>{copiedOtp ? 'Copied Details!' : 'Copy Credentials'}</span>
@@ -1426,7 +1426,7 @@ export default function TeamManagementPage() {
                   <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold block">Mandatory Password Update on First Sign-in:</span>
-                    <span>The member will use this OTP to sign in initially, and they will be strictly required to configure their personal password before performing any recruitment tasks.</span>
+                    <span className="break-words">The member will use this OTP to sign in initially, and they will be strictly required to configure their personal password before performing any recruitment tasks.</span>
                   </div>
                 </div>
 
@@ -1449,7 +1449,7 @@ export default function TeamManagementPage() {
               </div>
             ) : (
               <>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 break-words">
                   Directly create a team member account. A temporary one-time password (OTP) will be automatically generated for them to sign in.
                 </p>
 
@@ -1465,7 +1465,7 @@ export default function TeamManagementPage() {
                       placeholder="e.g. Aayush Shrestha"
                       value={addMemberName}
                       onChange={(e) => setAddMemberName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition min-w-0"
                     />
                   </div>
 
@@ -1480,7 +1480,7 @@ export default function TeamManagementPage() {
                       placeholder="e.g. employee@company.com"
                       value={addMemberEmail}
                       onChange={(e) => setAddMemberEmail(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition min-w-0"
                     />
                   </div>
 
@@ -1493,7 +1493,7 @@ export default function TeamManagementPage() {
                       required
                       value={addMemberRoleId}
                       onChange={(e) => setAddMemberRoleId(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition cursor-pointer"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition cursor-pointer min-w-0"
                     >
                       <option value="">Choose an organization role...</option>
                       {roles.filter((r) => r.slug !== 'owner').map((r) => (
@@ -1505,22 +1505,22 @@ export default function TeamManagementPage() {
                   </div>
 
                   {/* Optional Custom Permissions Accordion */}
-                  <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden min-w-0">
                     <button
                       type="button"
                       onClick={() => setShowCustomPermsAccordion(!showCustomPermsAccordion)}
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between text-slate-700 dark:text-slate-300 font-semibold cursor-pointer"
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between text-slate-700 dark:text-slate-300 font-semibold cursor-pointer gap-2"
                     >
-                      <div className="flex items-center gap-2">
-                        <Sliders className="w-4 h-4 text-sky-600" />
-                        <span>Configure Custom Permissions (Optional)</span>
+                      <div className="flex flex-wrap items-center gap-2 min-w-0">
+                        <Sliders className="w-4 h-4 text-sky-600 shrink-0" />
+                        <span className="truncate">Configure Custom Permissions (Optional)</span>
                         {addMemberCustomPerms.length > 0 && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 font-bold">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 font-bold shrink-0">
                             {addMemberCustomPerms.length} extra
                           </span>
                         )}
                       </div>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${showCustomPermsAccordion ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-4 h-4 transition-transform shrink-0 ${showCustomPermsAccordion ? 'rotate-180' : ''}`} />
                     </button>
 
                     {showCustomPermsAccordion && (
@@ -1534,7 +1534,7 @@ export default function TeamManagementPage() {
                                 return (
                                   <label
                                     key={p.code}
-                                    className="flex items-center gap-2 p-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
+                                    className="flex items-start gap-2 p-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer min-w-0"
                                   >
                                     <input
                                       type="checkbox"
@@ -1546,11 +1546,11 @@ export default function TeamManagementPage() {
                                           setAddMemberCustomPerms([...addMemberCustomPerms, p.code]);
                                         }
                                       }}
-                                      className="rounded text-sky-600 cursor-pointer"
+                                      className="rounded text-sky-600 cursor-pointer mt-0.5 shrink-0"
                                     />
-                                    <div>
-                                      <span className="font-medium text-slate-800 dark:text-slate-200">{p.description}</span>
-                                      <span className="text-[9px] text-slate-400 block font-mono">{p.code}</span>
+                                    <div className="min-w-0 flex-1">
+                                      <span className="font-medium text-slate-800 dark:text-slate-200 break-words block">{p.description}</span>
+                                      <span className="text-[9px] text-slate-400 block font-mono break-all">{p.code}</span>
                                     </div>
                                   </label>
                                 );
@@ -1563,7 +1563,7 @@ export default function TeamManagementPage() {
                   </div>
 
                   {/* Form Buttons */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-end gap-2">
                     <button
                       type="button"
                       onClick={() => setAddMemberModalOpen(false)}
@@ -1588,23 +1588,23 @@ export default function TeamManagementPage() {
 
       {/* 6. MODAL: Reset Member Password */}
       {resetPasswordModalOpen && resetPasswordMember && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-bold text-base">
-                <Key className="w-5 h-5" />
-                <span>Reset Employee Password</span>
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-bold text-base min-w-0">
+                <Key className="w-5 h-5 shrink-0" />
+                <span className="truncate">Reset Employee Password</span>
               </div>
               <button
                 onClick={() => setResetPasswordModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 cursor-pointer shrink-0 p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-500">
-              Set a new secure password for <span className="font-semibold text-slate-900 dark:text-white">{resetPasswordMember.user.email}</span>.
+            <p className="text-xs text-slate-500 break-words">
+              Set a new secure password for <span className="font-semibold text-slate-900 dark:text-white break-all">{resetPasswordMember.user.email}</span>.
             </p>
 
             <form onSubmit={handleResetPassword} className="space-y-4 text-xs">
@@ -1620,12 +1620,12 @@ export default function TeamManagementPage() {
                     placeholder="Minimum 8 characters"
                     value={resetNewPassword}
                     onChange={(e) => setResetNewPassword(e.target.value)}
-                    className="w-full px-3 py-2 pr-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition"
+                    className="w-full px-3 py-2 pr-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition min-w-0"
                   />
                   <button
                     type="button"
                     onClick={() => setShowResetPassword(!showResetPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1 shrink-0"
                   >
                     {showResetPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -1643,11 +1643,11 @@ export default function TeamManagementPage() {
                   placeholder="Re-enter new password"
                   value={resetConfirmPassword}
                   onChange={(e) => setResetConfirmPassword(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition min-w-0"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setResetPasswordModalOpen(false)}
@@ -1670,20 +1670,20 @@ export default function TeamManagementPage() {
 
       {/* 7. MODAL: Edit Member Role & Permissions */}
       {editingMember && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-base">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-bold text-slate-900 dark:text-white text-base truncate">
                   Manage Member Permissions
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 break-all">
                   {editingMember.user.username} ({editingMember.user.email})
                 </p>
               </div>
               <button
                 onClick={() => setEditingMember(null)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 cursor-pointer shrink-0 p-1"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1697,7 +1697,7 @@ export default function TeamManagementPage() {
                 <select
                   value={editRoleId}
                   onChange={(e) => setEditRoleId(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition cursor-pointer"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition cursor-pointer min-w-0"
                 >
                   {roles.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -1741,7 +1741,7 @@ export default function TeamManagementPage() {
                 <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
                   Custom Capabilities ({editCustomPerms.length} selected)
                 </label>
-                <div className="space-y-3 max-h-52 overflow-y-auto p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <div className="space-y-3 max-h-52 overflow-y-auto p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 min-w-0">
                   {Object.entries(permissionsByCategory).map(([cat, perms]) => (
                     <div key={cat} className="space-y-1">
                       <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{cat}</div>
@@ -1751,7 +1751,7 @@ export default function TeamManagementPage() {
                           return (
                             <label
                               key={p.code}
-                              className="flex items-center gap-2 p-1.5 rounded hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+                              className="flex items-start gap-2 p-1.5 rounded hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer min-w-0"
                             >
                               <input
                                 type="checkbox"
@@ -1763,11 +1763,11 @@ export default function TeamManagementPage() {
                                     setEditCustomPerms([...editCustomPerms, p.code]);
                                   }
                                 }}
-                                className="rounded text-sky-600 cursor-pointer"
+                                className="rounded text-sky-600 cursor-pointer mt-0.5 shrink-0"
                               />
-                              <div>
-                                <span className="font-medium text-slate-800 dark:text-slate-200">{p.description}</span>
-                                <span className="text-[9px] text-slate-400 block font-mono">{p.code}</span>
+                              <div className="min-w-0 flex-1">
+                                <span className="font-medium text-slate-800 dark:text-slate-200 break-words block">{p.description}</span>
+                                <span className="text-[9px] text-slate-400 block font-mono break-all">{p.code}</span>
                               </div>
                             </label>
                           );
@@ -1778,7 +1778,7 @@ export default function TeamManagementPage() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setEditingMember(null)}
@@ -1801,15 +1801,15 @@ export default function TeamManagementPage() {
 
       {/* 8. MODAL: Create Custom Role */}
       {createRoleModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 dark:text-white text-base">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base truncate">
                 Create Custom Organization Role
               </h3>
               <button
                 onClick={() => setCreateRoleModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 cursor-pointer shrink-0 p-1"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1826,7 +1826,7 @@ export default function TeamManagementPage() {
                   placeholder="e.g. Lead Technical Interviewer"
                   value={roleName}
                   onChange={(e) => setRoleName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition min-w-0"
                 />
               </div>
 
@@ -1839,7 +1839,7 @@ export default function TeamManagementPage() {
                   placeholder="Outline responsibilities granted by this role..."
                   value={roleDescription}
                   onChange={(e) => setRoleDescription(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition min-w-0"
                 />
               </div>
 
@@ -1847,7 +1847,7 @@ export default function TeamManagementPage() {
                 <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
                   Select Capabilities ({rolePermissions.length} selected)
                 </label>
-                <div className="space-y-3 max-h-56 overflow-y-auto p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <div className="space-y-3 max-h-56 overflow-y-auto p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 min-w-0">
                   {Object.entries(permissionsByCategory).map(([cat, perms]) => (
                     <div key={cat} className="space-y-1.5">
                       <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase">
@@ -1859,7 +1859,7 @@ export default function TeamManagementPage() {
                           return (
                             <label
                               key={p.code}
-                              className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+                              className="flex items-start gap-2 p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer min-w-0"
                             >
                               <input
                                 type="checkbox"
@@ -1871,11 +1871,11 @@ export default function TeamManagementPage() {
                                     setRolePermissions([...rolePermissions, p.code]);
                                   }
                                 }}
-                                className="rounded text-sky-600 cursor-pointer"
+                                className="rounded text-sky-600 cursor-pointer mt-0.5 shrink-0"
                               />
-                              <div>
-                                <span className="font-medium text-slate-800 dark:text-slate-200">{p.description}</span>
-                                <span className="text-[10px] text-slate-400 block font-mono">{p.code}</span>
+                              <div className="min-w-0 flex-1">
+                                <span className="font-medium text-slate-800 dark:text-slate-200 break-words block">{p.description}</span>
+                                <span className="text-[10px] text-slate-400 block font-mono break-all">{p.code}</span>
                               </div>
                             </label>
                           );
@@ -1886,7 +1886,7 @@ export default function TeamManagementPage() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setCreateRoleModalOpen(false)}
@@ -1909,15 +1909,15 @@ export default function TeamManagementPage() {
 
       {/* 9. MODAL: Confirmation Dialog */}
       {confirmDialog.isOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
-            <h3 className="font-bold text-slate-900 dark:text-white text-base">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
+            <h3 className="font-bold text-slate-900 dark:text-white text-base break-words">
               {confirmDialog.title}
             </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed break-words">
               {confirmDialog.message}
             </p>
-            <div className="pt-3 flex justify-end gap-2">
+            <div className="pt-3 flex flex-wrap justify-end gap-2">
               <button
                 onClick={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false }))}
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"

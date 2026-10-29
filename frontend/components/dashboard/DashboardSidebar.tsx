@@ -27,7 +27,8 @@ import {
   CheckCircle2,
   Info,
   Mail,
-  LifeBuoy
+  LifeBuoy,
+  X
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -134,6 +135,15 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         href: '/dashboard/recruiter',
         icon: LayoutDashboard,
       },
+      ...(hasPermission(user, 'application.view')
+        ? [
+            {
+              label: 'All Applications',
+              href: '/dashboard/recruiter/applications',
+              icon: FileText,
+            },
+          ]
+        : []),
       ...(hasPermission(user, 'vacancy.create')
         ? [
             {
@@ -239,6 +249,18 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           >
             {collapsed ? <ChevronRight aria-hidden="true" className="w-4 h-4" /> : <ChevronLeft aria-hidden="true" className="w-4 h-4" />}
           </button>
+
+          {/* Mobile Close Button */}
+          {onMobileClose && (
+            <button
+              type="button"
+              onClick={onMobileClose}
+              aria-label="Close sidebar navigation"
+              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <X aria-hidden="true" className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Navigation Link List - Scrollable if content overflows */}

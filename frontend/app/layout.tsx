@@ -6,6 +6,7 @@ import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AccessibilityProvider } from '@/context/AccessibilityContext';
+import { SidebarProvider } from '@/context/SidebarContext';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { AppShell } from '@/components/AppShell';
@@ -88,33 +89,35 @@ export default function RootLayout({
         <AccessibilityProvider>
           <ThemeProvider>
             <AuthProvider>
-              {/* Skip to Content for Keyboard/Screen Reader Navigation */}
-              <SkipToContent />
-              <LiveAnnouncer />
+              <SidebarProvider>
+                {/* Skip to Content for Keyboard/Screen Reader Navigation */}
+                <SkipToContent />
+                <LiveAnnouncer />
 
-              {/* Visual Reading Aids */}
-              <ReadingGuide />
-              <ReadingMask />
+                {/* Visual Reading Aids */}
+                <ReadingGuide />
+                <ReadingMask />
 
-              {/* Navigation Header */}
-              <Navbar />
+                {/* Navigation Header */}
+                <Navbar />
 
-              {/* Main Shell */}
-              <AppShell>
-                <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col focus:outline-none">
-                  {children}
-                </main>
-              </AppShell>
+                {/* Main Shell */}
+                <AppShell>
+                  <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col focus:outline-none">
+                    {children}
+                  </main>
+                </AppShell>
 
-              {/* Footer */}
-              <Footer />
+                {/* Footer */}
+                <Footer />
 
-              {/* Force Password Change Modal for one-time temporary passwords */}
-              <ForcePasswordChangeModal />
+                {/* Force Password Change Modal for one-time temporary passwords */}
+                <ForcePasswordChangeModal />
 
-              {/* Floating Accessibility Control & Panel */}
-              <AccessibilityButton />
-              <AccessibilityPanel />
+                {/* Floating Accessibility Control & Panel */}
+                <AccessibilityButton />
+                <AccessibilityPanel />
+              </SidebarProvider>
             </AuthProvider>
           </ThemeProvider>
         </AccessibilityProvider>

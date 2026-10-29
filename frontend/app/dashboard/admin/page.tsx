@@ -306,7 +306,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+    <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 min-w-0">
       {/* Feedback Banner */}
       {feedbackMsg && (
         <div
@@ -653,7 +653,7 @@ export default function AdminDashboardPage() {
                   </p>
                 </div>
               ) : (
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full min-w-[700px] text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-50/80 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
                       <th className="py-3.5 px-5">User</th>

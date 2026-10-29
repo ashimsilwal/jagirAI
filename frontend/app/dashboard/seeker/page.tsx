@@ -148,7 +148,7 @@ export default function SeekerDashboard() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+    <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 min-w-0">
       {/* Welcome Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-sky-50/90 via-blue-50/60 to-indigo-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-sky-100/90 dark:border-slate-800 p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm transition-colors">
         {/* Subtle decorative glow elements */}
@@ -207,28 +207,8 @@ export default function SeekerDashboard() {
         </div>
       </div>
 
-      {/* Section 1: Visual Analytics & Performance Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart 1: Donut breakdown of candidate application statuses */}
-        <DonutChart
-          title="Application Pipeline Breakdown"
-          description="Distribution of your current submissions across hiring stages"
-          segments={donutSegments}
-          centerLabel="Applications"
-          centerValue={stats.total}
-        />
-
-        {/* Chart 2: Monthly application activity trend curve */}
-        <AreaTrendChart
-          title="Application Activity Trend"
-          description="Submission cadence and candidate activity over recent months"
-          points={trendPoints}
-          lineColor="#0284c7"
-        />
-      </div>
-
-      {/* Section 2: Quick Metrics Key Performance Indicators */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* Section 1: Quick Metrics Key Performance Indicators */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Applied</span>
@@ -304,6 +284,26 @@ export default function SeekerDashboard() {
             />
           </div>
         </div>
+      </div>
+
+      {/* Section 2: Visual Analytics & Performance Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart 1: Donut breakdown of candidate application statuses */}
+        <DonutChart
+          title="Application Pipeline Breakdown"
+          description="Distribution of your current submissions across hiring stages"
+          segments={donutSegments}
+          centerLabel="Applications"
+          centerValue={stats.total}
+        />
+
+        {/* Chart 2: Monthly application activity trend curve */}
+        <AreaTrendChart
+          title="Application Activity Trend"
+          description="Submission cadence and candidate activity over recent months"
+          points={trendPoints}
+          lineColor="#0284c7"
+        />
       </div>
 
       {/* Applications Section */}

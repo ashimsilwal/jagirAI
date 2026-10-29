@@ -524,11 +524,11 @@ export default function HomePage() {
 
         {/* Listings Content */}
         {loading ? (
-          <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
+          <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6" : "space-y-4"}>
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-sm animate-pulse space-y-4 flex flex-col justify-between"
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-sm animate-pulse space-y-4 flex flex-col justify-between min-w-0"
               >
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">
@@ -574,12 +574,12 @@ export default function HomePage() {
           </div>
         ) : (
           <>
-            <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3.5"}>
+            <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6" : "space-y-3.5"}>
               {displayedJobs.map((job, idx) => (
                 <div
                   key={job.id}
                   style={!isSeeker ? { animationDelay: `${Math.min(idx * 80, 640)}ms` } : undefined}
-                  className={!isSeeker ? 'animate-hero-fade-in-up' : ''}
+                  className={`min-w-0 h-full ${!isSeeker ? 'animate-hero-fade-in-up' : ''}`}
                 >
                   <JobCard
                     job={job}
