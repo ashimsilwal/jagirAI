@@ -55,10 +55,10 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-black transition-colors duration-200">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/70 via-blue-50/40 to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 py-16 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_50%)] pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/70 via-blue-50/40 to-slate-50 dark:from-black dark:via-black dark:to-black py-16 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800">
+        <div className="dark:hidden absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_50%)] pointer-events-none" />
 
         <div className="max-w-4xl mx-auto text-center relative z-10 space-y-4">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">

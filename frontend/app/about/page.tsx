@@ -93,13 +93,13 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 overflow-hidden">
+    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 transition-colors duration-200 overflow-hidden">
       {/* Hero Section with Homepage-Style Slower Ambient Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 py-24 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800 transition-colors duration-500">
+      <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 dark:from-black dark:via-black dark:to-black py-24 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800 transition-colors duration-500">
         {/* Ambient Slow Floating Glows (like Homepage) */}
-        <div className="absolute -top-24 right-1/4 w-96 h-96 bg-sky-400/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none animate-hero-ambient-slow" />
-        <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none animate-hero-glow-slow" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_55%)] pointer-events-none" />
+        <div className="dark:hidden absolute -top-24 right-1/4 w-96 h-96 bg-sky-400/10 rounded-full blur-3xl pointer-events-none animate-hero-ambient-slow" />
+        <div className="dark:hidden absolute -bottom-20 left-1/4 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl pointer-events-none animate-hero-glow-slow" />
+        <div className="dark:hidden absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_55%)] pointer-events-none" />
 
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
           {/* Subtle Top Trust Pill */}

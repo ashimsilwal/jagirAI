@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import JobSeekerProfile, RecruiterProfile, SupportTicket
+from jobs.models import JobCategory
 
 User = get_user_model()
 
@@ -199,11 +200,43 @@ class LogoutSerializer(serializers.Serializer):
             raise serializers.ValidationError({"refresh": "Invalid or expired token."})
 
 
+class JobCategorySummarySerializer(serializers.ModelSerializer):
+    """
+    Serializer for displaying category summary in seeker profile.
+    """
+    class Meta:
+        model = JobCategory
+        fields = ('id', 'name', 'slug', 'description')
+
+
+class JobSeekerPreferencesSerializer(serializers.Serializer):
+    """
+    Serializer for validating and updating job seeker category preferences.
+    """
+    category_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        allow_empty=True,
+        default=list
+    )
+
+    def validate_category_ids(self, value):
+        if not value:
+            return []
+        unique_ids = list(set(value))
+        existing_ids = set(JobCategory.objects.filter(id__in=unique_ids).values_list('id', flat=True))
+        invalid_ids = [cid for cid in unique_ids if cid not in existing_ids]
+        if invalid_ids:
+            raise serializers.ValidationError(f"Invalid category IDs: {invalid_ids}")
+        return unique_ids
+
+
 class JobSeekerProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for Job Seeker Profile.
     """
     user = UserSerializer(read_only=True)
+    job_preferences = JobCategorySummarySerializer(many=True, read_only=True)
 
     class Meta:
         model = JobSeekerProfile
@@ -218,10 +251,11 @@ class JobSeekerProfileSerializer(serializers.ModelSerializer):
             'education',
             'experience',
             'location',
+            'job_preferences',
             'created_at',
             'updated_at',
         )
-        read_only_fields = ('id', 'user', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'user', 'job_preferences', 'created_at', 'updated_at')
 
     def validate_resume(self, value):
         if value and hasattr(value, 'name'):

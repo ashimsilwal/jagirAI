@@ -7,6 +7,7 @@ from .views import (
     CurrentUserView,
     ChangeInitialPasswordView,
     JobSeekerProfileView,
+    JobSeekerPreferencesView,
     RecruiterProfileView,
     ProfileSetupView,
     AdminStatsView,
@@ -30,6 +31,7 @@ urlpatterns = [
     # Profile Endpoints
     path('profile/setup/', ProfileSetupView.as_view(), name='profile_setup'),
     path('profile/job-seeker/', JobSeekerProfileView.as_view(), name='job_seeker_profile'),
+    path('job-seeker/preferences/', JobSeekerPreferencesView.as_view(), name='job_seeker_preferences'),
     path('profile/recruiter/', RecruiterProfileView.as_view(), name='recruiter_profile'),
 
     # Support Ticket Endpoints (Job Seekers & Recruiters)

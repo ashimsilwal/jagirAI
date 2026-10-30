@@ -142,7 +142,7 @@ export default function HomePage() {
       {/* 1. HERO SECTION: Different for Job Seeker vs Guest */}
       {isSeeker ? (
         /* JOB SEEKER DEDICATED HEADER */
-        <section className="bg-gradient-to-r from-sky-50/90 via-blue-50/50 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border-b border-sky-100/80 dark:border-slate-800 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+        <section className="bg-gradient-to-r from-sky-50/90 via-blue-50/50 to-indigo-50/30 dark:from-black dark:via-black dark:to-black border-b border-sky-100/80 dark:border-slate-800 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
@@ -333,11 +333,11 @@ export default function HomePage() {
         </section>
       ) : (
         /* GUEST / VISITOR MARKETING HERO */
-        <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 text-slate-900 dark:text-slate-100 py-20 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800/80 transition-colors duration-500">
+        <section className="relative overflow-hidden bg-gradient-to-b from-sky-100/80 via-blue-50/50 to-slate-50 dark:from-black dark:via-black dark:to-black text-slate-900 dark:text-slate-100 py-20 px-4 sm:px-6 lg:px-8 border-b border-sky-100/80 dark:border-slate-800/80 transition-colors duration-500">
           {/* Subtle slow-motion ambient background glows */}
-          <div className="absolute -top-24 right-1/4 w-96 h-96 bg-sky-400/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none animate-hero-ambient-slow" />
-          <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none animate-hero-glow-slow" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_55%)] pointer-events-none" />
+          <div className="dark:hidden absolute -top-24 right-1/4 w-96 h-96 bg-sky-400/10 rounded-full blur-3xl pointer-events-none animate-hero-ambient-slow" />
+          <div className="dark:hidden absolute -bottom-20 left-1/4 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl pointer-events-none animate-hero-glow-slow" />
+          <div className="dark:hidden absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_55%)] pointer-events-none" />
 
           <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight text-slate-900 dark:text-white animate-hero-fade-in-up">

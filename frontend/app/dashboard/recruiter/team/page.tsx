@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import {
   apiFetch,
   Organization,
@@ -51,6 +52,7 @@ type TabType = 'members' | 'roles' | 'activity';
 
 export default function TeamManagementPage() {
   const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
 
   // Active Organization & Current User Perms
@@ -153,6 +155,33 @@ export default function TeamManagementPage() {
       }
     }
   }, [user, authLoading, router]);
+
+  // Lock background body & html scroll completely when any modal is open
+  const isAnyModalOpen = Boolean(
+    addMemberModalOpen ||
+    resetPasswordModalOpen ||
+    editingMember ||
+    createRoleModalOpen ||
+    confirmDialog.isOpen
+  );
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      document.documentElement.classList.add('modal-open');
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.classList.remove('modal-open');
+        document.documentElement.classList.remove('modal-open');
+      };
+    }
+  }, [isAnyModalOpen]);
 
   // Load Organization & User Profile
   const loadOrganization = useCallback(async () => {
@@ -263,6 +292,18 @@ export default function TeamManagementPage() {
   }, [activeTab, loadMembers, loadRolesAndCatalog, loadActivities]);
 
   // Notification clear timer
+  useEffect(() => {
+    if (actionSuccess) {
+      toast.success(actionSuccess, 'Team Saved');
+    }
+  }, [actionSuccess, toast]);
+
+  useEffect(() => {
+    if (actionError) {
+      toast.error(actionError, 'Action Failed');
+    }
+  }, [actionError, toast]);
+
   useEffect(() => {
     if (actionSuccess || actionError) {
       const timer = setTimeout(() => {
@@ -1360,7 +1401,7 @@ export default function TeamManagementPage() {
 
       {/* 5. MODAL: Add Team Member (Direct Account Creation) */}
       {addMemberModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 overscroll-none">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-bold text-base min-w-0">
@@ -1588,7 +1629,7 @@ export default function TeamManagementPage() {
 
       {/* 6. MODAL: Reset Member Password */}
       {resetPasswordModalOpen && resetPasswordMember && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 overscroll-none">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-bold text-base min-w-0">
@@ -1670,7 +1711,7 @@ export default function TeamManagementPage() {
 
       {/* 7. MODAL: Edit Member Role & Permissions */}
       {editingMember && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 overscroll-none">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
@@ -1801,7 +1842,7 @@ export default function TeamManagementPage() {
 
       {/* 8. MODAL: Create Custom Role */}
       {createRoleModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 overscroll-none">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-bold text-slate-900 dark:text-white text-base truncate">
@@ -1909,7 +1950,7 @@ export default function TeamManagementPage() {
 
       {/* 9. MODAL: Confirmation Dialog */}
       {confirmDialog.isOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 overscroll-none">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92dvh] overflow-y-auto min-w-0">
             <h3 className="font-bold text-slate-900 dark:text-white text-base break-words">
               {confirmDialog.title}

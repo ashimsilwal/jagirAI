@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { apiFetch } from '@/lib/api';
+import { useToast } from '@/context/ToastContext';
+import { apiFetch, JobCategory } from '@/lib/api';
 import {
   Briefcase,
   Building2,
@@ -27,17 +28,22 @@ import {
   LogOut,
   UserCheck,
   Check,
-  GraduationCap
+  GraduationCap,
+  Layers,
+  Search,
+  Bookmark
 } from 'lucide-react';
 
 export default function ProfileSetupPage() {
   const { user, refreshUser, logout, loading: authLoading } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { toast } = useToast();
   const router = useRouter();
 
-  // Wizard state: Step 1, 2, or 3
+  // Wizard state: Step 1, 2, 3, or 4
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const isJobSeeker = user?.role === 'JOB_SEEKER';
+  const totalSteps = isJobSeeker ? 4 : 3;
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +63,12 @@ export default function ProfileSetupPage() {
   const [experience, setExperience] = useState('');
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  // Job Seeker Preferences Fields
+  const [categories, setCategories] = useState<JobCategory[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
 
   // Recruiter Fields
   const [companyName, setCompanyName] = useState('');
@@ -89,6 +101,38 @@ export default function ProfileSetupPage() {
       }
     }
   }, [user, authLoading, router]);
+
+  // Fetch standard job categories for Job Seeker onboarding
+  useEffect(() => {
+    if (user?.role === 'JOB_SEEKER') {
+      setLoadingCategories(true);
+      apiFetch<JobCategory[] | { results: JobCategory[] }>('/job-categories/')
+        .then((data) => {
+          const list = Array.isArray(data) ? data : data.results || [];
+          setCategories(list);
+        })
+        .catch((err) => {
+          console.error('Failed to load categories:', err);
+        })
+        .finally(() => {
+          setLoadingCategories(false);
+        });
+    }
+  }, [user]);
+
+  const toggleCategory = (catId: number) => {
+    setSelectedCategoryIds((prev) =>
+      prev.includes(catId) ? prev.filter((id) => id !== catId) : [...prev, catId]
+    );
+  };
+
+  const selectAllCategories = () => {
+    setSelectedCategoryIds(categories.map((c) => c.id));
+  };
+
+  const clearAllCategories = () => {
+    setSelectedCategoryIds([]);
+  };
 
   // Clean up object URLs
   useEffect(() => {
@@ -244,6 +288,9 @@ export default function ProfileSetupPage() {
         formData.append('skills', skills.trim());
         if (resume) formData.append('resume', resume);
 
+        // Job Preferences (Always preserved whether skipping photo step or not)
+        formData.append('category_ids', JSON.stringify(selectedCategoryIds));
+
         if (!isSkippingOptional) {
           if (profilePicture) formData.append('profile_picture', profilePicture);
           if (bio.trim()) formData.append('bio', bio.trim());
@@ -272,6 +319,7 @@ export default function ProfileSetupPage() {
 
       await refreshUser();
       setSuccess(true);
+      toast.success('Profile setup completed and preferences saved successfully!', 'Setup Complete');
 
       setTimeout(() => {
         if (user?.role === 'JOB_RECRUITER') {
@@ -292,7 +340,9 @@ export default function ProfileSetupPage() {
         }
         setFieldErrors(newFieldErrors);
       }
-      setError(err?.data?.detail || err?.message || 'Failed to complete profile setup. Please check the fields and try again.');
+      const errMsg = err?.data?.detail || err?.message || 'Failed to complete profile setup. Please check the fields and try again.';
+      setError(errMsg);
+      toast.error(errMsg, 'Setup Incomplete');
     } finally {
       setSaving(false);
     }
@@ -300,17 +350,15 @@ export default function ProfileSetupPage() {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-black p-6">
         <div className="w-10 h-10 rounded-full border-3 border-sky-600 border-t-transparent animate-spin mb-4" />
         <p className="text-sm text-slate-500 font-medium">Preparing account setup...</p>
       </div>
     );
   }
 
-  const isJobSeeker = user.role === 'JOB_SEEKER';
-
   return (
-    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-4 py-8 sm:py-12 select-none transition-colors duration-200">
+    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 px-4 py-8 sm:py-12 select-none transition-colors duration-200">
       {/* Top Minimal Bar */}
       <header className="w-full max-w-xl flex items-center justify-between mb-4 px-2">
         <Link href="/" className="flex items-center gap-2 group">
@@ -398,6 +446,22 @@ export default function ProfileSetupPage() {
                     </>
                   )}
                   {currentStep === 3 && (
+                    <>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800">
+                          <Bookmark className="w-3 h-3" />
+                          Personalization
+                        </span>
+                      </div>
+                      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                        Job Preferences
+                      </h1>
+                      <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400">
+                        Choose the types of jobs you&apos;re interested in so we can prioritize relevant opportunities for you.
+                      </p>
+                    </>
+                  )}
+                  {currentStep === 4 && (
                     <>
                       <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                         Profile Photo & Bio
@@ -668,8 +732,127 @@ export default function ProfileSetupPage() {
                     </div>
                   )}
 
-                  {/* STEP 3: Profile Photo & Bio (Optional & Skippable) */}
+                  {/* STEP 3: Job Preferences (Job Seeker) */}
                   {currentStep === 3 && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                      {/* Search and Selection Counter Bar */}
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pb-2">
+                        <div className="relative flex-1">
+                          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                          <input
+                            type="text"
+                            value={categorySearch}
+                            onChange={(e) => setCategorySearch(e.target.value)}
+                            placeholder="Filter categories (e.g. Backend, Data)..."
+                            className="w-full pl-9 pr-8 py-2 rounded-xl text-xs border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-sky-500 focus:outline-none transition"
+                          />
+                          {categorySearch && (
+                            <button
+                              type="button"
+                              onClick={() => setCategorySearch('')}
+                              className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                          <span className="text-xs font-semibold text-sky-600 dark:text-sky-400">
+                            {selectedCategoryIds.length} selected
+                          </span>
+                          <span className="text-slate-300 dark:text-slate-700">•</span>
+                          {selectedCategoryIds.length > 0 ? (
+                            <button
+                              type="button"
+                              onClick={clearAllCategories}
+                              className="text-xs text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 font-medium transition cursor-pointer"
+                            >
+                              Clear all
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={selectAllCategories}
+                              className="text-xs text-sky-600 dark:text-sky-400 hover:underline font-medium transition cursor-pointer"
+                            >
+                              Select all
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Categories Grid */}
+                      {loadingCategories ? (
+                        <div className="py-12 flex flex-col items-center justify-center">
+                          <div className="w-8 h-8 rounded-full border-2 border-sky-600 border-t-transparent animate-spin mb-3" />
+                          <p className="text-xs text-slate-500">Loading available job categories...</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
+                          {categories
+                            .filter((cat) =>
+                              !categorySearch ||
+                              cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
+                              (cat.description && cat.description.toLowerCase().includes(categorySearch.toLowerCase()))
+                            )
+                            .map((cat) => {
+                              const isSelected = selectedCategoryIds.includes(cat.id);
+                              return (
+                                <button
+                                  key={cat.id}
+                                  type="button"
+                                  onClick={() => toggleCategory(cat.id)}
+                                  className={`group text-left p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-start gap-3 select-none ${
+                                    isSelected
+                                      ? 'bg-sky-50 dark:bg-sky-950/60 border-sky-500 dark:border-sky-500 ring-2 ring-sky-500/20 shadow-sm shadow-sky-500/10'
+                                      : 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800/70'
+                                  }`}
+                                >
+                                  {/* Custom Checkbox Pill */}
+                                  <div
+                                    className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                                      isSelected
+                                        ? 'bg-sky-600 text-white'
+                                        : 'border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 group-hover:border-sky-400'
+                                    }`}
+                                  >
+                                    {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                                  </div>
+
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center justify-between gap-1">
+                                      <p
+                                        className={`text-xs font-bold truncate ${
+                                          isSelected
+                                            ? 'text-sky-950 dark:text-sky-100 font-semibold'
+                                            : 'text-slate-800 dark:text-slate-200'
+                                        }`}
+                                      >
+                                        {cat.name}
+                                      </p>
+                                    </div>
+                                    {cat.description && (
+                                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2 leading-relaxed">
+                                        {cat.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                        </div>
+                      )}
+
+                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <Bookmark className="w-4 h-4 text-sky-500 shrink-0" />
+                        <span>Vacancies matching your selected categories will appear first on the jobs board.</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 4: Profile Photo & Bio (Optional & Skippable) */}
+                  {currentStep === 4 && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                       {/* Photo Upload */}
                       <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800">
@@ -1033,8 +1216,20 @@ export default function ProfileSetupPage() {
                 </div>
 
                 <div className="flex items-center gap-2.5">
-                  {/* Step 3 Optional Skip Button */}
-                  {currentStep === 3 && (
+                  {/* Job Seeker Preferences Step Skip Button */}
+                  {isJobSeeker && currentStep === 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(4)}
+                      disabled={saving}
+                      className="px-4 py-2 rounded-full text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                    >
+                      Skip this step
+                    </button>
+                  )}
+
+                  {/* Final Step Optional Skip Button */}
+                  {currentStep === totalSteps && (
                     <button
                       type="button"
                       onClick={() => handleSubmit(true)}
@@ -1052,7 +1247,7 @@ export default function ProfileSetupPage() {
                       onClick={handleNextStep}
                       className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 active:scale-98 shadow-sm shadow-sky-500/20 transition cursor-pointer"
                     >
-                      <span>Next</span>
+                      <span>{isJobSeeker && currentStep === 3 ? 'Save & Continue' : 'Next'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   ) : (

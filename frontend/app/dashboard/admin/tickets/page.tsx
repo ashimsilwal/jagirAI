@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { apiFetch, SupportTicket } from '@/lib/api';
 import {
   LifeBuoy,
@@ -27,6 +28,7 @@ import {
 
 export default function AdminTicketsPage() {
   const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
@@ -148,16 +150,20 @@ export default function AdminTicketsPage() {
       });
       setTickets((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
       window.dispatchEvent(new Event('ticket-updated'));
+      const statusMsg = `Ticket #TKT-${ticket.id} status updated to ${newStatus.replace('_', ' ')}.`;
       setFeedbackMsg({
         type: 'success',
-        text: `Ticket #TKT-${ticket.id} status updated to ${newStatus.replace('_', ' ')}.`,
+        text: statusMsg,
       });
+      toast.success(statusMsg, 'Status Saved');
       setTimeout(() => setFeedbackMsg(null), 3500);
     } catch (err: any) {
+      const errMsg = err?.message || 'Failed to update ticket status.';
       setFeedbackMsg({
         type: 'error',
-        text: err?.message || 'Failed to update ticket status.',
+        text: errMsg,
       });
+      toast.error(errMsg, 'Update Failed');
     }
   };
 
@@ -180,16 +186,20 @@ export default function AdminTicketsPage() {
       setTickets((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
       window.dispatchEvent(new Event('ticket-updated'));
       setSelectedTicket(null);
+      const answerMsg = `Ticket #TKT-${updated.id} successfully answered and marked as ${updated.status.replace('_', ' ')}.`;
       setFeedbackMsg({
         type: 'success',
-        text: `Ticket #TKT-${updated.id} successfully answered and marked as ${updated.status.replace('_', ' ')}.`,
+        text: answerMsg,
       });
+      toast.success(answerMsg, 'Ticket Answered');
       setTimeout(() => setFeedbackMsg(null), 4000);
     } catch (err: any) {
+      const errMsg = err?.message || 'Failed to update support ticket.';
       setFeedbackMsg({
         type: 'error',
-        text: err?.message || 'Failed to update support ticket.',
+        text: errMsg,
       });
+      toast.error(errMsg, 'Save Failed');
     } finally {
       setSavingTicket(false);
     }

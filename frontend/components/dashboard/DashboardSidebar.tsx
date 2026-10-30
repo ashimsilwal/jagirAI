@@ -21,13 +21,13 @@ import {
   Sun,
   Moon,
   ExternalLink,
-  Sparkles,
   Search,
   Bookmark,
   CheckCircle2,
   Info,
   Mail,
   LifeBuoy,
+  Tag,
   X
 } from 'lucide-react';
 
@@ -127,6 +127,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         badge: openTicketsCount > 0 ? `${openTicketsCount} Open` : undefined,
         badgeColor: 'bg-amber-100 dark:bg-amber-950/90 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse',
       },
+      {
+        label: 'Job Categories',
+        href: '/dashboard/admin/categories',
+        icon: Tag,
+      },
     ];
   } else if (isRecruiter) {
     navItems = [
@@ -144,13 +149,17 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             },
           ]
         : []),
-      ...(hasPermission(user, 'vacancy.create')
+      ...(hasPermission(user, 'vacancy.create') || hasPermission(user, 'vacancy.view')
         ? [
             {
-              label: 'Post New Vacancy',
-              href: '/dashboard/recruiter/jobs/new',
-              icon: PlusCircle,
-              badge: 'New',
+              label: 'My Jobs',
+              href: '/dashboard/recruiter/jobs',
+              icon: Briefcase,
+            },
+            {
+              label: 'Job Categories',
+              href: '/dashboard/recruiter/categories',
+              icon: Tag,
             },
           ]
         : []),
@@ -191,6 +200,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         href: '/dashboard/seeker/profile',
         icon: UserCheck,
       },
+      {
+        label: 'Job Preferences',
+        href: '/dashboard/seeker/profile?tab=preferences',
+        icon: Bookmark,
+      },
     ];
   }
 
@@ -206,8 +220,19 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   const isCurrentActive = (href: string) => {
     if (href === '/') return pathname === '/';
-    const cleanHref = href.split('#')[0];
-    return pathname === cleanHref;
+    const [pathPart, queryPart] = href.split('?');
+    const cleanPath = pathPart.split('#')[0];
+    if (pathname !== cleanPath) return false;
+
+    if (typeof window !== 'undefined') {
+      const search = window.location.search;
+      if (queryPart) {
+        return search.includes(queryPart);
+      } else if (search.includes('tab=preferences') && href === '/dashboard/seeker/profile') {
+        return false;
+      }
+    }
+    return true;
   };
 
   const initials = user.username ? user.username.slice(0, 2).toUpperCase() : 'US';
@@ -377,7 +402,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={onMobileClose}
           />
           <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl border-r border-slate-200 dark:border-slate-800 z-50 transform transition-transform animate-in slide-in-from-left duration-200">

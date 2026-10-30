@@ -96,6 +96,25 @@ export const AccessibilityPanel: React.FC = () => {
     }
   }, [isPanelOpen]);
 
+  // Lock background body & html scroll completely when accessibility panel is open
+  useEffect(() => {
+    if (isPanelOpen) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      document.documentElement.classList.add('modal-open');
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.classList.remove('modal-open');
+        document.documentElement.classList.remove('modal-open');
+      };
+    }
+  }, [isPanelOpen]);
+
   if (!isPanelOpen) return null;
 
   const textScalePresets: TextSize[] = [90, 100, 110, 120, 130, 140];
@@ -104,7 +123,7 @@ export const AccessibilityPanel: React.FC = () => {
     <div
       role="region"
       aria-label="Accessibility settings modal"
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-end sm:justify-end p-0 sm:p-6 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs transition-opacity duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-end sm:justify-end p-0 sm:p-6 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs transition-opacity duration-200 overscroll-none"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           closePanel();

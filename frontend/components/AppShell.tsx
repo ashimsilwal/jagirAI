@@ -18,7 +18,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   // When user is logged in, the enterprise Sidebar takes the whole height and overlaps the navbar
   return (
-    <div className="flex-1 flex flex-col w-full min-h-[calc(100vh-4rem)] bg-slate-50/60 dark:bg-slate-950">
+    <div className="flex-1 flex flex-col w-full min-h-[calc(100vh-4rem)] bg-slate-50/60 dark:bg-black">
       {/* Full-Height Modern Sidebar overlapping Navbar */}
       <DashboardSidebar
         mobileOpen={mobileSidebarOpen}

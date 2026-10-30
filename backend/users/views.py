@@ -18,6 +18,8 @@ from .serializers import (
     LogoutSerializer,
     JobSeekerProfileSerializer,
     RecruiterProfileSerializer,
+    JobCategorySummarySerializer,
+    JobSeekerPreferencesSerializer,
     AdminUserListSerializer,
     AdminUserUpdateSerializer,
     SupportTicketSerializer,
@@ -134,6 +136,38 @@ class JobSeekerProfileView(generics.RetrieveUpdateAPIView):
                 instance.profile_picture.delete(save=False)
                 instance.profile_picture = None
         serializer.save()
+
+
+class JobSeekerPreferencesView(APIView):
+    """
+    Endpoint: GET, PUT /api/job-seeker/preferences/
+    Manage preferred job categories for the authenticated job seeker.
+    """
+    permission_classes = [permissions.IsAuthenticated, IsJobSeeker]
+
+    def get(self, request):
+        profile, _ = JobSeekerProfile.objects.get_or_create(user=request.user)
+        categories = profile.job_preferences.all()
+        return Response({
+            'category_ids': list(categories.values_list('id', flat=True)),
+            'categories': JobCategorySummarySerializer(categories, many=True).data
+        }, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        profile, _ = JobSeekerProfile.objects.get_or_create(user=request.user)
+        serializer = JobSeekerPreferencesSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        category_ids = serializer.validated_data.get('category_ids', [])
+        profile.job_preferences.set(category_ids)
+
+        updated_categories = profile.job_preferences.all()
+        return Response({
+            'message': 'Preferences updated successfully.',
+            'category_ids': list(updated_categories.values_list('id', flat=True)),
+            'categories': JobCategorySummarySerializer(updated_categories, many=True).data
+        }, status=status.HTTP_200_OK)
 
 
 class RecruiterProfileView(generics.RetrieveUpdateAPIView):
@@ -254,6 +288,30 @@ class ProfileSetupView(APIView):
                 elif profile_picture_file.size > 2 * 1024 * 1024:
                     errors['profile_picture'] = ['Profile picture size cannot exceed 2MB.']
 
+            # Job Preferences (Optional)
+            category_ids_raw = request.data.get('category_ids')
+            pref_serializer = None
+            if category_ids_raw is not None:
+                parsed_category_ids = None
+                if isinstance(category_ids_raw, str):
+                    try:
+                        import json
+                        parsed_category_ids = json.loads(category_ids_raw)
+                    except Exception:
+                        try:
+                            parsed_category_ids = [int(x.strip()) for x in category_ids_raw.split(',') if x.strip()]
+                        except ValueError:
+                            errors['category_ids'] = ['Invalid format for category IDs.']
+                elif isinstance(category_ids_raw, list):
+                    parsed_category_ids = category_ids_raw
+                else:
+                    errors['category_ids'] = ['Invalid format for category IDs.']
+
+                if parsed_category_ids is not None and not errors.get('category_ids'):
+                    pref_serializer = JobSeekerPreferencesSerializer(data={'category_ids': parsed_category_ids})
+                    if not pref_serializer.is_valid():
+                        errors['category_ids'] = pref_serializer.errors.get('category_ids', ['Invalid category IDs.'])
+
             if errors:
                 return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -277,6 +335,10 @@ class ProfileSetupView(APIView):
                 profile.education = request.data.get('education', '')
             if 'experience' in request.data:
                 profile.experience = request.data.get('experience', '')
+
+            if pref_serializer and pref_serializer.is_valid():
+                profile.job_preferences.set(pref_serializer.validated_data.get('category_ids', []))
+
             profile.save()
 
             return Response({

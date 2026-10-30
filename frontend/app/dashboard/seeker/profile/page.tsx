@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import { apiFetch, JobSeekerProfile, getMediaUrl } from '@/lib/api';
+import { apiFetch, JobSeekerProfile, JobCategory, getMediaUrl } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { 
   User, 
   MapPin, 
@@ -32,7 +33,10 @@ import {
   FileCheck,
   CheckCircle,
   Eye,
-  X
+  X,
+  Search,
+  Sliders,
+  Bookmark
 } from 'lucide-react';
 
 const AVATAR_PALETTES = [
@@ -64,8 +68,9 @@ function getCandidateInitials(name?: string): string {
 
 export default function SeekerProfilePage() {
   const { user, refreshUser } = useAuth();
+  const { toast } = useToast();
   const [profile, setProfile] = useState<JobSeekerProfile | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'resume' | 'edit'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'resume' | 'preferences' | 'edit'>('overview');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -75,6 +80,16 @@ export default function SeekerProfilePage() {
   const [error, setError] = useState('');
   const [copiedShare, setCopiedShare] = useState(false);
   const [isViewingPhoto, setIsViewingPhoto] = useState(false);
+
+  // Job Preferences State
+  const [availableCategories, setAvailableCategories] = useState<JobCategory[]>([]);
+  const [selectedPreferenceIds, setSelectedPreferenceIds] = useState<number[]>([]);
+  const [initialPreferenceIds, setInitialPreferenceIds] = useState<number[]>([]);
+  const [prefSearch, setPrefSearch] = useState('');
+  const [savingPrefs, setSavingPrefs] = useState(false);
+  const [loadingPrefs, setLoadingPrefs] = useState(false);
+  const [prefSuccessMessage, setPrefSuccessMessage] = useState('');
+  const [prefErrorMessage, setPrefErrorMessage] = useState('');
 
   // Profile Picture State
   const [newProfilePicture, setNewProfilePicture] = useState<File | null>(null);
@@ -91,6 +106,17 @@ export default function SeekerProfilePage() {
   const [experience, setExperience] = useState('');
   const [newResume, setNewResume] = useState<File | null>(null);
 
+  // Auto-switch to tab if query parameter tab=preferences is present
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'preferences' || tabParam === 'resume' || tabParam === 'edit' || tabParam === 'overview') {
+        setActiveTab(tabParam as any);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -102,6 +128,12 @@ export default function SeekerProfilePage() {
         setSkills(data.skills || '');
         setEducation(data.education || '');
         setExperience(data.experience || '');
+
+        if (data.job_preferences && Array.isArray(data.job_preferences)) {
+          const ids = data.job_preferences.map(c => c.id);
+          setSelectedPreferenceIds(ids);
+          setInitialPreferenceIds(ids);
+        }
       } catch (err: any) {
         setError('Failed to load profile details.');
       } finally {
@@ -111,6 +143,95 @@ export default function SeekerProfilePage() {
 
     fetchProfile();
   }, []);
+
+  // Fetch all available job categories and live preferences
+  useEffect(() => {
+    const fetchPreferencesData = async () => {
+      setLoadingPrefs(true);
+      try {
+        const [catsRes, prefsRes] = await Promise.all([
+          apiFetch<JobCategory[] | { results: JobCategory[] }>('/job-categories/'),
+          apiFetch<{ category_ids: number[]; categories: JobCategory[] }>('/job-seeker/preferences/').catch(() => null)
+        ]);
+
+        const cats = Array.isArray(catsRes) ? catsRes : catsRes.results || [];
+        setAvailableCategories(cats);
+
+        if (prefsRes && Array.isArray(prefsRes.category_ids)) {
+          setSelectedPreferenceIds(prefsRes.category_ids);
+          setInitialPreferenceIds(prefsRes.category_ids);
+        }
+      } catch (err) {
+        console.error('Failed to load categories or preferences:', err);
+      } finally {
+        setLoadingPrefs(false);
+      }
+    };
+
+    fetchPreferencesData();
+  }, []);
+
+  const togglePreferenceCategory = (catId: number) => {
+    setSelectedPreferenceIds((prev) =>
+      prev.includes(catId) ? prev.filter((id) => id !== catId) : [...prev, catId]
+    );
+  };
+
+  const handleSelectAllPreferences = () => {
+    setSelectedPreferenceIds(availableCategories.map((c) => c.id));
+  };
+
+  const handleClearAllPreferences = () => {
+    setSelectedPreferenceIds([]);
+  };
+
+  const handleResetPreferences = () => {
+    setSelectedPreferenceIds(initialPreferenceIds);
+    setPrefSuccessMessage('');
+    setPrefErrorMessage('');
+  };
+
+  const handleSavePreferences = async () => {
+    setSavingPrefs(true);
+    setPrefSuccessMessage('');
+    setPrefErrorMessage('');
+
+    try {
+      const res = await apiFetch<{ message: string; category_ids: number[]; categories: JobCategory[] }>(
+        '/job-seeker/preferences/',
+        {
+          method: 'PUT',
+          body: JSON.stringify({ category_ids: selectedPreferenceIds }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      setSelectedPreferenceIds(res.category_ids);
+      setInitialPreferenceIds(res.category_ids);
+      if (profile) {
+        setProfile({
+          ...profile,
+          job_preferences: res.categories,
+        });
+      }
+      const successMsg = 'Job preferences saved successfully! Vacancies matching your selected categories are now prioritized in your jobs feed.';
+      setPrefSuccessMessage(successMsg);
+      toast.success(successMsg, 'Preferences Saved');
+      setTimeout(() => setPrefSuccessMessage(''), 5000);
+    } catch (err: any) {
+      const errMsg =
+        err?.data?.detail ||
+        err?.data?.category_ids?.[0] ||
+        err?.message ||
+        'Failed to save job preferences. Please try again.';
+      setPrefErrorMessage(errMsg);
+      toast.error(errMsg, 'Save Failed');
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
 
   // Cleanup object URL preview on unmount or change
   useEffect(() => {
@@ -130,6 +251,25 @@ export default function SeekerProfilePage() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isViewingPhoto]);
+
+  // Lock background body & html scroll completely when photo modal is open
+  useEffect(() => {
+    if (isViewingPhoto) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      document.documentElement.classList.add('modal-open');
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.classList.remove('modal-open');
+        document.documentElement.classList.remove('modal-open');
+      };
+    }
   }, [isViewingPhoto]);
 
   const handlePictureSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,10 +341,14 @@ export default function SeekerProfilePage() {
       setRemovePicture(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
       await refreshUser();
-      setMessage(removePicture ? 'Profile picture removed successfully!' : 'Profile picture updated successfully!');
+      const msg = removePicture ? 'Profile picture removed successfully!' : 'Profile picture updated successfully!';
+      setMessage(msg);
+      toast.success(msg, 'Photo Saved');
       setTimeout(() => setMessage(''), 4000);
     } catch (err: any) {
-      setError(err?.data?.profile_picture?.[0] || err?.message || 'Failed to update profile picture.');
+      const errMsg = err?.data?.profile_picture?.[0] || err?.message || 'Failed to update profile picture.';
+      setError(errMsg);
+      toast.error(errMsg, 'Save Failed');
     } finally {
       setPhotoSaving(false);
     }
@@ -229,10 +373,14 @@ export default function SeekerProfilePage() {
       setProfile(updated);
       setNewResume(null);
       await refreshUser();
-      setMessage('Resume document uploaded and updated successfully!');
+      const msg = 'Resume document uploaded and updated successfully!';
+      setMessage(msg);
+      toast.success(msg, 'Resume Saved');
       setTimeout(() => setMessage(''), 4000);
     } catch (err: any) {
-      setError(err?.data?.resume?.[0] || err?.message || 'Failed to update resume document.');
+      const errMsg = err?.data?.resume?.[0] || err?.message || 'Failed to update resume document.';
+      setError(errMsg);
+      toast.error(errMsg, 'Save Failed');
     } finally {
       setResumeSaving(false);
     }
@@ -276,17 +424,20 @@ export default function SeekerProfilePage() {
       setNewResume(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
       await refreshUser();
-      setMessage('Profile updated successfully!');
+      const msg = 'Profile updated successfully!';
+      setMessage(msg);
+      toast.success('Your profile changes have been saved successfully!', 'Profile Saved');
       setActiveTab('overview');
       setTimeout(() => setMessage(''), 4000);
     } catch (err: any) {
-      setError(
+      const errMsg =
         err?.data?.profile_picture?.[0] ||
         err?.data?.resume?.[0] ||
         err?.data?.detail ||
         err?.message ||
-        'Failed to update profile.'
-      );
+        'Failed to update profile.';
+      setError(errMsg);
+      toast.error(errMsg, 'Save Failed');
     } finally {
       setSaving(false);
     }
@@ -411,7 +562,7 @@ export default function SeekerProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-black text-slate-800 dark:text-slate-200">
       {/* 1. TOP HEADER & BREADCRUMB */}
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-20 backdrop-blur-md bg-white/90 dark:bg-slate-900/90">
         <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -501,6 +652,23 @@ export default function SeekerProfilePage() {
               <span>Resume & CV</span>
               {profile?.resume && (
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('preferences')}
+              className={`inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
+                activeTab === 'preferences'
+                  ? 'border-sky-500 text-slate-900 dark:text-white font-semibold'
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700'
+              }`}
+            >
+              <Bookmark className="w-4 h-4 text-sky-500" />
+              <span>Job Preferences</span>
+              {selectedPreferenceIds.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                  {selectedPreferenceIds.length}
+                </span>
               )}
             </button>
 
@@ -1085,6 +1253,66 @@ export default function SeekerProfilePage() {
                   </div>
                 </div>
 
+                {/* 5. JOB PREFERENCES SUMMARY CARD */}
+                <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-colors">
+                  <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      <Bookmark className="w-4 h-4 text-sky-500" />
+                      <span>Job Preferences</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('preferences')}
+                      className="inline-flex items-center gap-1.5 text-xs text-sky-600 dark:text-sky-400 font-semibold hover:underline cursor-pointer"
+                    >
+                      <Sliders className="w-3.5 h-3.5" />
+                      <span>Manage Preferences</span>
+                    </button>
+                  </div>
+
+                  <div className="p-6">
+                    {selectedPreferenceIds.length > 0 ? (
+                      <div className="space-y-3">
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                          Vacancies in these categories are prioritized at the top of your job feed:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {availableCategories
+                            .filter((c) => selectedPreferenceIds.includes(c.id))
+                            .map((cat) => (
+                              <span
+                                key={cat.id}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800"
+                              >
+                                <Check className="w-3 h-3 text-sky-500" />
+                                <span>{cat.name}</span>
+                              </span>
+                            ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-2">
+                        <Bookmark className="w-6 h-6 text-slate-400 mx-auto" />
+                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          No category preferences configured
+                        </p>
+                        <p className="text-[11px] text-slate-400 max-w-sm mx-auto">
+                          Select your preferred job domains to receive tailored vacancy recommendations.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab('preferences')}
+                          className="mt-1 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition cursor-pointer"
+                        >
+                          <Sliders className="w-3.5 h-3.5" />
+                          <span>Configure Preferences</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
               </div>
             )}
 
@@ -1274,6 +1502,210 @@ export default function SeekerProfilePage() {
                         </span>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* ----------------------------------------------------------------- */}
+            {/* TAB: JOB PREFERENCES (CUSTOMIZE CAREER DOMAIN PRIORITIZATION)      */}
+            {/* ----------------------------------------------------------------- */}
+            {activeTab === 'preferences' && (
+              <div className="space-y-6">
+                
+                {/* Header Banner */}
+                <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Bookmark className="w-5 h-5 text-sky-500" />
+                        <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
+                          Job Preferences
+                        </h2>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        Choose the types of jobs you&apos;re interested in so we can prioritize relevant opportunities for you.
+                      </p>
+                    </div>
+
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800 shrink-0 self-start sm:self-auto">
+                      <Bookmark className="w-3.5 h-3.5 text-sky-500" />
+                      <span>{selectedPreferenceIds.length} Categories Selected</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Feedback Alerts */}
+                {prefSuccessMessage && (
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between shadow-sm animate-in fade-in">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      <span className="font-medium">{prefSuccessMessage}</span>
+                    </div>
+                    <button 
+                      onClick={() => setPrefSuccessMessage('')} 
+                      className="text-emerald-700 dark:text-emerald-400 hover:underline text-[11px] font-semibold cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+
+                {prefErrorMessage && (
+                  <div className="p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-800 dark:text-rose-300 text-xs flex items-center justify-between shadow-sm animate-in fade-in">
+                    <div className="flex items-center gap-2.5">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                      <span className="font-medium">{prefErrorMessage}</span>
+                    </div>
+                    <button 
+                      onClick={() => setPrefErrorMessage('')} 
+                      className="text-rose-700 dark:text-rose-400 hover:underline text-[11px] font-semibold cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+
+                {/* Preference Selection Grid & Controls */}
+                <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm space-y-6">
+                  {/* Search and Action Bar */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <input
+                        type="text"
+                        value={prefSearch}
+                        onChange={(e) => setPrefSearch(e.target.value)}
+                        placeholder="Search categories (e.g. Backend, Design, Data)..."
+                        className="w-full pl-10 pr-8 py-2.5 rounded-xl text-xs sm:text-sm border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-sky-500 focus:outline-none transition"
+                      />
+                      {prefSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setPrefSearch('')}
+                          className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleSelectAllPreferences}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClearAllPreferences}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition cursor-pointer"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Categories Grid */}
+                  {loadingPrefs ? (
+                    <div className="py-16 text-center">
+                      <div className="w-8 h-8 rounded-full border-2 border-sky-600 border-t-transparent animate-spin mx-auto mb-3" />
+                      <p className="text-xs text-slate-500">Loading job categories...</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {availableCategories
+                        .filter((cat) =>
+                          !prefSearch ||
+                          cat.name.toLowerCase().includes(prefSearch.toLowerCase()) ||
+                          (cat.description && cat.description.toLowerCase().includes(prefSearch.toLowerCase()))
+                        )
+                        .map((cat) => {
+                          const isSelected = selectedPreferenceIds.includes(cat.id);
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => togglePreferenceCategory(cat.id)}
+                              className={`group text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex items-start gap-3.5 select-none ${
+                                isSelected
+                                  ? 'bg-sky-50 dark:bg-sky-950/60 border-sky-500 dark:border-sky-500 ring-2 ring-sky-500/20 shadow-xs'
+                                  : 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800/70'
+                              }`}
+                            >
+                              <div
+                                className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                                  isSelected
+                                    ? 'bg-sky-600 text-white'
+                                    : 'border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 group-hover:border-sky-400'
+                                }`}
+                              >
+                                {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                              </div>
+
+                              <div className="min-w-0 flex-1">
+                                <p
+                                  className={`text-sm font-bold truncate ${
+                                    isSelected
+                                      ? 'text-sky-950 dark:text-sky-100 font-semibold'
+                                      : 'text-slate-900 dark:text-slate-100'
+                                  }`}
+                                >
+                                  {cat.name}
+                                </p>
+                                {cat.description && (
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                                    {cat.description}
+                                  </p>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  )}
+
+                  {/* Save Footer Bar */}
+                  <div className="border-t border-slate-100 dark:border-slate-800 pt-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleResetPreferences}
+                        disabled={savingPrefs}
+                        className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                      >
+                        Reset Changes
+                      </button>
+                      <Link
+                        href="/jobs"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 transition"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Explore Jobs</span>
+                      </Link>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleSavePreferences}
+                      disabled={savingPrefs}
+                      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold shadow-md shadow-sky-500/25 transition cursor-pointer disabled:opacity-60"
+                    >
+                      {savingPrefs ? (
+                        <>
+                          <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                          <span>Saving Preferences...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4" />
+                          <span>Save Preferences</span>
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
 
@@ -1641,7 +2073,7 @@ export default function SeekerProfilePage() {
       {/* 4. PROFILE PICTURE LIGHTBOX MODAL */}
       {isViewingPhoto && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in overscroll-none"
           onClick={() => setIsViewingPhoto(false)}
         >
           <div 

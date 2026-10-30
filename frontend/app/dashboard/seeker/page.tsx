@@ -150,10 +150,10 @@ export default function SeekerDashboard() {
   return (
     <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 min-w-0">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-sky-50/90 via-blue-50/60 to-indigo-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-sky-100/90 dark:border-slate-800 p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm transition-colors">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-sky-50/90 via-blue-50/60 to-indigo-50/50 dark:from-black dark:via-black dark:to-black border border-sky-100/90 dark:border-slate-800 p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm transition-colors">
         {/* Subtle decorative glow elements */}
-        <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 bg-sky-500/10 dark:bg-sky-500/15 rounded-full blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 bg-blue-500/10 dark:bg-indigo-500/10 rounded-full blur-3xl" />
+        <div className="dark:hidden pointer-events-none absolute -top-24 -right-24 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl" />
+        <div className="dark:hidden pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
 
         <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="flex items-center gap-4">

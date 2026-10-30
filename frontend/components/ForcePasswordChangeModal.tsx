@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { apiFetch } from '@/lib/api';
 import { Key, Eye, EyeOff, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -15,8 +15,29 @@ export const ForcePasswordChangeModal: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const isModalActive = Boolean(user && user.must_change_password);
+
+  // Lock background body & html scroll completely when force password modal is open
+  useEffect(() => {
+    if (isModalActive) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      document.documentElement.classList.add('modal-open');
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.classList.remove('modal-open');
+        document.documentElement.classList.remove('modal-open');
+      };
+    }
+  }, [isModalActive]);
+
   // Only render if user is authenticated and must change password
-  if (!user || !user.must_change_password) {
+  if (!isModalActive) {
     return null;
   }
 
@@ -61,7 +82,7 @@ export const ForcePasswordChangeModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 overscroll-none">
       <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-6 animate-in fade-in zoom-in-95">
         <div className="flex flex-col items-center text-center space-y-3">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/25">

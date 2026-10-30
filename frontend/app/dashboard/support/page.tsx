@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { apiFetch, SupportTicket } from '@/lib/api';
 import {
   LifeBuoy,
@@ -23,6 +24,7 @@ import {
 
 export default function SupportPage() {
   const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
@@ -100,15 +102,19 @@ export default function SupportPage() {
       setMessage('');
       setCategory('TECHNICAL');
       setPriority('MEDIUM');
+      const successMsg = `Support ticket #${newTicket.id} submitted successfully! Our administrators have been notified.`;
       setFeedback({
         type: 'success',
-        text: `Support ticket #${newTicket.id} submitted successfully! Our administrators have been notified.`,
+        text: successMsg,
       });
+      toast.success(successMsg, 'Ticket Submitted');
     } catch (err: any) {
+      const errMsg = err?.data?.detail || err?.message || 'Failed to submit ticket. Please check your inputs.';
       setFeedback({
         type: 'error',
-        text: err?.data?.detail || err?.message || 'Failed to submit ticket. Please check your inputs.',
+        text: errMsg,
       });
+      toast.error(errMsg, 'Submission Failed');
     } finally {
       setSubmitting(false);
     }

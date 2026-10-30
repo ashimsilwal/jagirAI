@@ -227,9 +227,9 @@ function JobsContent() {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50/60 dark:bg-slate-950 min-h-screen">
+    <div className="flex-1 flex flex-col bg-slate-50/60 dark:bg-black min-h-screen">
       {/* 1. HERO / SEARCH HEADER */}
-      <section className="bg-gradient-to-b from-sky-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 border-b border-sky-100/80 dark:border-slate-800 py-8 sm:py-10 px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-b from-sky-50 via-white to-slate-50 dark:from-black dark:via-black dark:to-black border-b border-sky-100/80 dark:border-slate-800 py-8 sm:py-10 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -259,8 +259,17 @@ function JobsContent() {
             </div>
 
             {/* Quick Action links */}
-            {isSeeker && (
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={isSeeker ? "/dashboard/seeker/profile?tab=preferences" : "/login?redirect=/dashboard/seeker/profile?tab=preferences"}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-sky-200/90 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-950/50 transition shadow-sm"
+                title="Change your preferred job categories to prioritize matching vacancies"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5 text-sky-500" />
+                <span>Change Preferences</span>
+              </Link>
+
+              {isSeeker && (
                 <Link
                   href="/dashboard/seeker"
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm"
@@ -273,8 +282,8 @@ function JobsContent() {
                     </span>
                   )}
                 </Link>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Search Form */}
@@ -418,6 +427,16 @@ function JobsContent() {
                 <span>Not Applied</span>
               </button>
             )}
+
+            {/* Change Preferences Pill */}
+            <Link
+              href={isSeeker ? "/dashboard/seeker/profile?tab=preferences" : "/login?redirect=/dashboard/seeker/profile?tab=preferences"}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition cursor-pointer"
+              title="Change your preferred job categories"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-sky-500" />
+              <span>Change Preferences</span>
+            </Link>
 
             {/* Clear All Filters */}
             {(search || location || employmentType || showSavedOnly || showUnappliedOnly || page > 1) && (

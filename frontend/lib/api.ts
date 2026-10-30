@@ -70,6 +70,28 @@ export interface JobSeekerProfile {
   education: string;
   experience: string;
   location: string;
+  job_preferences?: JobCategory[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JobCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  jobs_count?: number;
+}
+
+export interface JobCategoryRequest {
+  id: number;
+  name: string;
+  description: string;
+  reason?: string;
+  requester: User;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  admin_notes?: string;
+  created_category?: JobCategory | null;
   created_at: string;
   updated_at: string;
 }
@@ -92,6 +114,10 @@ export interface Job {
   recruiter: User;
   company_name: string;
   company_logo: string | null;
+  category?: JobCategory | null;
+  category_id?: number | null;
+  is_preferred?: boolean;
+  applications_count?: number;
   title: string;
   description: string;
   requirements: string;

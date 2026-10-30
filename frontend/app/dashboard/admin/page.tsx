@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { apiFetch, AdminUser, AdminStats, SupportTicket } from '@/lib/api';
 import { Pagination } from '@/components/Pagination';
 import {
@@ -32,12 +33,14 @@ import {
   MessageSquare,
   Send,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Tag
 } from 'lucide-react';
 import { DonutChart, BarChart } from '@/components/charts';
 
 export default function AdminDashboardPage() {
   const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -141,6 +144,11 @@ export default function AdminDashboardPage() {
 
   const showNotification = (type: 'success' | 'error', text: string) => {
     setFeedbackMsg({ type, text });
+    if (type === 'success') {
+      toast.success(text, 'Save Done');
+    } else {
+      toast.error(text, 'Action Failed');
+    }
     setTimeout(() => {
       setFeedbackMsg(null);
     }, 4000);
@@ -390,7 +398,15 @@ export default function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/dashboard/admin/categories"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm cursor-pointer"
+          >
+            <Tag className="w-3.5 h-3.5" />
+            <span>Job Categories</span>
+          </Link>
+
           <Link
             href="/dashboard/admin/tickets"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 transition shadow-sm cursor-pointer"

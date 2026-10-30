@@ -144,7 +144,7 @@ function InvitationAcceptContent() {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-black">
         <div className="text-center space-y-3">
           <RefreshCw className="w-8 h-8 mx-auto animate-spin text-sky-600" />
           <p className="text-xs text-slate-500">Validating team invitation...</p>
@@ -155,7 +155,7 @@ function InvitationAcceptContent() {
 
   if (error || !inviteData) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-black">
         <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl text-center space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center mx-auto">
             <AlertTriangle className="w-7 h-7" />
@@ -429,7 +429,7 @@ export default function InvitationAcceptPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-black p-4">
           <RefreshCw className="w-8 h-8 animate-spin text-sky-600" />
         </div>
       }

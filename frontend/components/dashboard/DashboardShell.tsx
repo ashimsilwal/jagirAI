@@ -8,7 +8,7 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
   const { mobileSidebarOpen, setMobileSidebarOpen } = useSidebar();
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row w-full min-h-[calc(100vh-4rem)] bg-slate-50/60 dark:bg-slate-950">
+    <div className="flex-1 flex flex-col md:flex-row w-full min-h-[calc(100vh-4rem)] bg-slate-50/60 dark:bg-black">
       {/* Modern Sidebar */}
       <DashboardSidebar
         mobileOpen={mobileSidebarOpen}

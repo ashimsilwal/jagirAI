@@ -226,7 +226,7 @@ export default function RecruiterDashboard() {
   return (
     <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 min-w-0">
       {/* Recruiter Header */}
-      <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-sky-100/80 dark:border-slate-800 rounded-lg p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
+      <div className="bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 dark:from-black dark:via-black dark:to-black border border-sky-100/80 dark:border-slate-800 rounded-lg p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
             Welcome, {user?.username}!
@@ -236,7 +236,7 @@ export default function RecruiterDashboard() {
           </p>
         </div>
 
-        <div className="flex gap-2 sm:gap-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
           {canViewCompanyProfile && (
             <Link
               href="/dashboard/recruiter/profile"
@@ -245,9 +245,16 @@ export default function RecruiterDashboard() {
               Company Profile
             </Link>
           )}
+          <Link
+            href="/dashboard/recruiter/jobs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition shadow-sm"
+          >
+            <Briefcase className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            <span>My Jobs</span>
+          </Link>
           {canCreateVacancy && (
             <Link
-              href="/dashboard/recruiter/jobs/new"
+              href="/dashboard/recruiter/jobs?create=1"
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-md bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-sm shadow-sky-200 dark:shadow-none transition cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
@@ -720,7 +727,7 @@ export default function RecruiterDashboard() {
 
       {/* SECTION 2: POSTED JOBS */}
       <div id="vacancies" className="space-y-4 pt-4">
-        <div className="flex justify-between items-center pb-1 border-b border-slate-200/80 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-1 border-b border-slate-200/80 dark:border-slate-800">
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               My Job Postings ({jobs.length})
@@ -730,15 +737,24 @@ export default function RecruiterDashboard() {
             </p>
           </div>
 
-          {canCreateVacancy && (
+          <div className="flex flex-wrap items-center gap-2">
             <Link
-              href="/dashboard/recruiter/jobs/new"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs transition"
+              href="/dashboard/recruiter/jobs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold text-xs text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-100 dark:border-sky-800 transition shadow-xs"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Create Vacancy</span>
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>View All in My Jobs ({jobs.length})</span>
             </Link>
-          )}
+            {canCreateVacancy && (
+              <Link
+                href="/dashboard/recruiter/jobs?create=1"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs transition"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Post New Vacancy</span>
+              </Link>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -756,11 +772,11 @@ export default function RecruiterDashboard() {
             </p>
             {canCreateVacancy && (
               <Link
-                href="/dashboard/recruiter/jobs/new"
+                href="/dashboard/recruiter/jobs?create=1"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 transition"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>Create Vacancy</span>
+                <span>Post New Vacancy</span>
               </Link>
             )}
           </div>

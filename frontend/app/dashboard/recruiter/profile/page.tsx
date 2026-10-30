@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { 
   apiFetch, 
   RecruiterProfile, 
@@ -66,6 +67,7 @@ function getCompanyInitials(name?: string): string {
 
 export default function RecruiterProfilePage() {
   const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [profile, setProfile] = useState<RecruiterProfile | null>(null);
@@ -100,6 +102,25 @@ export default function RecruiterProfilePage() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isViewingLogo]);
+
+  // Lock background body & html scroll completely when logo modal is open
+  useEffect(() => {
+    if (isViewingLogo) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      document.documentElement.classList.add('modal-open');
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.classList.remove('modal-open');
+        document.documentElement.classList.remove('modal-open');
+      };
+    }
   }, [isViewingLogo]);
 
   // Form Fields
@@ -181,9 +202,13 @@ export default function RecruiterProfilePage() {
       setCompanyLogo(null);
       setLogoPreviewUrl(null);
       setMessage('Company profile updated successfully!');
+      toast.success('Company profile changes have been saved successfully!', 'Profile Saved');
       setActiveTab('overview');
+      setTimeout(() => setMessage(''), 4000);
     } catch (err: any) {
-      setError(err.data?.company_logo?.[0] || err.message || 'Failed to update company profile.');
+      const errMsg = err.data?.company_logo?.[0] || err.message || 'Failed to update company profile.';
+      setError(errMsg);
+      toast.error(errMsg, 'Save Failed');
     } finally {
       setSaving(false);
     }
@@ -246,7 +271,7 @@ export default function RecruiterProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-black text-slate-800 dark:text-slate-200">
       {/* 1. TOP HEADER & BREADCRUMB */}
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-20 backdrop-blur-md bg-white/90 dark:bg-slate-900/90">
         <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -379,13 +404,7 @@ export default function RecruiterProfilePage() {
           <aside className="w-full md:w-72 lg:w-80 shrink-0 space-y-6">
             {/* Big Company Avatar / Logo */}
             <div 
-              onClick={() => {
-                if (activeTab === 'edit' && canEdit) {
-                  // In edit tab, let user use the logo upload field
-                } else {
-                  setIsViewingLogo(true);
-                }
-              }}
+              onClick={() => setIsViewingLogo(true)}
               className="relative group cursor-pointer"
               title="Click to view full company logo"
             >
@@ -922,7 +941,7 @@ export default function RecruiterProfilePage() {
       {/* 4. COMPANY LOGO LIGHTBOX MODAL */}
       {isViewingLogo && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in overscroll-none"
           onClick={() => setIsViewingLogo(false)}
         >
           <div 

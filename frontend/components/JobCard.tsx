@@ -238,6 +238,17 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
               >
                 {job.title}
               </Link>
+              {job.is_preferred && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 shrink-0">
+                  <Bookmark aria-hidden="true" className="w-3 h-3 text-amber-500" />
+                  <span>Matches Preference</span>
+                </span>
+              )}
+              {job.category && (
+                <span className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/80 shrink-0">
+                  {job.category.name}
+                </span>
+              )}
               {isApplied && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 shrink-0">
                   <CheckCircle2 aria-hidden="true" className="w-3 h-3" />
@@ -351,8 +362,15 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
             )}
           </div>
 
-          {/* Top Right: Applied badge, Posted Date & Bookmark Button */}
+          {/* Top Right: Preferred tag, Applied badge, Posted Date & Bookmark Button */}
           <div className="flex flex-wrap items-center justify-end gap-1.5 min-w-0 max-w-[calc(100%-3.25rem)]">
+            {job.is_preferred && (
+              <span className="text-[10px] font-bold flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800 shrink-0">
+                <Bookmark aria-hidden="true" className="w-3 h-3 text-amber-500" />
+                <span>Preferred</span>
+              </span>
+            )}
+
             {isApplied && (
               <span className="text-[11px] font-bold flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800 shrink-0">
                 <CheckCircle2 aria-hidden="true" className="w-3 h-3" />
@@ -400,6 +418,13 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
             <Building2 aria-hidden="true" className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate">{job.company_name}</span>
           </div>
+          {job.category && (
+            <div className="pt-0.5">
+              <span className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/80 shrink-0">
+                {job.category.name}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Key Metadata Row: Location, Employment Type, Salary */}

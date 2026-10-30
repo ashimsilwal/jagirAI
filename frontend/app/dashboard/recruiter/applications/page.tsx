@@ -237,9 +237,9 @@ export default function AllRecruiterApplicationsPage() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-colors">
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 px-2.5 py-0.5 rounded-md border border-sky-100 dark:border-sky-900/60">
+              {/* <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 px-2.5 py-0.5 rounded-md border border-sky-100 dark:border-sky-900/60">
                 Candidate Management
-              </span>
+              </span> */}
               <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                 {applications.length} {applications.length === 1 ? 'Submission' : 'Submissions'}
               </span>

@@ -7,10 +7,12 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AccessibilityProvider } from '@/context/AccessibilityContext';
 import { SidebarProvider } from '@/context/SidebarContext';
+import { ToastProvider } from '@/context/ToastContext';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { AppShell } from '@/components/AppShell';
 import { ForcePasswordChangeModal } from '@/components/ForcePasswordChangeModal';
+import { ToastContainer } from '@/components/ToastContainer';
 import {
   SkipToContent,
   AccessibilityButton,
@@ -85,39 +87,44 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200">
+      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200">
         <AccessibilityProvider>
           <ThemeProvider>
             <AuthProvider>
-              <SidebarProvider>
-                {/* Skip to Content for Keyboard/Screen Reader Navigation */}
-                <SkipToContent />
-                <LiveAnnouncer />
+              <ToastProvider>
+                <SidebarProvider>
+                  {/* Top-Center Floating Save / Action Notification Popup */}
+                  <ToastContainer />
 
-                {/* Visual Reading Aids */}
-                <ReadingGuide />
-                <ReadingMask />
+                  {/* Skip to Content for Keyboard/Screen Reader Navigation */}
+                  <SkipToContent />
+                  <LiveAnnouncer />
 
-                {/* Navigation Header */}
-                <Navbar />
+                  {/* Visual Reading Aids */}
+                  <ReadingGuide />
+                  <ReadingMask />
 
-                {/* Main Shell */}
-                <AppShell>
-                  <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col focus:outline-none">
-                    {children}
-                  </main>
-                </AppShell>
+                  {/* Navigation Header */}
+                  <Navbar />
 
-                {/* Footer */}
-                <Footer />
+                  {/* Main Shell */}
+                  <AppShell>
+                    <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col focus:outline-none">
+                      {children}
+                    </main>
+                  </AppShell>
 
-                {/* Force Password Change Modal for one-time temporary passwords */}
-                <ForcePasswordChangeModal />
+                  {/* Footer */}
+                  <Footer />
 
-                {/* Floating Accessibility Control & Panel */}
-                <AccessibilityButton />
-                <AccessibilityPanel />
-              </SidebarProvider>
+                  {/* Force Password Change Modal for one-time temporary passwords */}
+                  <ForcePasswordChangeModal />
+
+                  {/* Floating Accessibility Control & Panel */}
+                  <AccessibilityButton />
+                  <AccessibilityPanel />
+                </SidebarProvider>
+              </ToastProvider>
             </AuthProvider>
           </ThemeProvider>
         </AccessibilityProvider>

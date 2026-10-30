@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { apiFetch, Application, getMediaUrl, hasPermission } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { 
   ArrowLeft, 
   ExternalLink, 
@@ -86,6 +87,7 @@ export default function ApplicationDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
@@ -138,11 +140,15 @@ export default function ApplicationDetailPage() {
 
       setApplication((prev) => (prev ? { ...prev, status: newStatus } : null));
       const statusObj = STATUS_OPTIONS.find((s) => s.value === newStatus);
-      setSuccessMessage(`Application status successfully updated to "${statusObj?.label || newStatus}".`);
+      const successMsg = `Application status successfully updated to "${statusObj?.label || newStatus}".`;
+      setSuccessMessage(successMsg);
+      toast.success(successMsg, 'Status Saved');
       setTimeout(() => setSuccessMessage(''), 4500);
     } catch (err: any) {
       console.error('Failed to update status:', err);
-      setError(err?.message || 'Failed to update candidate application status.');
+      const errMsg = err?.message || 'Failed to update candidate application status.';
+      setError(errMsg);
+      toast.error(errMsg, 'Save Failed');
     } finally {
       setStatusUpdating(false);
     }

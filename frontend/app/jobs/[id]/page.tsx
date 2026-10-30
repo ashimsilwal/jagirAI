@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { apiFetch, Job, getMediaUrl } from '@/lib/api';
 import { 
   Building2, 
@@ -22,6 +23,7 @@ import {
   Check,
   Clock,
   FileText,
+  Pencil,
   ShieldCheck,
   ExternalLink,
   Lock,
@@ -114,6 +116,7 @@ export default function JobDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
@@ -231,6 +234,7 @@ export default function JobDetailPage() {
 
       setApplySuccess(true);
       setAlreadyApplied(true);
+      toast.success('Your job application has been submitted successfully!', 'Application Sent');
     } catch (err: any) {
       const errorMsg =
         err.data?.non_field_errors?.[0] ||
@@ -240,6 +244,7 @@ export default function JobDetailPage() {
         err.message ||
         'Failed to submit application.';
       setApplyError(errorMsg);
+      toast.error(errorMsg, 'Submission Failed');
     } finally {
       setSubmitting(false);
     }
@@ -401,13 +406,22 @@ export default function JobDetailPage() {
           {/* Quick Header CTA */}
           <div className="flex flex-wrap items-center gap-3 shrink-0 self-stretch md:self-auto justify-end">
             {isOwnerRecruiter ? (
-              <Link
-                href={`/dashboard/recruiter/jobs/${job.id}/applicants`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs sm:text-sm shadow-sm transition"
-              >
-                <Users className="w-4 h-4" />
-                <span>Review Applicants</span>
-              </Link>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Link
+                  href={`/dashboard/recruiter/jobs?edit=${job.id}`}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-950/60 dark:hover:text-sky-400 hover:border-sky-300 dark:hover:border-sky-700 font-semibold text-xs sm:text-sm shadow-xs transition"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                  <span>Edit Vacancy</span>
+                </Link>
+                <Link
+                  href={`/dashboard/recruiter/jobs/${job.id}/applicants`}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs sm:text-sm shadow-sm transition"
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Review Applicants</span>
+                </Link>
+              </div>
             ) : alreadyApplied ? (
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold">
                 <CheckCircle2 className="w-4 h-4" />

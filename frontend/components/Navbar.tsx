@@ -42,7 +42,7 @@ export const Navbar: React.FC = () => {
       {!user && <AnnouncementBar />}
 
       {/* Main Navbar */}
-      <header role="banner" className="sticky top-0 z-40 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-sm transition-colors duration-200">
+      <header role="banner" className="sticky top-0 z-40 w-full bg-white/95 dark:bg-black/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-sm transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center min-h-16 sm:min-h-18 py-1 sm:py-0 gap-2">
           
@@ -211,7 +211,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Navigation Drawer for Visitors */}
         {!user && mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-black px-4 py-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}

@@ -1,8 +1,67 @@
 from rest_framework import serializers
-from .models import Job
+from .models import Job, JobCategory, JobCategoryRequest
 from users.serializers import UserSerializer
 from organizations.services import get_or_create_user_organization, log_activity
 from organizations.models import OrganizationActivityLog
+
+
+class JobCategorySerializer(serializers.ModelSerializer):
+    """
+    Serializer for standard Job Categories with automated slug creation.
+    """
+    jobs_count = serializers.IntegerField(read_only=True, default=0)
+
+    class Meta:
+        model = JobCategory
+        fields = ('id', 'name', 'slug', 'description', 'jobs_count')
+        read_only_fields = ('id', 'slug', 'jobs_count')
+
+    def create(self, validated_data):
+        from django.utils.text import slugify
+        name = validated_data.get('name', '').strip()
+        existing = JobCategory.objects.filter(name__iexact=name).first()
+        if existing:
+            return existing
+
+        base_slug = slugify(name) or 'category'
+        slug = base_slug
+        counter = 1
+        while JobCategory.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        validated_data['slug'] = slug
+        validated_data['name'] = name
+        return super().create(validated_data)
+
+
+class JobCategoryRequestSerializer(serializers.ModelSerializer):
+    """
+    Serializer for recruiter requests to add new job categories.
+    """
+    requester = UserSerializer(read_only=True)
+    created_category = JobCategorySerializer(read_only=True)
+
+    class Meta:
+        model = JobCategoryRequest
+        fields = (
+            'id',
+            'name',
+            'description',
+            'reason',
+            'requester',
+            'status',
+            'admin_notes',
+            'created_category',
+            'created_at',
+            'updated_at',
+        )
+        read_only_fields = ('id', 'requester', 'status', 'created_category', 'created_at', 'updated_at')
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and request.user:
+            validated_data['requester'] = request.user
+        return super().create(validated_data)
 
 
 class JobSerializer(serializers.ModelSerializer):
@@ -15,6 +74,16 @@ class JobSerializer(serializers.ModelSerializer):
     organization_slug = serializers.CharField(source='organization.slug', read_only=True)
     company_name = serializers.SerializerMethodField()
     company_logo = serializers.SerializerMethodField()
+    category = JobCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=JobCategory.objects.all(),
+        source='category',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    is_preferred = serializers.BooleanField(read_only=True, default=False)
+    applications_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Job
@@ -26,6 +95,10 @@ class JobSerializer(serializers.ModelSerializer):
             'organization_slug',
             'company_name',
             'company_logo',
+            'category',
+            'category_id',
+            'is_preferred',
+            'applications_count',
             'title',
             'description',
             'requirements',
@@ -38,7 +111,7 @@ class JobSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         )
-        read_only_fields = ('id', 'recruiter', 'organization_id', 'organization_name', 'organization_slug', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'recruiter', 'organization_id', 'organization_name', 'organization_slug', 'created_at', 'updated_at', 'is_preferred', 'applications_count')
 
     def get_organization_name(self, obj):
         if obj.organization:

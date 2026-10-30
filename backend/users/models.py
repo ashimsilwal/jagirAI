@@ -55,6 +55,11 @@ class JobSeekerProfile(models.Model):
     education = models.TextField(blank=True)
     experience = models.TextField(blank=True)
     location = models.CharField(max_length=255, blank=True)
+    job_preferences = models.ManyToManyField(
+        'jobs.JobCategory',
+        blank=True,
+        related_name='preferred_by_seekers'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
