@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-76^9a%9+x2l=^=&pyd*hsdet$w
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', '*']
 
 
 # Application definition
@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'organizations',
     'jobs',
     'applications',
+    'blogs',
+    'about',
 ]
 
 MIDDLEWARE = [

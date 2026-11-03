@@ -168,6 +168,68 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
+export interface BlogPost {
+  id: number;
+  title: string;
+  slug: string;
+  author?: User | null;
+  author_details?: User | null;
+  author_name: string;
+  category: string;
+  cover_image?: string | null;
+  cover_image_url?: string;
+  effective_cover_image?: string | null;
+  excerpt: string;
+  content: string;
+  tags?: string;
+  read_time: number;
+  status: 'DRAFT' | 'PUBLISHED';
+  views_count: number;
+  created_at: string;
+  updated_at: string;
+  published_at: string | null;
+}
+
+export interface AboutGalleryItem {
+  id: number;
+  title: string;
+  caption?: string;
+  description: string;
+  category: string;
+  image?: string | null;
+  image_url?: string;
+  effective_image?: string;
+  display_order: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AboutSectionItem {
+  id: number;
+  section_type: 'STAT' | 'MISSION' | 'VISION' | 'VALUE' | 'STEP';
+  title: string;
+  subtitle_or_value: string;
+  description: string;
+  icon: string;
+  custom_icon?: string | null;
+  custom_icon_url?: string;
+  effective_custom_icon?: string;
+  display_order: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AboutPageData {
+  stats: AboutSectionItem[];
+  mission: AboutSectionItem | null;
+  vision: AboutSectionItem | null;
+  values: AboutSectionItem[];
+  steps: AboutSectionItem[];
+  gallery: AboutGalleryItem[];
+}
+
 export interface Organization {
   id: number;
   name: string;

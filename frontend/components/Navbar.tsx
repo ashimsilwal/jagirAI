@@ -14,7 +14,8 @@ import {
   Moon,
   Home,
   Menu,
-  X
+  X,
+  BookOpen
 } from 'lucide-react';
 import { AnnouncementBar } from './AnnouncementBar';
 import { ProfileDropdown } from './ProfileDropdown';
@@ -135,6 +136,18 @@ export const Navbar: React.FC = () => {
               </Link>
 
               <Link
+                href="/blog"
+                aria-current={isActive('/blog') ? 'page' : undefined}
+                className={`px-3.5 py-2 rounded-md text-[15px] font-medium transition-colors ${
+                  isActive('/blog') 
+                    ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
+                    : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800'
+                }`}
+              >
+                Blog
+              </Link>
+
+              <Link
                 href="/contact"
                 aria-current={isActive('/contact') ? 'page' : undefined}
                 className={`px-3.5 py-2 rounded-md text-[15px] font-medium transition-colors ${
@@ -248,6 +261,19 @@ export const Navbar: React.FC = () => {
               }`}
             >
               <span>About Us</span>
+            </Link>
+
+            <Link
+              href="/blog"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive('/blog') 
+                  ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
+                  : 'text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              <BookOpen className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <span>Blog</span>
             </Link>
 
             <Link

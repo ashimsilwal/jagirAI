@@ -22,12 +22,12 @@ import {
   Moon,
   ExternalLink,
   Search,
-  Bookmark,
   CheckCircle2,
   Info,
   Mail,
   LifeBuoy,
   Tag,
+  BookOpen,
   X
 } from 'lucide-react';
 
@@ -132,6 +132,16 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         href: '/dashboard/admin/categories',
         icon: Tag,
       },
+      {
+        label: 'Manage Blogs',
+        href: '/dashboard/admin/blogs',
+        icon: BookOpen,
+      },
+      {
+        label: 'About Page',
+        href: '/dashboard/admin/about',
+        icon: Info,
+      },
     ];
   } else if (isRecruiter) {
     navItems = [
@@ -200,11 +210,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         href: '/dashboard/seeker/profile',
         icon: UserCheck,
       },
-      {
-        label: 'Job Preferences',
-        href: '/dashboard/seeker/profile?tab=preferences',
-        icon: Bookmark,
-      },
     ];
   }
 
@@ -228,8 +233,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       const search = window.location.search;
       if (queryPart) {
         return search.includes(queryPart);
-      } else if (search.includes('tab=preferences') && href === '/dashboard/seeker/profile') {
-        return false;
       }
     }
     return true;
