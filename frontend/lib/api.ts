@@ -70,6 +70,8 @@ export interface JobSeekerProfile {
   education: string;
   experience: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   job_preferences?: JobCategory[];
   created_at: string;
   updated_at: string;
@@ -104,6 +106,8 @@ export interface RecruiterProfile {
   company_logo: string | null;
   company_website: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   phone: string;
   created_at: string;
   updated_at: string;
@@ -123,6 +127,8 @@ export interface Job {
   requirements: string;
   responsibilities: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   salary: string;
   employment_type: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP' | 'REMOTE';
   deadline: string | null;
@@ -139,8 +145,29 @@ export interface Application {
   resume: string | null;
   cover_letter: string;
   status: 'APPLIED' | 'SHORTLISTED' | 'INTERVIEW' | 'REJECTED' | 'HIRED';
+  rejection_reason?: string;
   applied_at: string;
   updated_at: string;
+}
+
+export interface AppNotification {
+  id: number;
+  recipient: number;
+  title: string;
+  message: string;
+  notification_type: 'APPLICATION_STATUS' | 'APPLICATION_RECEIVED' | 'SYSTEM';
+  application?: number | null;
+  is_read: boolean;
+  created_at: string;
+  metadata?: {
+    application_id?: number;
+    job_id?: number;
+    job_title?: string;
+    company_name?: string;
+    old_status?: string;
+    new_status?: string;
+    rejection_reason?: string;
+  };
 }
 
 export interface SupportTicket {
@@ -230,6 +257,32 @@ export interface AboutPageData {
   gallery: AboutGalleryItem[];
 }
 
+export interface ContactMessage {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  category: 'GENERAL' | 'CANDIDATE' | 'EMPLOYER' | 'BUG' | 'PARTNERSHIP';
+  category_display?: string;
+  subject: string;
+  message: string;
+  status: 'UNREAD' | 'READ' | 'RESOLVED' | 'ARCHIVED';
+  status_display?: string;
+  admin_notes?: string;
+  resolved_by?: number | null;
+  resolved_by_name?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContactStats {
+  total: number;
+  unread: number;
+  read: number;
+  resolved: number;
+  archived: number;
+}
+
 export interface Organization {
   id: number;
   name: string;
@@ -238,6 +291,8 @@ export interface Organization {
   logo: string | null;
   website: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   phone: string;
   owner?: User;
   members_count: number;

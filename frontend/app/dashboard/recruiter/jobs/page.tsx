@@ -485,14 +485,13 @@ function MyJobsContent() {
           </Link>
 
           {canCreateVacancy && (
-            <button
-              type="button"
-              onClick={openModal}
+            <Link
+              href="/dashboard/recruiter/jobs/new"
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-98 text-white text-xs sm:text-sm font-semibold shadow-md shadow-sky-500/25 transition cursor-pointer shrink-0"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Post New Vacancy</span>
-            </button>
+            </Link>
           )}
         </div>
       </div>
@@ -649,14 +648,13 @@ function MyJobsContent() {
               : 'No vacancies match your current search and filter criteria.'}
           </p>
           {canCreateVacancy && jobs.length === 0 && (
-            <button
-              type="button"
-              onClick={openModal}
+            <Link
+              href="/dashboard/recruiter/jobs/new"
               className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-sm transition cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Post First Vacancy</span>
-            </button>
+            </Link>
           )}
         </div>
       ) : (
@@ -750,16 +748,14 @@ function MyJobsContent() {
 
                   {/* Edit Vacancy Button */}
                   {canEditVacancy && (
-                    <button
-                      type="button"
-                      onClick={() => handleEditJob(job)}
-                      disabled={isActionLoading}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-950/60 dark:hover:text-sky-400 hover:border-sky-300 dark:hover:border-sky-700 transition cursor-pointer disabled:opacity-50"
-                      title="Edit this vacancy"
+                    <Link
+                      href={`/dashboard/recruiter/jobs/new?edit=${job.id}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-950/60 dark:hover:text-sky-400 hover:border-sky-300 dark:hover:border-sky-700 transition cursor-pointer"
+                      title="Edit this vacancy on dedicated editor page"
                     >
                       <Pencil className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                       <span>Edit</span>
-                    </button>
+                    </Link>
                   )}
 
                   {/* Public Link */}

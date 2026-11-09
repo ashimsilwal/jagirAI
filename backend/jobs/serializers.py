@@ -104,6 +104,8 @@ class JobSerializer(serializers.ModelSerializer):
             'requirements',
             'responsibilities',
             'location',
+            'latitude',
+            'longitude',
             'salary',
             'employment_type',
             'deadline',

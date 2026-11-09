@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { apiFetch, Application, getMediaUrl } from '@/lib/api';
+import { apiFetch, Application, AppNotification, getMediaUrl } from '@/lib/api';
+import { useToast } from '@/context/ToastContext';
 import { 
   Briefcase, 
   Clock, 
@@ -16,35 +17,99 @@ import {
   Calendar,
   Sparkles,
   ExternalLink,
-  Camera
+  Camera,
+  Bell,
+  XCircle,
+  X,
+  Check
 } from 'lucide-react';
 import { DonutChart, AreaTrendChart } from '@/components/charts';
 import { Pagination } from '@/components/Pagination';
 
 export default function SeekerDashboard() {
   const { user, refreshUser } = useAuth();
+  const { toast } = useToast();
   const [applications, setApplications] = useState<Application[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [appPage, setAppPage] = useState<number>(1);
   const [appPageSize, setAppPageSize] = useState<number>(10);
 
+  const fetchApplications = async () => {
+    try {
+      const data = await apiFetch<any>('/applications/my-applications/?page_size=100');
+      const list = Array.isArray(data) ? data : data.results || [];
+      setApplications(list);
+    } catch (err) {
+      console.error('Failed to load applications:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await apiFetch<any>('/notifications/?page_size=20');
+      const list: AppNotification[] = Array.isArray(data) ? data : data?.results || [];
+      setNotifications(list);
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    }
+  };
+
   useEffect(() => {
     refreshUser();
-    const fetchApplications = async () => {
-      try {
-        const data = await apiFetch<any>('/applications/my-applications/?page_size=100');
-        const list = Array.isArray(data) ? data : data.results || [];
-        setApplications(list);
-      } catch (err) {
-        console.error('Failed to load applications:', err);
-      } finally {
-        setLoading(false);
-      }
+    fetchApplications();
+    fetchNotifications();
+
+    const interval = setInterval(() => {
+      fetchApplications();
+      fetchNotifications();
+    }, 15000);
+
+    const handleNotifUpdate = () => {
+      fetchNotifications();
+      fetchApplications();
     };
 
-    fetchApplications();
+    window.addEventListener('notification-updated', handleNotifUpdate);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('notification-updated', handleNotifUpdate);
+    };
   }, []);
+
+  const handleMarkNotifRead = async (id: number) => {
+    try {
+      await apiFetch(`/notifications/${id}/read/`, { method: 'POST' });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      );
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('notification-updated'));
+      }
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  const handleMarkAllNotifsRead = async () => {
+    try {
+      await apiFetch('/notifications/mark-all-read/', { method: 'POST' });
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('notification-updated'));
+      }
+    } catch (err) {
+      console.error('Failed to mark all notifications as read:', err);
+    }
+  };
+
+  const unreadNotifications = useMemo(() => {
+    return notifications.filter((n) => !n.is_read);
+  }, [notifications]);
 
   // Summary Metrics
   const stats = useMemo(() => {
@@ -206,6 +271,87 @@ export default function SeekerDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Real-Time Application Status Notifications Alert Box */}
+      {unreadNotifications.length > 0 && (
+        <div className="rounded-2xl border border-sky-200/90 dark:border-sky-900/60 bg-gradient-to-r from-sky-50/90 via-blue-50/50 to-indigo-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 p-5 sm:p-6 shadow-sm space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-sky-600 text-white shadow-xs">
+                <Bell className="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>Application Status Notifications</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
+                    {unreadNotifications.length} New Update{unreadNotifications.length > 1 ? 's' : ''}
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Employers recently updated the status of your applications.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleMarkAllNotifsRead}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-700 dark:text-sky-300 bg-white dark:bg-slate-800 border border-sky-200/80 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-slate-700 transition cursor-pointer shadow-2xs"
+            >
+              Mark all as read
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+            {unreadNotifications.map((notif) => {
+              const status = notif.metadata?.new_status;
+              return (
+                <div
+                  key={notif.id}
+                  className="p-4 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-xs flex items-start justify-between gap-3 transition hover:border-sky-300 dark:hover:border-sky-600"
+                >
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {status && getStatusBadge(status)}
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {notif.metadata?.job_title || notif.title}
+                      </span>
+                      {notif.metadata?.company_name && (
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          • {notif.metadata.company_name}
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                      {notif.message}
+                    </p>
+
+                    <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                      <Clock className="w-3 h-3" />
+                      <span>
+                        {new Date(notif.created_at).toLocaleString(undefined, {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleMarkNotifRead(notif.id)}
+                    title="Dismiss notification"
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Section 1: Quick Metrics Key Performance Indicators */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
@@ -395,46 +541,61 @@ export default function SeekerDashboard() {
               {displayedApplications.map((app) => (
                 <div
                   key={app.id}
-                  className="p-5 sm:p-6 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group"
+                  className="p-5 sm:p-6 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors flex flex-col justify-between gap-3 group"
                 >
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-bold text-base text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                        {app.job.title}
-                      </h3>
-                      <span className="text-xs text-slate-300 dark:text-slate-600">•</span>
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                        <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                        {app.job.company_name}
-                      </span>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-bold text-base text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                          {app.job.title}
+                        </h3>
+                        <span className="text-xs text-slate-300 dark:text-slate-600">•</span>
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                          {app.job.company_name}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                          {app.job.location}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                          Applied on {new Date(app.applied_at).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                        {app.job.location}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                        Applied on {new Date(app.applied_at).toLocaleDateString(undefined, {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </span>
+                    <div className="flex items-center gap-3.5 self-end sm:self-center shrink-0">
+                      {getStatusBadge(app.status)}
+                      <Link
+                        href={`/jobs/${app.job.id}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-100 dark:border-sky-800/60 transition"
+                      >
+                        <span>View Job</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3.5 self-end sm:self-center shrink-0">
-                    {getStatusBadge(app.status)}
-                    <Link
-                      href={`/jobs/${app.job.id}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-100 dark:border-sky-800/60 transition"
-                    >
-                      <span>View Job</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
+                  {/* Rejection reason & feedback from employer */}
+                  {app.status === 'REJECTED' && (
+                    <div className="mt-1 p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 text-xs space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-rose-700 dark:text-rose-300">
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span>Employer Feedback / Rejection Reason:</span>
+                      </div>
+                      <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-5 whitespace-pre-wrap">
+                        {app.rejection_reason || 'No specific feedback was provided for this application.'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

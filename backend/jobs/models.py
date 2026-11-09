@@ -68,6 +68,8 @@ class Job(models.Model):
     requirements = models.TextField(blank=True)
     responsibilities = models.TextField(blank=True)
     location = models.CharField(max_length=255, db_index=True)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     salary = models.CharField(max_length=100, blank=True)
     employment_type = models.CharField(
         max_length=20,

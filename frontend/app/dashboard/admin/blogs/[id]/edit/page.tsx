@@ -64,6 +64,27 @@ export default function EditBlogPage({ params }: EditBlogPageProps) {
   const [submitting, setSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('preview=true')) {
+      setPreviewMode(true);
+    }
+  }, []);
+
+  const handleTogglePreview = () => {
+    const next = !previewMode;
+    setPreviewMode(next);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (next) {
+        url.searchParams.set('preview', 'true');
+      } else {
+        url.searchParams.delete('preview');
+      }
+      window.history.pushState(null, '', url.toString());
+      window.dispatchEvent(new Event('popstate'));
+    }
+  };
+
   // Auth Guard
   useEffect(() => {
     if (!authLoading && (!user || (!user.is_staff && !user.is_superuser))) {
@@ -234,7 +255,7 @@ export default function EditBlogPage({ params }: EditBlogPageProps) {
 
           <button
             type="button"
-            onClick={() => setPreviewMode(!previewMode)}
+            onClick={handleTogglePreview}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
               previewMode
                 ? 'bg-sky-600 text-white shadow-xs'
@@ -248,39 +269,60 @@ export default function EditBlogPage({ params }: EditBlogPageProps) {
       </div>
 
       {previewMode ? (
-        /* LIVE ARTICLE PREVIEW */
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-10 border border-slate-200/80 dark:border-slate-800 shadow-sm max-w-5xl mx-auto space-y-6">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-md text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300">
-              {category === 'Custom' ? customCategory || 'General' : category}
-            </span>
-            <span className="text-xs text-slate-400">•</span>
-            <span className="text-xs text-slate-500 font-medium">{readTime} min read</span>
+        /* LIVE ARTICLE PREVIEW (Main Page Layout, No Sidebar) */
+        <div className="w-full max-w-4xl mx-auto space-y-8 animate-in fade-in duration-200">
+          {/* Floating Action Banner */}
+          <div className="sticky top-20 z-30 flex items-center justify-between p-4 rounded-2xl bg-sky-600 text-white shadow-lg backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs sm:text-sm font-bold">Public Main Page Preview (Draft Mode)</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleTogglePreview}
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-sky-700 hover:bg-sky-50 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Editor</span>
+            </button>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
-            {title || 'Untitled Blog Post'}
-          </h1>
-
-          {coverImagePreview && (
-            <div className="w-full h-80 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
-              <img src={coverImagePreview} alt="Cover Preview" className="w-full h-full object-cover" />
+          <article className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-12 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-8">
+            <div className="flex items-center gap-2">
+              <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300">
+                {category === 'Custom' ? customCategory || 'General' : category}
+              </span>
+              <span className="text-xs text-slate-400">•</span>
+              <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                <span>{readTime} min read</span>
+              </span>
             </div>
-          )}
 
-          {excerpt && (
-            <div className="p-4 rounded-xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 italic text-base">
-              &ldquo;{excerpt}&rdquo;
-            </div>
-          )}
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+              {title || 'Untitled Blog Post'}
+            </h1>
 
-          <hr className="border-slate-200 dark:border-slate-800" />
+            {coverImagePreview && (
+              <div className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xs">
+                <img src={coverImagePreview} alt="Cover Preview" className="w-full h-full object-cover" />
+              </div>
+            )}
 
-          {/* Rendered HTML content with tables and bullets */}
-          <div
-            className="jodit-content-rendered text-slate-800 dark:text-slate-200"
-            dangerouslySetInnerHTML={{ __html: content || '<p>No content written yet.</p>' }}
-          />
+            {excerpt && (
+              <div className="p-5 sm:p-6 rounded-2xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 italic text-base sm:text-lg leading-relaxed">
+                &ldquo;{excerpt}&rdquo;
+              </div>
+            )}
+
+            <hr className="border-slate-200 dark:border-slate-800" />
+
+            {/* Rendered HTML content with tables, bullets, and adjustable images */}
+            <div
+              className="jodit-content-rendered text-slate-800 dark:text-slate-200 leading-relaxed space-y-4"
+              dangerouslySetInnerHTML={{ __html: content || '<p>No content written yet.</p>' }}
+            />
+          </article>
         </div>
       ) : (
         /* EDITOR FORM */

@@ -268,6 +268,11 @@ export default function BlogPostDetailPage({ params }: BlogPostPageProps) {
         {/* Article Meta Header */}
         <header className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
+            {post.status === 'DRAFT' && (
+              <span className="px-3 py-1 rounded-md text-xs font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                Draft Preview
+              </span>
+            )}
             <span className="px-3 py-1 rounded-md text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
               {post.category}
             </span>

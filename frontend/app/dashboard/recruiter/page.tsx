@@ -254,7 +254,7 @@ export default function RecruiterDashboard() {
           </Link>
           {canCreateVacancy && (
             <Link
-              href="/dashboard/recruiter/jobs?create=1"
+              href="/dashboard/recruiter/jobs/new"
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-md bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-sm shadow-sky-200 dark:shadow-none transition cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
@@ -747,7 +747,7 @@ export default function RecruiterDashboard() {
             </Link>
             {canCreateVacancy && (
               <Link
-                href="/dashboard/recruiter/jobs?create=1"
+                href="/dashboard/recruiter/jobs/new"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs transition"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
@@ -772,7 +772,7 @@ export default function RecruiterDashboard() {
             </p>
             {canCreateVacancy && (
               <Link
-                href="/dashboard/recruiter/jobs?create=1"
+                href="/dashboard/recruiter/jobs/new"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 transition"
               >
                 <PlusCircle className="w-3.5 h-3.5" />

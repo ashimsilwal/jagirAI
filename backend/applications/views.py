@@ -3,12 +3,13 @@ from rest_framework import viewsets, permissions, status, parsers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .models import Application
+from .models import Application, Notification
 from jobs.models import Job
 from .serializers import (
     ApplicationSerializer,
     ApplicationCreateSerializer,
     ApplicationStatusUpdateSerializer,
+    NotificationSerializer,
 )
 from .permissions import (
     CanApplyPermission,
@@ -193,23 +194,72 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         serializer.save()
 
         # Log activity if status changed
-        if application.job.organization and old_status != application.status:
-            from organizations.services import log_activity
-            from organizations.models import OrganizationActivityLog
-            log_activity(
-                organization=application.job.organization,
-                actor=request.user,
-                action=OrganizationActivityLog.Action.APPLICATION_STATUS_UPDATED,
-                target_type='Application',
-                target_id=str(application.id),
-                target_repr=f"{application.applicant.email} -> {application.job.title} ({application.status})",
+        if old_status != application.status:
+            # Create in-app Notification for applicant
+            status_labels = {
+                'SHORTLISTED': 'Shortlisted',
+                'INTERVIEW': 'Interview Requested',
+                'HIRED': 'Offer / Hired',
+                'REJECTED': 'Application Rejected',
+                'APPLIED': 'Application Received',
+            }
+            label = status_labels.get(application.status, application.status)
+            company_name = 'the company'
+            if application.job.organization and application.job.organization.name:
+                company_name = application.job.organization.name
+            elif hasattr(application.job.recruiter, 'recruiter_profile') and application.job.recruiter.recruiter_profile.company_name:
+                company_name = application.job.recruiter.recruiter_profile.company_name
+            elif application.job.recruiter.username:
+                company_name = application.job.recruiter.username
+            job_title = application.job.title or 'Job'
+
+            if application.status == 'REJECTED':
+                msg = f"Your application for {job_title} at {company_name} was marked as Rejected."
+                if application.rejection_reason:
+                    msg += f"\nFeedback from Employer: {application.rejection_reason}"
+            elif application.status == 'SHORTLISTED':
+                msg = f"Congratulations! Your application for {job_title} at {company_name} has been Shortlisted."
+            elif application.status == 'INTERVIEW':
+                msg = f"Great news! You have been invited for an Interview for {job_title} at {company_name}."
+            elif application.status == 'HIRED':
+                msg = f"Exciting news! You have been Hired for {job_title} at {company_name}!"
+            else:
+                msg = f"Your application status for {job_title} at {company_name} was updated to {label}."
+
+            Notification.objects.create(
+                recipient=application.applicant,
+                title=f"Application {label}: {job_title}",
+                message=msg,
+                notification_type=Notification.NotificationType.APPLICATION_STATUS,
+                application=application,
                 metadata={
-                    'candidate_email': application.applicant.email,
-                    'job_title': application.job.title,
-                    'previous_status': old_status,
+                    'application_id': application.id,
+                    'job_id': application.job.id,
+                    'job_title': job_title,
+                    'company_name': company_name,
+                    'old_status': old_status,
                     'new_status': application.status,
+                    'rejection_reason': application.rejection_reason or '',
                 }
             )
+
+            if application.job.organization:
+                from organizations.services import log_activity
+                from organizations.models import OrganizationActivityLog
+                log_activity(
+                    organization=application.job.organization,
+                    actor=request.user,
+                    action=OrganizationActivityLog.Action.APPLICATION_STATUS_UPDATED,
+                    target_type='Application',
+                    target_id=str(application.id),
+                    target_repr=f"{application.applicant.email} -> {application.job.title} ({application.status})",
+                    metadata={
+                        'candidate_email': application.applicant.email,
+                        'job_title': application.job.title,
+                        'previous_status': old_status,
+                        'new_status': application.status,
+                    }
+                )
 
         output_serializer = ApplicationSerializer(application, context={'request': request})
         return Response(
@@ -219,3 +269,32 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK
         )
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for user notifications (e.g., application status updates).
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = NotificationSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
+
+    @action(detail=True, methods=['post'], url_path='read')
+    def mark_read(self, request, pk=None):
+        notification = self.get_object()
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+        return Response({'status': 'marked as read'})
+
+    @action(detail=False, methods=['post'], url_path='mark-all-read')
+    def mark_all_read(self, request):
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return Response({'status': 'all marked as read'})
+
+    @action(detail=False, methods=['get'], url_path='unread-count')
+    def unread_count(self, request):
+        count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+        return Response({'unread_count': count})

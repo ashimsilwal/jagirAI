@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -679,7 +680,7 @@ html.a11y-reduced-motion *::after {
 .jodit-content-rendered ul {
   display: block !important;
   list-style-type: disc !important;
-  list-style-position: outside !important;
+  list-style-position: outside;
   margin-block-start: 0.75rem !important;
   margin-block-end: 0.75rem !important;
   padding-inline-start: 2rem !important;
@@ -695,7 +696,7 @@ html.a11y-reduced-motion *::after {
 .jodit-content-rendered ol {
   display: block !important;
   list-style-type: decimal !important;
-  list-style-position: outside !important;
+  list-style-position: outside;
   margin-block-start: 0.75rem !important;
   margin-block-end: 0.75rem !important;
   padding-inline-start: 2rem !important;
@@ -710,10 +711,128 @@ html.a11y-reduced-motion *::after {
 .jodit-wysiwyg_iframe body li,
 .jodit-content-rendered li {
   display: list-item !important;
-  list-style-position: outside !important;
+  list-style-position: outside;
   margin-top: 0.35rem !important;
   margin-bottom: 0.35rem !important;
   padding-left: 0.25rem !important;
+}
+
+/* Center Aligned Lists & Items: ensure bullet marker stays with the centered text */
+.jodit-wysiwyg ul[style*="text-align: center"],
+.jodit-wysiwyg ol[style*="text-align: center"],
+.jodit-container ul[style*="text-align: center"],
+.jodit-container ol[style*="text-align: center"],
+.jodit-workplace ul[style*="text-align: center"],
+.jodit-workplace ol[style*="text-align: center"],
+.jodit-wysiwyg-wrapper ul[style*="text-align: center"],
+.jodit-wysiwyg-wrapper ol[style*="text-align: center"],
+.jodit-wysiwyg_iframe body ul[style*="text-align: center"],
+.jodit-wysiwyg_iframe body ol[style*="text-align: center"],
+.jodit-content-rendered ul[style*="text-align: center"],
+.jodit-content-rendered ol[style*="text-align: center"],
+.jodit-wysiwyg ul[style*="text-align:center"],
+.jodit-wysiwyg ol[style*="text-align:center"],
+.jodit-content-rendered ul[style*="text-align:center"],
+.jodit-content-rendered ol[style*="text-align:center"],
+.jodit-wysiwyg ul[align="center"],
+.jodit-wysiwyg ol[align="center"],
+.jodit-content-rendered ul[align="center"],
+.jodit-content-rendered ol[align="center"] {
+  text-align: center !important;
+  list-style-position: inside !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.jodit-wysiwyg li[style*="text-align: center"],
+.jodit-wysiwyg li[style*="text-align:center"],
+.jodit-container li[style*="text-align: center"],
+.jodit-container li[style*="text-align:center"],
+.jodit-workplace li[style*="text-align: center"],
+.jodit-workplace li[style*="text-align:center"],
+.jodit-wysiwyg-wrapper li[style*="text-align: center"],
+.jodit-wysiwyg-wrapper li[style*="text-align:center"],
+.jodit-wysiwyg_iframe body li[style*="text-align: center"],
+.jodit-wysiwyg_iframe body li[style*="text-align:center"],
+.jodit-content-rendered li[style*="text-align: center"],
+.jodit-content-rendered li[style*="text-align:center"],
+.jodit-wysiwyg li[align="center"],
+.jodit-content-rendered li[align="center"],
+.jodit-wysiwyg [style*="text-align: center"] > li,
+.jodit-wysiwyg [style*="text-align:center"] > li,
+.jodit-content-rendered [style*="text-align: center"] > li,
+.jodit-content-rendered [style*="text-align:center"] > li,
+.jodit-wysiwyg li:has([style*="text-align: center"]),
+.jodit-wysiwyg li:has([style*="text-align:center"]),
+.jodit-content-rendered li:has([style*="text-align: center"]),
+.jodit-content-rendered li:has([style*="text-align:center"]) {
+  text-align: center !important;
+  list-style-position: inside !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Right Aligned Lists & Items: ensure bullet marker stays with the right-aligned text */
+.jodit-wysiwyg ul[style*="text-align: right"],
+.jodit-wysiwyg ol[style*="text-align: right"],
+.jodit-container ul[style*="text-align: right"],
+.jodit-container ol[style*="text-align: right"],
+.jodit-workplace ul[style*="text-align: right"],
+.jodit-workplace ol[style*="text-align: right"],
+.jodit-wysiwyg-wrapper ul[style*="text-align: right"],
+.jodit-wysiwyg-wrapper ol[style*="text-align: right"],
+.jodit-wysiwyg_iframe body ul[style*="text-align: right"],
+.jodit-wysiwyg_iframe body ol[style*="text-align: right"],
+.jodit-content-rendered ul[style*="text-align: right"],
+.jodit-content-rendered ol[style*="text-align: right"],
+.jodit-wysiwyg ul[style*="text-align:right"],
+.jodit-wysiwyg ol[style*="text-align:right"],
+.jodit-content-rendered ul[style*="text-align:right"],
+.jodit-content-rendered ol[style*="text-align:right"],
+.jodit-wysiwyg ul[align="right"],
+.jodit-wysiwyg ol[align="right"],
+.jodit-content-rendered ul[align="right"],
+.jodit-content-rendered ol[align="right"] {
+  text-align: right !important;
+  list-style-position: inside !important;
+  padding-left: 0 !important;
+  padding-right: 1rem !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+.jodit-wysiwyg li[style*="text-align: right"],
+.jodit-wysiwyg li[style*="text-align:right"],
+.jodit-container li[style*="text-align: right"],
+.jodit-container li[style*="text-align:right"],
+.jodit-workplace li[style*="text-align: right"],
+.jodit-workplace li[style*="text-align:right"],
+.jodit-wysiwyg-wrapper li[style*="text-align: right"],
+.jodit-wysiwyg-wrapper li[style*="text-align:right"],
+.jodit-wysiwyg_iframe body li[style*="text-align: right"],
+.jodit-wysiwyg_iframe body li[style*="text-align:right"],
+.jodit-content-rendered li[style*="text-align: right"],
+.jodit-content-rendered li[style*="text-align:right"],
+.jodit-wysiwyg li[align="right"],
+.jodit-content-rendered li[align="right"],
+.jodit-wysiwyg [style*="text-align: right"] > li,
+.jodit-wysiwyg [style*="text-align:right"] > li,
+.jodit-content-rendered [style*="text-align: right"] > li,
+.jodit-content-rendered [style*="text-align:right"] > li,
+.jodit-wysiwyg li:has([style*="text-align: right"]),
+.jodit-wysiwyg li:has([style*="text-align:right"]),
+.jodit-content-rendered li:has([style*="text-align: right"]),
+.jodit-content-rendered li:has([style*="text-align:right"]) {
+  text-align: right !important;
+  list-style-position: inside !important;
+  padding-left: 0 !important;
+  padding-right: 0.5rem !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
 }
 
 /* Nested lists */
@@ -821,14 +940,73 @@ html.a11y-reduced-motion *::after {
   background-color: rgba(2, 132, 199, 0.1) !important;
 }
 
-/* Images & Media */
+/* Images & Media (Adjustable & Determinable Height Support) */
 .jodit-content-rendered img {
-  max-width: 100% !important;
-  height: auto !important;
-  border-radius: 0.75rem !important;
-  margin-top: 1.25rem !important;
-  margin-bottom: 1.25rem !important;
+  max-width: 100%;
+  border-radius: 0.75rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Default height auto only when no explicit height or height style is set */
+.jodit-content-rendered img:not([height]):not([style*="height"]) {
+  height: auto;
+}
+
+/* Explicit custom height: preserve user-defined height without forcing height auto */
+.jodit-content-rendered img[style*="height"],
+.jodit-wysiwyg img[style*="height"] {
+  max-width: 100%;
+  object-fit: cover;
+}
+
+.jodit-content-rendered img[height],
+.jodit-wysiwyg img[height] {
+  max-width: 100%;
+}
+
+/* Image alignment handling in both WYSIWYG editor and rendered view */
+.jodit-wysiwyg img[style*="margin-left: auto"][style*="margin-right: auto"],
+.jodit-wysiwyg img[style*="margin-left:auto"][style*="margin-right:auto"],
+.jodit-content-rendered img[style*="margin-left: auto"][style*="margin-right: auto"],
+.jodit-content-rendered img[style*="margin-left:auto"][style*="margin-right:auto"] {
   display: block !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  float: none !important;
+}
+
+.jodit-wysiwyg [style*="text-align: center"] > img,
+.jodit-wysiwyg [style*="text-align:center"] > img,
+.jodit-content-rendered [style*="text-align: center"] > img,
+.jodit-content-rendered [style*="text-align:center"] > img {
+  display: inline-block !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.jodit-wysiwyg img[style*="float: left"],
+.jodit-wysiwyg img[style*="float:left"],
+.jodit-content-rendered img[style*="float: left"],
+.jodit-content-rendered img[style*="float:left"] {
+  float: left !important;
+  margin-right: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.jodit-wysiwyg img[style*="float: right"],
+.jodit-wysiwyg img[style*="float:right"],
+.jodit-content-rendered img[style*="float: right"],
+.jodit-content-rendered img[style*="float:right"] {
+  float: right !important;
+  margin-left: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Ensure editor resizer handles and user-chosen dimensions render accurately without parent max-height squash */
+.jodit-wysiwyg img {
+  max-width: 100%;
+  max-height: none !important;
 }
 
 .jodit-content-rendered a {

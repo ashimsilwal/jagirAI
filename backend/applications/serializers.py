@@ -1,6 +1,6 @@
 import os
 from rest_framework import serializers
-from .models import Application
+from .models import Application, Notification
 from jobs.models import Job
 from jobs.serializers import JobSerializer
 from users.models import JobSeekerProfile
@@ -24,6 +24,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'applicant_profile',
             'resume',
             'cover_letter',
+            'rejection_reason',
             'status',
             'applied_at',
             'updated_at',
@@ -53,6 +54,7 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
             'job',
             'resume',
             'cover_letter',
+            'rejection_reason',
             'status',
             'applied_at',
         )
@@ -105,14 +107,36 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
 class ApplicationStatusUpdateSerializer(serializers.ModelSerializer):
     """
-    Serializer used by recruiters to update application status.
+    Serializer used by recruiters to update application status and optional rejection reason.
     """
+    rejection_reason = serializers.CharField(required=False, allow_blank=True, default='')
+
     class Meta:
         model = Application
-        fields = ('id', 'status', 'updated_at')
+        fields = ('id', 'status', 'rejection_reason', 'updated_at')
         read_only_fields = ('id', 'updated_at')
 
     def validate_status(self, value):
         if value not in Application.ApplicationStatus.values:
             raise serializers.ValidationError(f"Invalid status. Choose from {Application.ApplicationStatus.values}")
         return value
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for in-app user notifications.
+    """
+    class Meta:
+        model = Notification
+        fields = (
+            'id',
+            'recipient',
+            'title',
+            'message',
+            'notification_type',
+            'application',
+            'is_read',
+            'created_at',
+            'metadata',
+        )
+        read_only_fields = ('id', 'recipient', 'created_at')

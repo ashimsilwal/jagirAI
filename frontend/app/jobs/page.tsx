@@ -235,10 +235,10 @@ function JobsContent() {
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <Link
-                  href="/"
+                  href={isSeeker ? "/dashboard/seeker" : "/"}
                   className="text-xs font-semibold text-sky-600 dark:text-sky-400 hover:underline"
                 >
-                  Home
+                  {isSeeker ? "Dashboard" : "Home"}
                 </Link>
                 <span className="text-xs text-slate-400">/</span>
                 <span className="text-xs font-medium text-slate-500 dark:text-slate-400">

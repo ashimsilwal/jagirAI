@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -12,7 +12,6 @@ import {
   Search,
   Sun,
   Moon,
-  Home,
   Menu,
   X,
   BookOpen
@@ -28,7 +27,27 @@ export const Navbar: React.FC = () => {
   const { setMobileSidebarOpen } = useSidebar();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const [isPreview, setIsPreview] = useState(false);
+
+  useEffect(() => {
+    const checkPreview = () => {
+      if (typeof window !== 'undefined') {
+        setIsPreview(window.location.search.includes('preview=true'));
+      }
+    };
+    checkPreview();
+    window.addEventListener('popstate', checkPreview);
+    return () => window.removeEventListener('popstate', checkPreview);
+  }, [pathname]);
+
   const isAdmin = !!(user && (user.is_staff || user.is_superuser));
+  const isDashboard = Boolean(
+    user &&
+    !isPreview &&
+    ((pathname?.startsWith('/dashboard') && !pathname?.startsWith('/dashboard/setup')) ||
+     pathname === '/jobs' ||
+     pathname?.startsWith('/jobs/'))
+  );
 
   const isActive = (path: string) => pathname === path;
 
@@ -47,8 +66,8 @@ export const Navbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center min-h-16 sm:min-h-18 py-1 sm:py-0 gap-2">
           
-          {/* Logo - only displayed for logged-out visitors */}
-          {!user ? (
+          {/* Logo - displayed on all main/public pages, or on mobile in dashboard */}
+          {!isDashboard ? (
             <Link
               href="/"
               aria-label="Jagir AI Homepage"
@@ -68,7 +87,7 @@ export const Navbar: React.FC = () => {
             </Link>
           ) : (
             <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-              {/* Mobile Sidebar Button in top bar */}
+              {/* Mobile Sidebar Button in top bar for dashboard */}
               <button
                 type="button"
                 onClick={() => setMobileSidebarOpen(true)}
@@ -78,7 +97,7 @@ export const Navbar: React.FC = () => {
                 <Menu className="w-5 h-5" />
               </button>
 
-              {/* Mobile Logo for logged-in user */}
+              {/* Mobile Logo for logged-in user inside dashboard */}
               <Link
                 href="/"
                 aria-label="Jagir AI Homepage"
@@ -94,20 +113,19 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* Navigation Links - ONLY displayed for visitors who are NOT logged in */}
-          {!user && (
+          {/* Navigation Links - displayed on all main website and preview pages */}
+          {!isDashboard && (
             <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1">
               <Link
                 href="/"
                 aria-current={isActive('/') ? 'page' : undefined}
-                className={`px-3.5 py-2 rounded-md text-[15px] font-medium transition-colors flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 rounded-md text-[15px] font-medium transition-colors ${
                   isActive('/') 
                     ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold' 
                     : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800'
                 }`}
               >
-                <Home aria-hidden="true" className="w-4 h-4" />
-                <span>Home</span>
+                Home
               </Link>
 
               <Link
@@ -186,6 +204,23 @@ export const Navbar: React.FC = () => {
                 <NotificationDropdown />
                 {/* Facebook-style Profile Dropdown with online status & actions */}
                 <ProfileDropdown />
+
+                {/* Mobile Menu Toggle Button for public / main pages */}
+                {!isDashboard && (
+                  <button
+                    type="button"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    aria-label="Toggle navigation menu"
+                    aria-expanded={mobileMenuOpen}
+                    className="md:hidden p-2 rounded-md text-gray-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+                  >
+                    {mobileMenuOpen ? (
+                      <X className="w-5 h-5" />
+                    ) : (
+                      <Menu className="w-5 h-5" />
+                    )}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -222,8 +257,8 @@ export const Navbar: React.FC = () => {
 
         </div>
 
-        {/* Mobile Navigation Drawer for Visitors */}
-        {!user && mobileMenuOpen && (
+        {/* Mobile Navigation Drawer for Main / Preview Pages */}
+        {!isDashboard && mobileMenuOpen && (
           <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-black px-4 py-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
             <Link
               href="/"
@@ -234,7 +269,6 @@ export const Navbar: React.FC = () => {
                   : 'text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800'
               }`}
             >
-              <Home className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span>Home</span>
             </Link>
 

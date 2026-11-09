@@ -21,6 +21,7 @@ import {
   CheckCircle2, 
   ShieldAlert, 
   Inbox,
+  AlertTriangle,
   ChevronDown,
   ChevronUp,
   X,
@@ -609,6 +610,19 @@ export default function AllRecruiterApplicationsPage() {
                         {app.cover_letter}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* Rejection Note */}
+                {app.status === 'REJECTED' && (
+                  <div className="p-3 rounded-xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 text-xs text-rose-900 dark:text-rose-200 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-rose-700 dark:text-rose-300">
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      <span>Rejection Reason:</span>
+                    </div>
+                    <p className="text-slate-700 dark:text-slate-300 pl-5 whitespace-pre-wrap">
+                      {app.rejection_reason || 'No specific feedback provided.'}
+                    </p>
                   </div>
                 )}
 

@@ -28,6 +28,11 @@ class Application(models.Model):
         help_text="Custom resume for this application, or auto-filled from JobSeekerProfile"
     )
     cover_letter = models.TextField(blank=True)
+    rejection_reason = models.TextField(
+        blank=True,
+        default='',
+        help_text="Feedback or reason provided to the applicant if rejected."
+    )
     status = models.CharField(
         max_length=20,
         choices=ApplicationStatus.choices,
@@ -50,3 +55,41 @@ class Application(models.Model):
 
     def __str__(self):
         return f"{self.applicant.email} -> {self.job.title} ({self.status})"
+
+
+class Notification(models.Model):
+    class NotificationType(models.TextChoices):
+        APPLICATION_STATUS = 'APPLICATION_STATUS', 'Application Status'
+        APPLICATION_RECEIVED = 'APPLICATION_RECEIVED', 'Application Received'
+        SYSTEM = 'SYSTEM', 'System'
+
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    notification_type = models.CharField(
+        max_length=50,
+        choices=NotificationType.choices,
+        default=NotificationType.APPLICATION_STATUS
+    )
+    application = models.ForeignKey(
+        Application,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notifications'
+    )
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Notification to {self.recipient.email}: {self.title} (read={self.is_read})"

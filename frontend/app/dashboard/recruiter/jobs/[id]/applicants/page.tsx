@@ -15,8 +15,10 @@ import {
   Clock,
   Briefcase,
   ShieldAlert,
-  Eye
+  Eye,
+  AlertTriangle
 } from 'lucide-react';
+import RejectApplicationModal from '@/components/RejectApplicationModal';
 
 function getInitials(name: string): string {
   if (!name) return 'CA';
@@ -35,6 +37,7 @@ export default function JobApplicantsPage() {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusUpdating, setStatusUpdating] = useState<number | null>(null);
+  const [rejectingApp, setRejectingApp] = useState<Application | null>(null);
 
   const canViewApplications = hasPermission(user, 'application.view');
   const canUpdateStatus = hasPermission(user, 'application.update_status');
@@ -66,16 +69,25 @@ export default function JobApplicantsPage() {
     }
   }, [id]);
 
-  const handleStatusChange = async (appId: number, newStatus: string) => {
+  const handleStatusChange = async (appId: number, newStatus: string, rejectionReason?: string) => {
     setStatusUpdating(appId);
     try {
+      const payload: { status: string; rejection_reason?: string } = { status: newStatus };
+      if (newStatus === 'REJECTED' && rejectionReason !== undefined) {
+        payload.rejection_reason = rejectionReason;
+      }
+
       await apiFetch(`/applications/${appId}/status/`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(payload),
       });
 
       setApplications((prev) =>
-        prev.map((app) => (app.id === appId ? { ...app, status: newStatus as any } : app))
+        prev.map((app) => (app.id === appId ? {
+          ...app,
+          status: newStatus as any,
+          rejection_reason: newStatus === 'REJECTED' ? (rejectionReason ?? app.rejection_reason) : app.rejection_reason
+        } : app))
       );
     } catch (err) {
       alert('Failed to update candidate status.');
@@ -216,7 +228,14 @@ export default function JobApplicantsPage() {
                       <select
                         value={app.status}
                         disabled={statusUpdating === app.id}
-                        onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === 'REJECTED') {
+                            setRejectingApp(app);
+                          } else {
+                            handleStatusChange(app.id, val);
+                          }
+                        }}
                         className={`px-3 py-1.5 rounded-md text-xs font-bold border transition cursor-pointer ${
                           app.status === 'APPLIED'
                             ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800'
@@ -294,6 +313,30 @@ export default function JobApplicantsPage() {
                   </div>
                 )}
 
+                {/* Rejection Feedback Note if Rejected */}
+                {app.status === 'REJECTED' && (
+                  <div className="p-3 rounded-lg bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 text-xs text-rose-900 dark:text-rose-200 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 font-bold text-rose-700 dark:text-rose-300">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span>Rejection Reason / Feedback:</span>
+                      </div>
+                      {canUpdateStatus && (
+                        <button
+                          type="button"
+                          onClick={() => setRejectingApp(app)}
+                          className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:underline"
+                        >
+                          Edit Reason
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-slate-700 dark:text-slate-300 pl-5 whitespace-pre-wrap">
+                      {app.rejection_reason || 'No specific feedback provided.'}
+                    </p>
+                  </div>
+                )}
+
                 {/* Bottom actions & links */}
                 <div className="pt-2 flex flex-wrap justify-between items-center gap-3 text-xs">
                   <span className="text-slate-400 dark:text-slate-500 flex items-center gap-1">
@@ -327,6 +370,25 @@ export default function JobApplicantsPage() {
             );
           })}
         </div>
+      )}
+
+      {/* Reject Application Modal */}
+      {rejectingApp && (
+        <RejectApplicationModal
+          isOpen={Boolean(rejectingApp)}
+          onClose={() => setRejectingApp(null)}
+          candidateName={
+            rejectingApp.applicant?.username ||
+            rejectingApp.applicant?.email ||
+            'Candidate'
+          }
+          jobTitle={job?.title || 'Job Vacancy'}
+          initialReason={rejectingApp.rejection_reason || ''}
+          onConfirm={async (reason) => {
+            await handleStatusChange(rejectingApp.id, 'REJECTED', reason);
+            setRejectingApp(null);
+          }}
+        />
       )}
     </div>
   );

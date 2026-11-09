@@ -83,30 +83,39 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const isAdmin = !!(user.is_staff || user.is_superuser);
   const isRecruiter = user.role === 'JOB_RECRUITER';
 
-  // Live support ticket alert counter for admin
+  // Live support ticket and contact inquiries counters for admin
   const [openTicketsCount, setOpenTicketsCount] = useState<number>(0);
+  const [unreadContactsCount, setUnreadContactsCount] = useState<number>(0);
 
   useEffect(() => {
     if (!isAdmin) return;
 
-    const fetchTicketCount = () => {
+    const fetchCounts = () => {
       apiFetch<any>('/admin/tickets/?status=OPEN')
         .then((data) => {
           const list = Array.isArray(data) ? data : data.results || [];
           setOpenTicketsCount(typeof data.count === 'number' ? data.count : list.length);
         })
         .catch(() => {});
+
+      apiFetch<any>('/contact/stats/')
+        .then((stats) => {
+          setUnreadContactsCount(stats?.unread || 0);
+        })
+        .catch(() => {});
     };
 
-    fetchTicketCount();
-    const interval = setInterval(fetchTicketCount, 15000);
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 15000);
 
-    const handleCustomEvent = () => fetchTicketCount();
+    const handleCustomEvent = () => fetchCounts();
     window.addEventListener('ticket-updated', handleCustomEvent);
+    window.addEventListener('contact-updated', handleCustomEvent);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('ticket-updated', handleCustomEvent);
+      window.removeEventListener('contact-updated', handleCustomEvent);
     };
   }, [isAdmin]);
 
@@ -119,6 +128,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         label: 'System Overview',
         href: '/dashboard/admin',
         icon: ShieldCheck,
+      },
+      {
+        label: 'Contact Inquiries',
+        href: '/dashboard/admin/contacts',
+        icon: Mail,
+        badge: unreadContactsCount > 0 ? `${unreadContactsCount} New` : undefined,
+        badgeColor: 'bg-sky-100 dark:bg-sky-950/90 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 animate-pulse',
       },
       {
         label: 'Support Tickets',
@@ -166,6 +182,15 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               href: '/dashboard/recruiter/jobs',
               icon: Briefcase,
             },
+            ...(hasPermission(user, 'vacancy.create')
+              ? [
+                  {
+                    label: 'Post a Vacancy',
+                    href: '/dashboard/recruiter/jobs/new',
+                    icon: PlusCircle,
+                  },
+                ]
+              : []),
             {
               label: 'Job Categories',
               href: '/dashboard/recruiter/categories',
@@ -227,6 +252,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     if (href === '/') return pathname === '/';
     const [pathPart, queryPart] = href.split('?');
     const cleanPath = pathPart.split('#')[0];
+    if (cleanPath === '/jobs') {
+      return pathname === '/jobs' || (Boolean(pathname?.startsWith('/jobs/')) && pathname !== '/jobs/new');
+    }
     if (pathname !== cleanPath) return false;
 
     if (typeof window !== 'undefined') {

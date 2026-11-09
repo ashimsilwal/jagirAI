@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { apiFetch } from '@/lib/api';
 import {
   Mail,
   MapPin,
@@ -9,13 +10,15 @@ import {
   Send,
   CheckCircle2,
   HelpCircle,
-  ShieldCheck
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     category: 'GENERAL',
     subject: '',
     message: ''
@@ -23,16 +26,24 @@ export default function ContactPage() {
 
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
-    // Simulate submission delay
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await apiFetch('/contact/', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
       setSubmitted(true);
-    }, 700);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to send your message. Please check the fields and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const faqs = [
@@ -190,6 +201,7 @@ export default function ContactPage() {
                       setFormData({
                         name: '',
                         email: '',
+                        phone: '',
                         category: 'GENERAL',
                         subject: '',
                         message: ''
@@ -202,6 +214,13 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  {errorMsg && (
+                    <div className="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs sm:text-sm flex items-center gap-2.5">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                      <span>{errorMsg}</span>
+                    </div>
+                  )}
+
                   <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                       Send Us a Message
@@ -211,7 +230,7 @@ export default function ContactPage() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                         Your Full Name *
@@ -236,6 +255,19 @@ export default function ContactPage() {
                         placeholder="aarav@example.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-800 transition placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                        Phone (Optional)
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+977 9800000000"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-800 transition placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       />
                     </div>

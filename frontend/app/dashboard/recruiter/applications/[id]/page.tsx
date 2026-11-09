@@ -27,8 +27,10 @@ import {
   Calendar,
   Sparkles,
   ChevronRight,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
+import RejectApplicationModal from '@/components/RejectApplicationModal';
 
 const STATUS_OPTIONS: Array<{
   value: Application['status'];
@@ -94,6 +96,7 @@ export default function ApplicationDetailPage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [statusUpdating, setStatusUpdating] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
   const canViewApplications = hasPermission(user, 'application.view');
   const canUpdateStatus = hasPermission(user, 'application.update_status');
@@ -121,10 +124,16 @@ export default function ApplicationDetailPage() {
     }
   }, [id, canViewApplications]);
 
-  const handleStatusChange = async (newStatus: Application['status']) => {
-    if (!application || application.status === newStatus || statusUpdating) return;
+  const handleStatusChange = async (newStatus: Application['status'], rejectionReason?: string) => {
+    if (!application || statusUpdating) return;
     if (!canUpdateStatus) {
       setError('You do not have permission to update candidate status.');
+      return;
+    }
+
+    // If changing to REJECTED and no reason provided yet, open the dialog box
+    if (newStatus === 'REJECTED' && rejectionReason === undefined) {
+      setIsRejectModalOpen(true);
       return;
     }
 
@@ -133,12 +142,21 @@ export default function ApplicationDetailPage() {
     setError('');
 
     try {
+      const payload: { status: string; rejection_reason?: string } = { status: newStatus };
+      if (newStatus === 'REJECTED' && rejectionReason !== undefined) {
+        payload.rejection_reason = rejectionReason;
+      }
+
       await apiFetch(`/applications/${application.id}/status/`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(payload),
       });
 
-      setApplication((prev) => (prev ? { ...prev, status: newStatus } : null));
+      setApplication((prev) => (prev ? {
+        ...prev,
+        status: newStatus,
+        rejection_reason: newStatus === 'REJECTED' ? (rejectionReason ?? prev.rejection_reason) : prev.rejection_reason
+      } : null));
       const statusObj = STATUS_OPTIONS.find((s) => s.value === newStatus);
       const successMsg = `Application status successfully updated to "${statusObj?.label || newStatus}".`;
       setSuccessMessage(successMsg);
@@ -536,6 +554,30 @@ export default function ApplicationDetailPage() {
             })}
           </div>
 
+          {/* Rejection Feedback Banner if Rejected */}
+          {application.status === 'REJECTED' && (
+            <div className="p-4 rounded-2xl bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 space-y-1.5 animate-in fade-in">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-rose-800 dark:text-rose-200">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                  <span>Rejection Feedback (Shared with Candidate)</span>
+                </div>
+                {canUpdateStatus && (
+                  <button
+                    type="button"
+                    onClick={() => setIsRejectModalOpen(true)}
+                    className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
+                  >
+                    Edit Feedback
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed pl-6">
+                {application.rejection_reason || 'No specific feedback was provided.'}
+              </p>
+            </div>
+          )}
+
           {!canUpdateStatus && (
             <p className="text-[11px] text-amber-600 dark:text-amber-400 italic">
               * Your role has read-only access to applicant records; status changes are restricted.
@@ -834,6 +876,24 @@ export default function ApplicationDetailPage() {
         </div>
 
       </div>
+
+      {/* Rejection Reason Modal */}
+      {application && (
+        <RejectApplicationModal
+          isOpen={isRejectModalOpen}
+          onClose={() => setIsRejectModalOpen(false)}
+          candidateName={
+            application.applicant_profile?.user?.username ||
+            application.applicant.username ||
+            application.applicant.email
+          }
+          jobTitle={application.job?.title || 'Job Vacancy'}
+          initialReason={application.rejection_reason || ''}
+          onConfirm={async (reason) => {
+            await handleStatusChange('REJECTED', reason);
+          }}
+        />
+      )}
     </div>
   );
 }
