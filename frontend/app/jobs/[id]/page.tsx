@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { apiFetch, Job, JobSeekerProfile, getMediaUrl } from '@/lib/api';
+import { apiFetch, Job, Application, JobSeekerProfile, getMediaUrl } from '@/lib/api';
 import JobLocationMapView from '@/components/JobLocationMapView';
 import { 
   Building2, 
@@ -131,6 +131,7 @@ export default function JobDetailPage() {
   const [saved, setSaved] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
   const [alreadyApplied, setAlreadyApplied] = useState(false);
+  const [existingApplication, setExistingApplication] = useState<Application | null>(null);
 
   // Application Form State
   const [coverLetter, setCoverLetter] = useState('');
@@ -269,10 +270,11 @@ export default function JobDetailPage() {
     if (user?.role === 'JOB_SEEKER' && id) {
       apiFetch<any>('/applications/my-applications/')
         .then((data) => {
-          const list = Array.isArray(data) ? data : data.results || [];
-          const hasApplied = list.some((app: any) => (app.job?.id || app.job) === Number(id));
-          if (hasApplied) {
+          const list: Application[] = Array.isArray(data) ? data : data.results || [];
+          const existing = list.find((app: any) => (app.job?.id || app.job) === Number(id));
+          if (existing) {
             setAlreadyApplied(true);
+            setExistingApplication(existing);
           }
         })
         .catch(() => {});
@@ -314,6 +316,10 @@ export default function JobDetailPage() {
 
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (alreadyApplied) {
+      toast.warning('You have already applied for this job. Multiple applications are not permitted.', 'Already Applied');
+      return;
+    }
     setApplyError('');
     setSubmitting(true);
 
@@ -327,13 +333,16 @@ export default function JobDetailPage() {
         formData.append('resume', customResume);
       }
 
-      await apiFetch('/applications/', {
+      const createdApp = await apiFetch<Application>('/applications/', {
         method: 'POST',
         body: formData,
       });
 
       setApplySuccess(true);
       setAlreadyApplied(true);
+      if (createdApp) {
+        setExistingApplication(createdApp);
+      }
       toast.success('Your job application has been submitted successfully!', 'Application Sent');
     } catch (err: any) {
       const errorMsg =
@@ -701,23 +710,96 @@ export default function JobDetailPage() {
                 </Link>
               </div>
             ) : applySuccess || alreadyApplied ? (
-              <div role="status" aria-live="polite" className="p-6 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-xl text-center space-y-2.5">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-6 h-6" />
+              <div role="status" aria-live="polite" className="p-6 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                    existingApplication?.status === 'REJECTED'
+                      ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                      : existingApplication?.status === 'HIRED'
+                      ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                      : existingApplication?.status === 'INTERVIEW'
+                      ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800'
+                      : existingApplication?.status === 'SHORTLISTED'
+                      ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+                      : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                  }`}>
+                    {existingApplication?.status === 'REJECTED' ? (
+                      <AlertCircle className="w-6 h-6" />
+                    ) : (
+                      <CheckCircle2 className="w-6 h-6" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-1.5 text-center sm:text-left">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                        {existingApplication?.status === 'REJECTED'
+                          ? 'Application Status: Not Selected'
+                          : existingApplication?.status === 'HIRED'
+                          ? 'Application Status: Hired / Offer Made'
+                          : existingApplication?.status === 'INTERVIEW'
+                          ? 'Application Status: Interview Stage'
+                          : existingApplication?.status === 'SHORTLISTED'
+                          ? 'Application Status: Shortlisted'
+                          : 'Application Already Submitted'}
+                      </h3>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                        existingApplication?.status === 'REJECTED'
+                          ? 'bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                          : existingApplication?.status === 'HIRED'
+                          ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                          : existingApplication?.status === 'INTERVIEW'
+                          ? 'bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                          : existingApplication?.status === 'SHORTLISTED'
+                          ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                          : 'bg-sky-100 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
+                      }`}>
+                        {existingApplication?.status || 'APPLIED'}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      You applied for this vacancy on{' '}
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">
+                        {existingApplication?.applied_at
+                          ? new Date(existingApplication.applied_at).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })
+                          : 'record'}
+                      </span>
+                      . You cannot submit multiple applications for the same job vacancy.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="font-bold text-emerald-950 dark:text-emerald-100 text-base">
-                  Application Submitted Successfully!
-                </h3>
-                <p className="text-xs text-emerald-800 dark:text-emerald-300 max-w-md mx-auto leading-relaxed">
-                  The hiring team at {job.company_name} has received your profile and resume. You will receive notifications as your application moves through review stages.
-                </p>
-                <div className="pt-2">
+
+                {existingApplication?.status === 'REJECTED' && existingApplication.rejection_reason && (
+                  <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl space-y-1 text-left">
+                    <p className="text-xs font-bold text-rose-900 dark:text-rose-200 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      Feedback from {job.company_name}:
+                    </p>
+                    <p className="text-xs text-rose-800 dark:text-rose-300 leading-relaxed whitespace-pre-wrap pl-5">
+                      "{existingApplication.rejection_reason}"
+                    </p>
+                  </div>
+                )}
+
+                <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3 border-t border-slate-200/80 dark:border-slate-800">
+                  <Link
+                    href="/dashboard/seeker/applications"
+                    className="inline-flex items-center gap-2 py-2 px-4 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Track in Applied Jobs</span>
+                  </Link>
                   <Link
                     href="/dashboard/seeker"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300 underline hover:text-emerald-900"
+                    className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 transition"
                   >
-                    <span>Track Status in My Applications</span>
-                    <ExternalLink className="w-3 h-3" />
+                    <span>Seeker Dashboard</span>
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
                   </Link>
                 </div>
               </div>

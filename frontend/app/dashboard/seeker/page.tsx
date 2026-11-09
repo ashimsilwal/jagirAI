@@ -129,7 +129,7 @@ export default function SeekerDashboard() {
       { label: 'Under Review', value: stats.applied, color: '#0284c7' },
       { label: 'Shortlisted', value: stats.shortlisted, color: '#f59e0b' },
       { label: 'Interviews', value: stats.interview, color: '#a855f7' },
-      { label: 'Hired 🎉', value: stats.hired, color: '#10b981' },
+      { label: 'Hired', value: stats.hired, color: '#10b981' },
       { label: 'Not Selected', value: stats.rejected, color: '#f43f5e' },
     ];
   }, [stats]);
@@ -194,7 +194,7 @@ export default function SeekerDashboard() {
       case 'HIRED':
         return (
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60 shadow-sm">
-            Hired 🎉
+            Hired
           </span>
         );
       case 'REJECTED':
@@ -355,9 +355,14 @@ export default function SeekerDashboard() {
 
       {/* Section 1: Quick Metrics Key Performance Indicators */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
+        <Link
+          href="/dashboard/seeker/applications"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-sky-300 dark:hover:border-sky-700 block group"
+        >
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Applied</span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+              Total Applied
+            </span>
             <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
               <Briefcase className="w-4 h-4" />
             </div>
@@ -368,9 +373,12 @@ export default function SeekerDashboard() {
           <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div className="h-full bg-sky-500 rounded-full" style={{ width: '100%' }} />
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
+        <Link
+          href="/dashboard/seeker/applications"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-blue-300 dark:hover:border-blue-700 block group"
+        >
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-[11px] font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400">Under Review</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -386,9 +394,12 @@ export default function SeekerDashboard() {
               style={{ width: `${stats.total > 0 ? (stats.applied / stats.total) * 100 : 0}%` }}
             />
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
+        <Link
+          href="/dashboard/seeker/applications"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-amber-300 dark:hover:border-amber-700 block group"
+        >
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">Shortlisted</span>
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -404,9 +415,12 @@ export default function SeekerDashboard() {
               style={{ width: `${stats.total > 0 ? (stats.shortlisted / stats.total) * 100 : 0}%` }}
             />
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-colors">
+        <Link
+          href="/dashboard/seeker/applications"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-purple-300 dark:hover:border-purple-700 block group"
+        >
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Interviews</span>
             <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
@@ -419,7 +433,7 @@ export default function SeekerDashboard() {
             </p>
             {stats.hired > 0 && (
               <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                ({stats.hired} hired 🎉)
+                ({stats.hired} hired)
               </span>
             )}
           </div>
@@ -429,7 +443,7 @@ export default function SeekerDashboard() {
               style={{ width: `${stats.total > 0 ? (stats.interview / stats.total) * 100 : 0}%` }}
             />
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Section 2: Visual Analytics & Performance Charts */}
@@ -464,30 +478,39 @@ export default function SeekerDashboard() {
             </span>
           </div>
 
-          {/* Status Filters */}
-          {applications.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700 text-xs">
-              {[
-                { label: 'All', value: 'ALL' },
-                { label: 'Applied', value: 'APPLIED' },
-                { label: 'Shortlisted', value: 'SHORTLISTED' },
-                { label: 'Interviews', value: 'INTERVIEW' },
-              ].map((tab) => (
-                <button
-                  key={tab.value}
-                  type="button"
-                  onClick={() => setStatusFilter(tab.value)}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                    statusFilter === tab.value
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/dashboard/seeker/applications"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 hover:bg-sky-100 dark:hover:bg-sky-900/80 border border-sky-200/80 dark:border-sky-800 transition shadow-xs"
+            >
+              <span>Detailed Tracking & History</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+
+            {applications.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700 text-xs">
+                {[
+                  { label: 'All', value: 'ALL' },
+                  { label: 'Applied', value: 'APPLIED' },
+                  { label: 'Shortlisted', value: 'SHORTLISTED' },
+                  { label: 'Interviews', value: 'INTERVIEW' },
+                ].map((tab) => (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    onClick={() => setStatusFilter(tab.value)}
+                    className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                      statusFilter === tab.value
+                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {loading ? (

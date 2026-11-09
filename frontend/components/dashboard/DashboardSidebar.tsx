@@ -221,14 +221,19 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     // Job Seeker
     navItems = [
       {
-        label: 'My Applications',
+        label: 'Dashboard Overview',
         href: '/dashboard/seeker',
-        icon: FileText,
+        icon: LayoutDashboard,
       },
       {
         label: 'Find Jobs',
         href: '/jobs',
         icon: Briefcase,
+      },
+      {
+        label: 'Applied Jobs',
+        href: '/dashboard/seeker/applications',
+        icon: FileText,
       },
       {
         label: 'Profile & Resume',

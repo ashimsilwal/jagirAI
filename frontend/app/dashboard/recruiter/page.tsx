@@ -338,7 +338,7 @@ export default function RecruiterDashboard() {
             <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
               {shortlistedCount + interviewCount}
             </p>
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">({hiredCount} hired 🎉)</span>
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">({hiredCount} hired)</span>
           </div>
           <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
