@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
@@ -132,6 +132,9 @@ export default function JobDetailPage() {
   const [copiedShare, setCopiedShare] = useState(false);
   const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [existingApplication, setExistingApplication] = useState<Application | null>(null);
+  const [appliedCount, setAppliedCount] = useState<number>(0);
+  const [applicationAttempts, setApplicationAttempts] = useState<Application[]>([]);
+  const hasNotifiedStatus = useRef(false);
 
   // Application Form State
   const [coverLetter, setCoverLetter] = useState('');
@@ -265,16 +268,28 @@ export default function JobDetailPage() {
     }
   }, [id]);
 
-  // Check if current user has already applied
+  // Check current user applications for this job (up to 3 allowed)
   useEffect(() => {
     if (user?.role === 'JOB_SEEKER' && id) {
       apiFetch<any>('/applications/my-applications/')
         .then((data) => {
           const list: Application[] = Array.isArray(data) ? data : data.results || [];
-          const existing = list.find((app: any) => (app.job?.id || app.job) === Number(id));
-          if (existing) {
-            setAlreadyApplied(true);
-            setExistingApplication(existing);
+          const matches = list.filter((app: any) => (app.job?.id || app.job) === Number(id));
+          setApplicationAttempts(matches);
+          setAppliedCount(matches.length);
+          if (matches.length > 0) {
+            setExistingApplication(matches[0]);
+            if (matches.length >= 3) {
+              setAlreadyApplied(true);
+            }
+            if (!hasNotifiedStatus.current) {
+              hasNotifiedStatus.current = true;
+              if (matches.length >= 3) {
+                toast.warning('You have submitted the maximum limit of 3 applications for this job.', 'Limit Reached');
+              } else {
+                toast.info(`You have submitted ${matches.length} of 3 applications for this job.`, 'Application Status');
+              }
+            }
           }
         })
         .catch(() => {});
@@ -294,6 +309,9 @@ export default function JobDetailPage() {
         setSaved(true);
       }
       localStorage.setItem('saved_jobs', JSON.stringify(updated));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('saved-jobs-updated'));
+      }
     } catch {
       setSaved(!saved);
     }
@@ -316,8 +334,8 @@ export default function JobDetailPage() {
 
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (alreadyApplied) {
-      toast.warning('You have already applied for this job. Multiple applications are not permitted.', 'Already Applied');
+    if (appliedCount >= 3) {
+      toast.warning('You have already submitted the maximum limit of 3 applications for this job.', 'Limit Reached');
       return;
     }
     setApplyError('');
@@ -333,17 +351,34 @@ export default function JobDetailPage() {
         formData.append('resume', customResume);
       }
 
-      const createdApp = await apiFetch<Application>('/applications/', {
+      const res = await apiFetch<any>('/applications/', {
         method: 'POST',
         body: formData,
       });
 
-      setApplySuccess(true);
-      setAlreadyApplied(true);
+      const newCount = typeof res?.application_count === 'number' ? res.application_count : appliedCount + 1;
+      const createdApp: Application = res?.application || res;
+      setAppliedCount(newCount);
       if (createdApp) {
         setExistingApplication(createdApp);
+        setApplicationAttempts((prev) => [createdApp, ...prev]);
       }
-      toast.success('Your job application has been submitted successfully!', 'Application Sent');
+      if (newCount >= 3) {
+        setAlreadyApplied(true);
+      }
+      setApplySuccess(true);
+      setCoverLetter('');
+      setCustomResume(null);
+
+      // Smooth scroll to top of page to immediately show the top-of-page submission toaster
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      toast.success(
+        `Application submitted successfully! You have applied ${newCount} of 3 times for this job.`,
+        'Application Sent'
+      );
     } catch (err: any) {
       const errorMsg =
         err.data?.non_field_errors?.[0] ||
@@ -461,6 +496,93 @@ export default function JobDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* 1.5 TOP-OF-PAGE SUBMISSION TOASTER & STATUS BANNER */}
+      {user?.role === 'JOB_SEEKER' && appliedCount > 0 && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`p-4 sm:p-5 rounded-2xl border shadow-sm space-y-3 transition-all animate-in fade-in slide-in-from-top-3 duration-300 ${
+            appliedCount >= 3
+              ? 'bg-amber-50/90 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800'
+              : 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800'
+          }`}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start sm:items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                  appliedCount >= 3
+                    ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                    : 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300'
+                }`}
+              >
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                    {appliedCount >= 3
+                      ? 'Application Limit Reached (3 of 3 submissions used)'
+                      : `Application Submitted (${appliedCount} of 3 submissions used)`}
+                  </h3>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                      existingApplication?.status === 'REJECTED'
+                        ? 'bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                        : existingApplication?.status === 'HIRED'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                        : existingApplication?.status === 'INTERVIEW'
+                        ? 'bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                        : existingApplication?.status === 'SHORTLISTED'
+                        ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                        : 'bg-sky-100 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
+                    }`}
+                  >
+                    Status: {existingApplication?.status || 'In Review'}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                  You have submitted {appliedCount} of 3 allowed applications for this vacancy.
+                  {appliedCount < 3 ? (
+                    <span>
+                      {' '}You have <strong className="font-semibold text-emerald-700 dark:text-emerald-300">{3 - appliedCount} submission attempt{3 - appliedCount === 1 ? '' : 's'} remaining</strong> if you wish to apply again with an updated CV or cover letter.
+                    </span>
+                  ) : (
+                    <span>
+                      {' '}All allowed submissions for this position have been used.
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+              <Link
+                href="/dashboard/seeker/applications"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Track in Applied Jobs</span>
+              </Link>
+            </div>
+          </div>
+
+          {existingApplication?.status === 'REJECTED' && existingApplication.rejection_reason && (
+            <div className="p-3 bg-rose-50/90 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-xl space-y-1 text-xs text-left">
+              <p className="font-bold text-rose-800 dark:text-rose-200 flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                Feedback from {job.company_name}:
+              </p>
+              <p className="text-rose-700 dark:text-rose-300 pl-5 whitespace-pre-wrap">
+                "{existingApplication.rejection_reason}"
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 2. HERO VACANCY HEADER BANNER */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6 transition-colors">
@@ -709,7 +831,7 @@ export default function JobDetailPage() {
                   <span>View All Received Applicants</span>
                 </Link>
               </div>
-            ) : applySuccess || alreadyApplied ? (
+            ) : appliedCount >= 3 ? (
               <div role="status" aria-live="polite" className="p-6 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-4">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
@@ -733,15 +855,7 @@ export default function JobDetailPage() {
                   <div className="flex-1 space-y-1.5 text-center sm:text-left">
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                       <h3 className="font-bold text-slate-900 dark:text-white text-base">
-                        {existingApplication?.status === 'REJECTED'
-                          ? 'Application Status: Not Selected'
-                          : existingApplication?.status === 'HIRED'
-                          ? 'Application Status: Hired / Offer Made'
-                          : existingApplication?.status === 'INTERVIEW'
-                          ? 'Application Status: Interview Stage'
-                          : existingApplication?.status === 'SHORTLISTED'
-                          ? 'Application Status: Shortlisted'
-                          : 'Application Already Submitted'}
+                        Maximum Applications Reached (3 of 3)
                       </h3>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
                         existingApplication?.status === 'REJECTED'
@@ -759,7 +873,7 @@ export default function JobDetailPage() {
                     </div>
 
                     <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      You applied for this vacancy on{' '}
+                      You have submitted all 3 allowed applications for this position. Latest submission was on{' '}
                       <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {existingApplication?.applied_at
                           ? new Date(existingApplication.applied_at).toLocaleDateString('en-US', {
@@ -769,7 +883,7 @@ export default function JobDetailPage() {
                             })
                           : 'record'}
                       </span>
-                      . You cannot submit multiple applications for the same job vacancy.
+                      . Multiple applications beyond the maximum limit of 3 are not permitted.
                     </p>
                   </div>
                 </div>
@@ -792,7 +906,7 @@ export default function JobDetailPage() {
                     className="inline-flex items-center gap-2 py-2 px-4 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm"
                   >
                     <FileText className="w-3.5 h-3.5" />
-                    <span>Track in Applied Jobs</span>
+                    <span>Track all 3 attempts in Applied Jobs</span>
                   </Link>
                   <Link
                     href="/dashboard/seeker"
@@ -804,7 +918,8 @@ export default function JobDetailPage() {
                 </div>
               </div>
             ) : user?.role === 'JOB_SEEKER' ? (
-              <form onSubmit={handleApply} className="space-y-5">
+              <div className="space-y-6">
+                <form onSubmit={handleApply} className="space-y-5">
                 {applyError && (
                   <div
                     role="alert"
@@ -1021,10 +1136,17 @@ export default function JobDetailPage() {
                     className="w-full py-3 px-6 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm shadow-md shadow-sky-500/20 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{submitting ? 'Submitting Application...' : 'Submit Application Now'}</span>
+                    <span>
+                      {submitting
+                        ? 'Submitting Application...'
+                        : appliedCount === 0
+                        ? 'Submit Application (Attempt 1 of 3)'
+                        : `Submit Application (Attempt ${appliedCount + 1} of 3)`}
+                    </span>
                   </button>
                 </div>
               </form>
+            </div>
             ) : !user ? (
               <div className="p-6 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center space-y-3">
                 <div className="w-10 h-10 rounded-full bg-sky-50 dark:bg-sky-950 flex items-center justify-center mx-auto text-sky-600 dark:text-sky-400">

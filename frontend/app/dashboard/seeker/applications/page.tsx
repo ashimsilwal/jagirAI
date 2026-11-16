@@ -28,7 +28,7 @@ import {
   RefreshCw,
   XCircle,
   HelpCircle,
-  DollarSign,
+  Banknote,
   ChevronRight
 } from 'lucide-react';
 
@@ -688,7 +688,7 @@ export default function SeekerApplicationsPage() {
                         )}
                         {app.job?.salary && (
                           <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                            <DollarSign className="w-3.5 h-3.5" />
+                            <Banknote className="w-3.5 h-3.5" />
                             {app.job.salary}
                           </span>
                         )}

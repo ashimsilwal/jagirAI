@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { apiFetch, Application, AppNotification, getMediaUrl } from '@/lib/api';
+import { apiFetch, Application, AppNotification, Job, getMediaUrl } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
 import { 
   Briefcase, 
@@ -13,18 +13,45 @@ import {
   ArrowRight, 
   CheckCircle2, 
   AlertCircle, 
-  UserCheck,
-  Calendar,
-  Sparkles,
-  ExternalLink,
-  Camera,
-  Bell,
-  XCircle,
-  X,
-  Check
+  UserCheck, 
+  Calendar, 
+  Sparkles, 
+  ExternalLink, 
+  Camera, 
+  Bell, 
+  XCircle, 
+  X, 
+  Check,
+  Bookmark,
+  Banknote
 } from 'lucide-react';
 import { DonutChart, AreaTrendChart } from '@/components/charts';
 import { Pagination } from '@/components/Pagination';
+
+const AVATAR_PALETTES = [
+  'bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border-sky-200/70 dark:border-sky-800',
+  'bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-200/70 dark:border-blue-800',
+  'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800',
+  'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800',
+  'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800',
+  'bg-purple-50 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border-purple-200/70 dark:border-purple-800',
+];
+
+function getCompanyPalette(name?: string) {
+  if (!name) return AVATAR_PALETTES[0];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_PALETTES[hash % AVATAR_PALETTES.length];
+}
+
+function getCompanyInitials(name?: string) {
+  if (!name) return 'CO';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
 
 export default function SeekerDashboard() {
   const { user, refreshUser } = useAuth();
@@ -35,6 +62,44 @@ export default function SeekerDashboard() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [appPage, setAppPage] = useState<number>(1);
   const [appPageSize, setAppPageSize] = useState<number>(10);
+
+  // Saved Jobs State
+  const [savedJobs, setSavedJobs] = useState<Job[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(true);
+
+  const fetchSavedJobs = async () => {
+    try {
+      if (typeof window === 'undefined') return;
+      const ids: number[] = JSON.parse(localStorage.getItem('saved_jobs') || '[]');
+      if (ids.length === 0) {
+        setSavedJobs([]);
+        setLoadingSaved(false);
+        return;
+      }
+      const data = await apiFetch<any>(`/jobs/?ids=${ids.join(',')}&page_size=12&status=ALL`);
+      const list: Job[] = Array.isArray(data) ? data : data.results || [];
+      setSavedJobs(list);
+    } catch (err) {
+      console.error('Failed to load saved jobs:', err);
+    } finally {
+      setLoadingSaved(false);
+    }
+  };
+
+  const handleUnsaveJob = (jobId: number) => {
+    try {
+      const stored: number[] = JSON.parse(localStorage.getItem('saved_jobs') || '[]');
+      const updated = stored.filter((id) => id !== jobId);
+      localStorage.setItem('saved_jobs', JSON.stringify(updated));
+      setSavedJobs((prev) => prev.filter((j) => j.id !== jobId));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('saved-jobs-updated'));
+      }
+      toast.success('Vacancy removed from saved jobs.', 'Bookmark Removed');
+    } catch {
+      toast.error('Failed to update saved jobs.', 'Error');
+    }
+  };
 
   const fetchApplications = async () => {
     try {
@@ -62,6 +127,7 @@ export default function SeekerDashboard() {
     refreshUser();
     fetchApplications();
     fetchNotifications();
+    fetchSavedJobs();
 
     const interval = setInterval(() => {
       fetchApplications();
@@ -73,11 +139,19 @@ export default function SeekerDashboard() {
       fetchApplications();
     };
 
+    const handleSavedSync = () => {
+      fetchSavedJobs();
+    };
+
     window.addEventListener('notification-updated', handleNotifUpdate);
+    window.addEventListener('storage', handleSavedSync);
+    window.addEventListener('saved-jobs-updated', handleSavedSync);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('notification-updated', handleNotifUpdate);
+      window.removeEventListener('storage', handleSavedSync);
+      window.removeEventListener('saved-jobs-updated', handleSavedSync);
     };
   }, []);
 
@@ -354,7 +428,7 @@ export default function SeekerDashboard() {
       )}
 
       {/* Section 1: Quick Metrics Key Performance Indicators */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <Link
           href="/dashboard/seeker/applications"
           className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-sky-300 dark:hover:border-sky-700 block group"
@@ -441,6 +515,29 @@ export default function SeekerDashboard() {
             <div
               className="h-full bg-purple-500 rounded-full"
               style={{ width: `${stats.total > 0 ? (stats.interview / stats.total) * 100 : 0}%` }}
+            />
+          </div>
+        </Link>
+
+        <Link
+          href="/dashboard/seeker/saved"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-amber-300 dark:hover:border-amber-700 block group col-span-2 sm:col-span-1"
+        >
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400 group-hover:text-amber-500 transition-colors">
+              Saved Jobs
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <Bookmark className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            {savedJobs.length}
+          </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-amber-500 rounded-full"
+              style={{ width: `${savedJobs.length > 0 ? 100 : 0}%` }}
             />
           </div>
         </Link>
@@ -641,6 +738,150 @@ export default function SeekerDashboard() {
                 />
               </div>
             )}
+          </div>
+        )}
+      </div>
+
+      {/* Saved Vacancies Section */}
+      <div id="saved-jobs" className="space-y-4 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Bookmark className="w-5 h-5 text-amber-500" />
+              <span>Saved Jobs</span>
+            </h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800">
+              {savedJobs.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/seeker/saved"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/70 hover:bg-amber-100 dark:hover:bg-amber-900/80 border border-amber-200/80 dark:border-amber-800 transition shadow-xs"
+            >
+              <span>Manage All Saved Jobs</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {loadingSaved ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-36 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 space-y-3" />
+            ))}
+          </div>
+        ) : savedJobs.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 text-center space-y-3 shadow-sm transition-colors">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-100 dark:border-amber-900/60">
+              <Bookmark className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                No saved jobs yet
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                Bookmark job vacancies while browsing to keep track of roles you want to apply for later.
+              </p>
+            </div>
+            <Link
+              href="/jobs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm"
+            >
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>Explore Vacancies</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {savedJobs.slice(0, 6).map((job) => {
+              const isApplied = applications.some((a) => (a.job?.id || a.job) === job.id);
+              const palette = getCompanyPalette(job.company_name);
+              const initials = getCompanyInitials(job.company_name);
+
+              return (
+                <div
+                  key={job.id}
+                  className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm space-y-4"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {job.company_logo ? (
+                          <img
+                            src={getMediaUrl(job.company_logo) || ''}
+                            alt={job.company_name}
+                            className="w-10 h-10 rounded-xl object-contain border border-slate-200 dark:border-slate-800 bg-white p-0.5 shrink-0"
+                          />
+                        ) : (
+                          <div className={`w-10 h-10 rounded-xl border flex items-center justify-center font-bold text-xs shrink-0 ${palette}`}>
+                            {initials}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+                            {job.company_name}
+                          </p>
+                          <Link
+                            href={`/jobs/${job.id}`}
+                            className="font-bold text-sm text-slate-900 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 line-clamp-1 transition"
+                          >
+                            {job.title}
+                          </Link>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleUnsaveJob(job.id)}
+                        className="p-1.5 rounded-lg text-amber-500 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer shrink-0"
+                        title="Remove bookmark"
+                      >
+                        <Bookmark className="w-4 h-4 fill-amber-500" />
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-y-1 gap-x-2.5 text-[11px] text-slate-500 dark:text-slate-400">
+                      {job.location && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-slate-400" />
+                          <span className="truncate max-w-[120px]">{job.location}</span>
+                        </span>
+                      )}
+                      {job.salary && (
+                        <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                          <Banknote className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                          <span>{job.salary}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    {isApplied ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Applied</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Ready to Apply</span>
+                      </span>
+                    )}
+
+                    <Link
+                      href={`/jobs/${job.id}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 transition"
+                    >
+                      <span>View Vacancy</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

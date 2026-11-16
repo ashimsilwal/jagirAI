@@ -188,6 +188,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
         setSaved(true);
       }
       localStorage.setItem('saved_jobs', JSON.stringify(updated));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('saved-jobs-updated'));
+      }
     } catch {
       setSaved(!saved);
     }
@@ -239,8 +242,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
                 {job.title}
               </Link>
               {job.is_preferred && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 shrink-0">
-                  <Bookmark aria-hidden="true" className="w-3 h-3 text-amber-500" />
+                <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 shrink-0">
                   <span>Matches Preference</span>
                 </span>
               )}
@@ -365,8 +367,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false, layout
           {/* Top Right: Preferred tag, Applied badge, Posted Date & Bookmark Button */}
           <div className="flex flex-wrap items-center justify-end gap-1.5 min-w-0 max-w-[calc(100%-3.25rem)]">
             {job.is_preferred && (
-              <span className="text-[10px] font-bold flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800 shrink-0">
-                <Bookmark aria-hidden="true" className="w-3 h-3 text-amber-500" />
+              <span className="text-[10px] font-bold inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800 shrink-0">
                 <span>Preferred</span>
               </span>
             )}

@@ -28,6 +28,7 @@ import {
   LifeBuoy,
   Tag,
   BookOpen,
+  Bookmark,
   X
 } from 'lucide-react';
 
@@ -118,6 +119,31 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       window.removeEventListener('contact-updated', handleCustomEvent);
     };
   }, [isAdmin]);
+
+  // Live saved jobs counter for job seeker
+  const [savedJobsCount, setSavedJobsCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (user?.role !== 'JOB_SEEKER') return;
+
+    const updateSavedCount = () => {
+      try {
+        const savedIds: number[] = JSON.parse(localStorage.getItem('saved_jobs') || '[]');
+        setSavedJobsCount(savedIds.length);
+      } catch {
+        setSavedJobsCount(0);
+      }
+    };
+
+    updateSavedCount();
+    window.addEventListener('storage', updateSavedCount);
+    window.addEventListener('saved-jobs-updated', updateSavedCount);
+
+    return () => {
+      window.removeEventListener('storage', updateSavedCount);
+      window.removeEventListener('saved-jobs-updated', updateSavedCount);
+    };
+  }, [user]);
 
   // Role-based Nav items
   let navItems: SidebarItem[] = [];
@@ -234,6 +260,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         label: 'Applied Jobs',
         href: '/dashboard/seeker/applications',
         icon: FileText,
+      },
+      {
+        label: 'Saved Jobs',
+        href: '/dashboard/seeker/saved',
+        icon: Bookmark,
+        badge: savedJobsCount > 0 ? `${savedJobsCount}` : undefined,
+        badgeColor: 'bg-amber-100 dark:bg-amber-950/90 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-semibold',
       },
       {
         label: 'Profile & Resume',
