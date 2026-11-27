@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { apiFetch, Application } from '@/lib/api';
+import { apiFetch, Application, AppNotification, Job, getMediaUrl } from '@/lib/api';
+import { useToast } from '@/context/ToastContext';
 import { 
   Briefcase, 
   Clock, 
@@ -12,149 +13,875 @@ import {
   ArrowRight, 
   CheckCircle2, 
   AlertCircle, 
-  UserCheck 
+  UserCheck, 
+  Calendar, 
+  Sparkles, 
+  ExternalLink, 
+  Camera, 
+  Bell, 
+  XCircle, 
+  X, 
+  Check,
+  Bookmark,
+  Banknote
 } from 'lucide-react';
+import { DonutChart, AreaTrendChart } from '@/components/charts';
+import { Pagination } from '@/components/Pagination';
+
+const AVATAR_PALETTES = [
+  'bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border-sky-200/70 dark:border-sky-800',
+  'bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-200/70 dark:border-blue-800',
+  'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800',
+  'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800',
+  'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800',
+  'bg-purple-50 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border-purple-200/70 dark:border-purple-800',
+];
+
+function getCompanyPalette(name?: string) {
+  if (!name) return AVATAR_PALETTES[0];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_PALETTES[hash % AVATAR_PALETTES.length];
+}
+
+function getCompanyInitials(name?: string) {
+  if (!name) return 'CO';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
 
 export default function SeekerDashboard() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const { toast } = useToast();
   const [applications, setApplications] = useState<Application[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [appPage, setAppPage] = useState<number>(1);
+  const [appPageSize, setAppPageSize] = useState<number>(10);
+
+  // Saved Jobs State
+  const [savedJobs, setSavedJobs] = useState<Job[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(true);
+
+  const fetchSavedJobs = async () => {
+    try {
+      if (typeof window === 'undefined') return;
+      const ids: number[] = JSON.parse(localStorage.getItem('saved_jobs') || '[]');
+      if (ids.length === 0) {
+        setSavedJobs([]);
+        setLoadingSaved(false);
+        return;
+      }
+      const data = await apiFetch<any>(`/jobs/?ids=${ids.join(',')}&page_size=12&status=ALL`);
+      const list: Job[] = Array.isArray(data) ? data : data.results || [];
+      setSavedJobs(list);
+    } catch (err) {
+      console.error('Failed to load saved jobs:', err);
+    } finally {
+      setLoadingSaved(false);
+    }
+  };
+
+  const handleUnsaveJob = (jobId: number) => {
+    try {
+      const stored: number[] = JSON.parse(localStorage.getItem('saved_jobs') || '[]');
+      const updated = stored.filter((id) => id !== jobId);
+      localStorage.setItem('saved_jobs', JSON.stringify(updated));
+      setSavedJobs((prev) => prev.filter((j) => j.id !== jobId));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('saved-jobs-updated'));
+      }
+      toast.success('Vacancy removed from saved jobs.', 'Bookmark Removed');
+    } catch {
+      toast.error('Failed to update saved jobs.', 'Error');
+    }
+  };
+
+  const fetchApplications = async () => {
+    try {
+      const data = await apiFetch<any>('/applications/my-applications/?page_size=100');
+      const list = Array.isArray(data) ? data : data.results || [];
+      setApplications(list);
+    } catch (err) {
+      console.error('Failed to load applications:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await apiFetch<any>('/notifications/?page_size=20');
+      const list: AppNotification[] = Array.isArray(data) ? data : data?.results || [];
+      setNotifications(list);
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    }
+  };
 
   useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const data = await apiFetch<any>('/applications/my-applications/');
-        const list = Array.isArray(data) ? data : data.results || [];
-        setApplications(list);
-      } catch (err) {
-        console.error('Failed to load applications:', err);
-      } finally {
-        setLoading(false);
-      }
+    refreshUser();
+    fetchApplications();
+    fetchNotifications();
+    fetchSavedJobs();
+
+    const interval = setInterval(() => {
+      fetchApplications();
+      fetchNotifications();
+    }, 15000);
+
+    const handleNotifUpdate = () => {
+      fetchNotifications();
+      fetchApplications();
     };
 
-    fetchApplications();
+    const handleSavedSync = () => {
+      fetchSavedJobs();
+    };
+
+    window.addEventListener('notification-updated', handleNotifUpdate);
+    window.addEventListener('storage', handleSavedSync);
+    window.addEventListener('saved-jobs-updated', handleSavedSync);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('notification-updated', handleNotifUpdate);
+      window.removeEventListener('storage', handleSavedSync);
+      window.removeEventListener('saved-jobs-updated', handleSavedSync);
+    };
   }, []);
+
+  const handleMarkNotifRead = async (id: number) => {
+    try {
+      await apiFetch(`/notifications/${id}/read/`, { method: 'POST' });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      );
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('notification-updated'));
+      }
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  const handleMarkAllNotifsRead = async () => {
+    try {
+      await apiFetch('/notifications/mark-all-read/', { method: 'POST' });
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('notification-updated'));
+      }
+    } catch (err) {
+      console.error('Failed to mark all notifications as read:', err);
+    }
+  };
+
+  const unreadNotifications = useMemo(() => {
+    return notifications.filter((n) => !n.is_read);
+  }, [notifications]);
+
+  // Summary Metrics
+  const stats = useMemo(() => {
+    return {
+      total: applications.length,
+      applied: applications.filter((a) => a.status === 'APPLIED').length,
+      shortlisted: applications.filter((a) => a.status === 'SHORTLISTED').length,
+      interview: applications.filter((a) => a.status === 'INTERVIEW').length,
+      hired: applications.filter((a) => a.status === 'HIRED').length,
+      rejected: applications.filter((a) => a.status === 'REJECTED').length,
+    };
+  }, [applications]);
+
+  // Chart data for status breakdown donut chart
+  const donutSegments = useMemo(() => {
+    return [
+      { label: 'Under Review', value: stats.applied, color: '#0284c7' },
+      { label: 'Shortlisted', value: stats.shortlisted, color: '#f59e0b' },
+      { label: 'Interviews', value: stats.interview, color: '#a855f7' },
+      { label: 'Hired', value: stats.hired, color: '#10b981' },
+      { label: 'Not Selected', value: stats.rejected, color: '#f43f5e' },
+    ];
+  }, [stats]);
+
+  // Chart data for monthly trend activity
+  const trendPoints = useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonth = new Date().getMonth();
+    const lastMonths = [4, 3, 2, 1, 0].map((offset) => {
+      const idx = (currentMonth - offset + 12) % 12;
+      return months[idx];
+    });
+
+    const monthCounts: Record<string, number> = {};
+    lastMonths.forEach((m) => (monthCounts[m] = 0));
+
+    applications.forEach((app) => {
+      if (app.applied_at) {
+        const m = months[new Date(app.applied_at).getMonth()];
+        if (monthCounts[m] !== undefined) {
+          monthCounts[m] += 1;
+        }
+      }
+    });
+
+    return lastMonths.map((label) => ({
+      label,
+      value: monthCounts[label] || 0,
+    }));
+  }, [applications]);
+
+  const filteredApplications = useMemo(() => {
+    if (statusFilter === 'ALL') return applications;
+    return applications.filter((app) => app.status === statusFilter);
+  }, [applications, statusFilter]);
+
+  const displayedApplications = useMemo(() => {
+    const start = (appPage - 1) * appPageSize;
+    return filteredApplications.slice(start, start + appPageSize);
+  }, [filteredApplications, appPage, appPageSize]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'APPLIED':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">Applied</span>;
+        return (
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/60 shadow-sm">
+            Applied
+          </span>
+        );
       case 'SHORTLISTED':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700">Shortlisted</span>;
+        return (
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60 shadow-sm">
+            Shortlisted
+          </span>
+        );
       case 'INTERVIEW':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700">Interview Scheduled</span>;
+        return (
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/60 shadow-sm">
+            Interview Scheduled
+          </span>
+        );
       case 'HIRED':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">Hired 🎉</span>;
+        return (
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60 shadow-sm">
+            Hired
+          </span>
+        );
       case 'REJECTED':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700">Not Selected</span>;
+        return (
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/70 dark:border-rose-800/60 shadow-sm">
+            Not Selected
+          </span>
+        );
       default:
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">{status}</span>;
+        return (
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm">
+            {status}
+          </span>
+        );
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+    <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 min-w-0">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-sky-50 via-blue-50 to-cyan-50 border border-sky-100/80 rounded-2xl p-6 sm:p-8 text-slate-900 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-sky-600 bg-sky-100/80 px-2.5 py-0.5 rounded-full">
-            Candidate Dashboard
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mt-2">
-            Welcome, {user?.username}!
-          </h1>
-          <p className="text-slate-600 text-xs sm:text-sm mt-1">
-            Track your job applications and status updates in real time.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Link
-            href="/dashboard/seeker/profile"
-            className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs transition shadow-xs"
-          >
-            Edit Profile & Resume
-          </Link>
-          <Link
-            href="/"
-            className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-sm shadow-sky-200 transition cursor-pointer"
-          >
-            Browse More Jobs
-          </Link>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-sky-50/90 via-blue-50/60 to-indigo-50/50 dark:from-black dark:via-black dark:to-black border border-sky-100/90 dark:border-slate-800 p-6 sm:p-8 text-slate-900 dark:text-white shadow-sm transition-colors">
+        {/* Subtle decorative glow elements */}
+        <div className="dark:hidden pointer-events-none absolute -top-24 -right-24 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl" />
+        <div className="dark:hidden pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
+
+        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard/seeker/profile" className="shrink-0 group relative block" title="Click to view/edit profile & photo">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 shadow-md ring-4 ring-white/80 dark:ring-slate-800/80 group-hover:scale-105 transition-all">
+                <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-slate-900 flex items-center justify-center aspect-square">
+                  {user?.profile_picture ? (
+                    <img
+                      key={user.profile_picture}
+                      src={getMediaUrl(user.profile_picture) || ''}
+                      alt={user.username || 'Candidate'}
+                      className="w-full h-full object-cover rounded-full aspect-square block"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 text-white font-extrabold text-xl sm:text-2xl flex items-center justify-center">
+                      {user?.username?.charAt(0).toUpperCase() || 'C'}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="absolute bottom-0 right-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-sky-600 text-white flex items-center justify-center shadow-md ring-2 ring-white dark:ring-slate-900 group-hover:bg-sky-500 transition-colors">
+                <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              </div>
+            </Link>
+
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Welcome, <span className="text-sky-600 dark:text-sky-400">{user?.username}</span>!
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm max-w-xl">
+                Track your job applications, recruitment stages, and status updates in real time.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <Link
+              href="/dashboard/seeker/profile"
+              className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 dark:hover:border-slate-200/90 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 dark:hover:text-white font-semibold text-xs transition shadow-sm"
+            >
+              Edit Profile & Resume
+            </Link>
+            <Link
+              href="/jobs"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-sm shadow-sky-500/25 transition cursor-pointer"
+            >
+              <span>Browse More Jobs</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Applications List */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-            My Applications ({applications.length})
-          </h2>
+      {/* Real-Time Application Status Notifications Alert Box */}
+      {unreadNotifications.length > 0 && (
+        <div className="rounded-2xl border border-sky-200/90 dark:border-sky-900/60 bg-gradient-to-r from-sky-50/90 via-blue-50/50 to-indigo-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 p-5 sm:p-6 shadow-sm space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-sky-600 text-white shadow-xs">
+                <Bell className="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>Application Status Notifications</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
+                    {unreadNotifications.length} New Update{unreadNotifications.length > 1 ? 's' : ''}
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Employers recently updated the status of your applications.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleMarkAllNotifsRead}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-700 dark:text-sky-300 bg-white dark:bg-slate-800 border border-sky-200/80 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-slate-700 transition cursor-pointer shadow-2xs"
+            >
+              Mark all as read
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+            {unreadNotifications.map((notif) => {
+              const status = notif.metadata?.new_status;
+              return (
+                <div
+                  key={notif.id}
+                  className="p-4 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-xs flex items-start justify-between gap-3 transition hover:border-sky-300 dark:hover:border-sky-600"
+                >
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {status && getStatusBadge(status)}
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {notif.metadata?.job_title || notif.title}
+                      </span>
+                      {notif.metadata?.company_name && (
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          • {notif.metadata.company_name}
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                      {notif.message}
+                    </p>
+
+                    <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                      <Clock className="w-3 h-3" />
+                      <span>
+                        {new Date(notif.created_at).toLocaleString(undefined, {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleMarkNotifRead(notif.id)}
+                    title="Dismiss notification"
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Section 1: Quick Metrics Key Performance Indicators */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <Link
+          href="/dashboard/seeker/applications"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-sky-300 dark:hover:border-sky-700 block group"
+        >
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+              Total Applied
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+              <Briefcase className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            {stats.total}
+          </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-full bg-sky-500 rounded-full" style={{ width: '100%' }} />
+          </div>
+        </Link>
+
+        <Link
+          href="/dashboard/seeker/applications"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-blue-300 dark:hover:border-blue-700 block group"
+        >
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400">Under Review</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            {stats.applied}
+          </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-500 rounded-full"
+              style={{ width: `${stats.total > 0 ? (stats.applied / stats.total) * 100 : 0}%` }}
+            />
+          </div>
+        </Link>
+
+        <Link
+          href="/dashboard/seeker/applications"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-amber-300 dark:hover:border-amber-700 block group"
+        >
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">Shortlisted</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <UserCheck className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 tracking-tight">
+            {stats.shortlisted}
+          </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-amber-500 rounded-full"
+              style={{ width: `${stats.total > 0 ? (stats.shortlisted / stats.total) * 100 : 0}%` }}
+            />
+          </div>
+        </Link>
+
+        <Link
+          href="/dashboard/seeker/applications"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-purple-300 dark:hover:border-purple-700 block group"
+        >
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Interviews</span>
+            <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+              <Calendar className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <p className="text-2xl font-extrabold text-purple-600 dark:text-purple-400">
+              {stats.interview}
+            </p>
+            {stats.hired > 0 && (
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                ({stats.hired} hired)
+              </span>
+            )}
+          </div>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-purple-500 rounded-full"
+              style={{ width: `${stats.total > 0 ? (stats.interview / stats.total) * 100 : 0}%` }}
+            />
+          </div>
+        </Link>
+
+        <Link
+          href="/dashboard/seeker/saved"
+          className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1.5 transition-all hover:border-amber-300 dark:hover:border-amber-700 block group col-span-2 sm:col-span-1"
+        >
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400 group-hover:text-amber-500 transition-colors">
+              Saved Jobs
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <Bookmark className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            {savedJobs.length}
+          </p>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-amber-500 rounded-full"
+              style={{ width: `${savedJobs.length > 0 ? 100 : 0}%` }}
+            />
+          </div>
+        </Link>
+      </div>
+
+      {/* Section 2: Visual Analytics & Performance Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart 1: Donut breakdown of candidate application statuses */}
+        <DonutChart
+          title="Application Pipeline Breakdown"
+          description="Distribution of your current submissions across hiring stages"
+          segments={donutSegments}
+          centerLabel="Applications"
+          centerValue={stats.total}
+        />
+
+        {/* Chart 2: Monthly application activity trend curve */}
+        <AreaTrendChart
+          title="Application Activity Trend"
+          description="Submission cadence and candidate activity over recent months"
+          points={trendPoints}
+          lineColor="#0284c7"
+        />
+      </div>
+
+      {/* Applications Section */}
+      <div id="applications" className="space-y-4 pt-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+              My Applications
+            </h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-200/70 dark:border-sky-800">
+              {applications.length}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/dashboard/seeker/applications"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 hover:bg-sky-100 dark:hover:bg-sky-900/80 border border-sky-200/80 dark:border-sky-800 transition shadow-xs"
+            >
+              <span>Detailed Tracking & History</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+
+            {applications.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700 text-xs">
+                {[
+                  { label: 'All', value: 'ALL' },
+                  { label: 'Applied', value: 'APPLIED' },
+                  { label: 'Shortlisted', value: 'SHORTLISTED' },
+                  { label: 'Interviews', value: 'INTERVIEW' },
+                ].map((tab) => (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    onClick={() => setStatusFilter(tab.value)}
+                    className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                      statusFilter === tab.value
+                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {loading ? (
           <div className="space-y-4 animate-pulse">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-24 bg-white rounded-2xl border border-slate-100 p-6" />
+              <div 
+                key={i} 
+                className="h-24 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 flex flex-col justify-between"
+              >
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+                <div className="h-3 bg-slate-100 dark:bg-slate-800/60 rounded w-1/2" />
+              </div>
             ))}
           </div>
-        ) : applications.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center space-y-3">
-            <Briefcase className="w-12 h-12 text-slate-300 mx-auto" />
-            <h3 className="text-base font-semibold text-slate-800">No applications yet</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              You haven't applied for any positions yet. Explore active vacancies and submit your application.
-            </p>
+        ) : filteredApplications.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-12 text-center space-y-4 shadow-sm transition-colors">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 border border-slate-200/60 dark:border-slate-700/60">
+              <Briefcase className="w-7 h-7" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                {statusFilter === 'ALL' ? 'No applications yet' : `No applications found with status "${statusFilter}"`}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+                {statusFilter === 'ALL'
+                  ? "You haven't applied for any positions yet. Explore active vacancies and submit your application to get started."
+                  : 'Try selecting a different filter above to view your other submitted applications.'}
+              </p>
+            </div>
+            {statusFilter === 'ALL' ? (
+              <Link
+                href="/jobs"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 shadow-sm shadow-sky-500/25 transition cursor-pointer"
+              >
+                <span>Explore Vacancies</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setStatusFilter('ALL')}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-sky-600 dark:text-sky-400 hover:underline"
+              >
+                Reset Filter
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800/80 shadow-sm overflow-hidden transition-colors">
+              {displayedApplications.map((app) => (
+                <div
+                  key={app.id}
+                  className="p-5 sm:p-6 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors flex flex-col justify-between gap-3 group"
+                >
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-bold text-base text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                          {app.job.title}
+                        </h3>
+                        <span className="text-xs text-slate-300 dark:text-slate-600">•</span>
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                          {app.job.company_name}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                          {app.job.location}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                          Applied on {new Date(app.applied_at).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3.5 self-end sm:self-center shrink-0">
+                      {getStatusBadge(app.status)}
+                      <Link
+                        href={`/jobs/${app.job.id}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-100 dark:border-sky-800/60 transition"
+                      >
+                        <span>View Job</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Rejection reason & feedback from employer */}
+                  {app.status === 'REJECTED' && (
+                    <div className="mt-1 p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 text-xs space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-rose-700 dark:text-rose-300">
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span>Employer Feedback / Rejection Reason:</span>
+                      </div>
+                      <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-5 whitespace-pre-wrap">
+                        {app.rejection_reason || 'No specific feedback was provided for this application.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {filteredApplications.length > 0 && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 px-4 py-1 shadow-sm">
+                <Pagination
+                  currentPage={appPage}
+                  totalPages={Math.max(1, Math.ceil(filteredApplications.length / appPageSize))}
+                  totalCount={filteredApplications.length}
+                  pageSize={appPageSize}
+                  onPageChange={setAppPage}
+                  onPageSizeChange={(newSize) => {
+                    setAppPageSize(newSize);
+                    setAppPage(1);
+                  }}
+                  pageSizeOptions={[5, 10, 20, 50]}
+                  itemName="applications"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Saved Vacancies Section */}
+      <div id="saved-jobs" className="space-y-4 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Bookmark className="w-5 h-5 text-amber-500" />
+              <span>Saved Jobs</span>
+            </h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800">
+              {savedJobs.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
             <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 transition"
+              href="/dashboard/seeker/saved"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/70 hover:bg-amber-100 dark:hover:bg-amber-900/80 border border-amber-200/80 dark:border-amber-800 transition shadow-xs"
             >
-              <span>Explore Vacancies</span>
+              <span>Manage All Saved Jobs</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-slate-200/80 divide-y divide-slate-100 shadow-xs overflow-hidden">
-            {applications.map((app) => (
-              <div
-                key={app.id}
-                className="p-5 sm:p-6 hover:bg-slate-50/60 transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-              >
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-base text-slate-900">
-                      {app.job.title}
-                    </h3>
-                    <span className="text-xs text-slate-400">•</span>
-                    <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
-                      <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                      {app.job.company_name}
-                    </span>
-                  </div>
+        </div>
 
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                      {app.job.location}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      Applied on {new Date(app.applied_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 self-end sm:self-center">
-                  {getStatusBadge(app.status)}
-                  <Link
-                    href={`/jobs/${app.job.id}`}
-                    className="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1"
-                  >
-                    View Job <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
+        {loadingSaved ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-36 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 space-y-3" />
             ))}
+          </div>
+        ) : savedJobs.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 text-center space-y-3 shadow-sm transition-colors">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-100 dark:border-amber-900/60">
+              <Bookmark className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                No saved jobs yet
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                Bookmark job vacancies while browsing to keep track of roles you want to apply for later.
+              </p>
+            </div>
+            <Link
+              href="/jobs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition shadow-sm"
+            >
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>Explore Vacancies</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {savedJobs.slice(0, 6).map((job) => {
+              const isApplied = applications.some((a) => (a.job?.id || a.job) === job.id);
+              const palette = getCompanyPalette(job.company_name);
+              const initials = getCompanyInitials(job.company_name);
+
+              return (
+                <div
+                  key={job.id}
+                  className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm space-y-4"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {job.company_logo ? (
+                          <img
+                            src={getMediaUrl(job.company_logo) || ''}
+                            alt={job.company_name}
+                            className="w-10 h-10 rounded-xl object-contain border border-slate-200 dark:border-slate-800 bg-white p-0.5 shrink-0"
+                          />
+                        ) : (
+                          <div className={`w-10 h-10 rounded-xl border flex items-center justify-center font-bold text-xs shrink-0 ${palette}`}>
+                            {initials}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+                            {job.company_name}
+                          </p>
+                          <Link
+                            href={`/jobs/${job.id}`}
+                            className="font-bold text-sm text-slate-900 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 line-clamp-1 transition"
+                          >
+                            {job.title}
+                          </Link>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleUnsaveJob(job.id)}
+                        className="p-1.5 rounded-lg text-amber-500 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer shrink-0"
+                        title="Remove bookmark"
+                      >
+                        <Bookmark className="w-4 h-4 fill-amber-500" />
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-y-1 gap-x-2.5 text-[11px] text-slate-500 dark:text-slate-400">
+                      {job.location && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-slate-400" />
+                          <span className="truncate max-w-[120px]">{job.location}</span>
+                        </span>
+                      )}
+                      {job.salary && (
+                        <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                          <Banknote className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                          <span>{job.salary}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    {isApplied ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Applied</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Ready to Apply</span>
+                      </span>
+                    )}
+
+                    <Link
+                      href={`/jobs/${job.id}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 transition"
+                    >
+                      <span>View Vacancy</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-76^9a%9+x2l=^=&pyd*hsdet$w
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', '*']
 
 
 # Application definition
@@ -52,8 +52,12 @@ INSTALLED_APPS = [
 
     # Local apps
     'users',
+    'organizations',
     'jobs',
     'applications',
+    'blogs',
+    'about',
+    'contact',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'config.middleware.MediaXFrameOptionsMiddleware',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -76,6 +81,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'config.pagination.StandardResultsSetPagination',
+    'PAGE_SIZE': 10,
 }
 
 from datetime import timedelta
@@ -175,3 +182,4 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+

@@ -19,6 +19,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_profile_setup = models.BooleanField(default=False)
+    must_change_password = models.BooleanField(
+        default=False,
+        help_text="Designates whether the user must change their temporary password upon login."
+    )
     date_joined = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -50,6 +55,11 @@ class JobSeekerProfile(models.Model):
     education = models.TextField(blank=True)
     experience = models.TextField(blank=True)
     location = models.CharField(max_length=255, blank=True)
+    job_preferences = models.ManyToManyField(
+        'jobs.JobCategory',
+        blank=True,
+        related_name='preferred_by_seekers'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -82,3 +92,66 @@ class RecruiterProfile(models.Model):
 
     def __str__(self):
         return f"Recruiter: {self.company_name or self.user.email}"
+
+
+class SupportTicket(models.Model):
+    class Status(models.TextChoices):
+        OPEN = 'OPEN', 'Open'
+        IN_PROGRESS = 'IN_PROGRESS', 'In Progress'
+        RESOLVED = 'RESOLVED', 'Resolved'
+        CLOSED = 'CLOSED', 'Closed'
+
+    class Priority(models.TextChoices):
+        LOW = 'LOW', 'Low'
+        MEDIUM = 'MEDIUM', 'Medium'
+        HIGH = 'HIGH', 'High'
+        URGENT = 'URGENT', 'Urgent'
+
+    class Category(models.TextChoices):
+        TECHNICAL = 'TECHNICAL', 'Technical Issue'
+        ACCOUNT = 'ACCOUNT', 'Account & Verification'
+        BILLING = 'BILLING', 'Billing & Payments'
+        VACANCY = 'VACANCY', 'Job Vacancy Question'
+        CANDIDATE = 'CANDIDATE', 'Candidate / Application Dispute'
+        OTHER = 'OTHER', 'Other Support'
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='support_tickets'
+    )
+    subject = models.CharField(max_length=255)
+    category = models.CharField(
+        max_length=30,
+        choices=Category.choices,
+        default=Category.TECHNICAL
+    )
+    priority = models.CharField(
+        max_length=20,
+        choices=Priority.choices,
+        default=Priority.MEDIUM
+    )
+    message = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.OPEN
+    )
+    admin_response = models.TextField(blank=True, default='')
+    resolved_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='resolved_tickets'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Support Ticket'
+        verbose_name_plural = 'Support Tickets'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Ticket #{self.id}: {self.subject} ({self.status})"

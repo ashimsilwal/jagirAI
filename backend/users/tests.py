@@ -4,6 +4,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 from rest_framework import status
 from .models import JobSeekerProfile, RecruiterProfile
+from jobs.models import JobCategory
 
 User = get_user_model()
 
@@ -233,4 +234,94 @@ class AdminManagementTests(TestCase):
         del_res = self.client.delete(f'/api/admin/users/{self.regular_user.id}/')
         self.assertEqual(del_res.status_code, status.HTTP_200_OK)
         self.assertFalse(User.objects.filter(id=self.regular_user.id).exists())
+
+
+class JobSeekerPreferencesTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.cat1 = JobCategory.objects.create(name="Backend Development", slug="backend-dev")
+        self.cat2 = JobCategory.objects.create(name="Frontend Development", slug="frontend-dev")
+        self.cat3 = JobCategory.objects.create(name="Data Science", slug="data-science")
+
+        self.seeker = User.objects.create_user(
+            email="seeker@example.com",
+            username="seeker_user",
+            password="Password123!",
+            role=User.Role.JOB_SEEKER
+        )
+        self.recruiter = User.objects.create_user(
+            email="recruiter@example.com",
+            username="recruiter_user",
+            password="Password123!",
+            role=User.Role.JOB_RECRUITER
+        )
+        self.preferences_url = '/api/job-seeker/preferences/'
+        self.setup_url = '/api/profile/setup/'
+
+    def test_unauthenticated_cannot_access_preferences(self):
+        res = self.client.get(self.preferences_url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_recruiter_forbidden_from_seeker_preferences(self):
+        self.client.force_authenticate(user=self.recruiter)
+        res = self.client.get(self.preferences_url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_seeker_get_empty_preferences(self):
+        self.client.force_authenticate(user=self.seeker)
+        res = self.client.get(self.preferences_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['category_ids'], [])
+
+    def test_seeker_update_and_retrieve_preferences(self):
+        self.client.force_authenticate(user=self.seeker)
+        payload = {"category_ids": [self.cat1.id, self.cat3.id]}
+        res = self.client.put(self.preferences_url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(res.data['category_ids'], [self.cat1.id, self.cat3.id])
+
+        # Verify get
+        get_res = self.client.get(self.preferences_url)
+        self.assertCountEqual(get_res.data['category_ids'], [self.cat1.id, self.cat3.id])
+        category_names = [c['name'] for c in get_res.data['categories']]
+        self.assertIn("Backend Development", category_names)
+        self.assertIn("Data Science", category_names)
+
+    def test_seeker_clear_preferences(self):
+        self.client.force_authenticate(user=self.seeker)
+        self.seeker.job_seeker_profile.job_preferences.add(self.cat1)
+
+        res = self.client.put(self.preferences_url, {"category_ids": []}, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['category_ids'], [])
+        self.assertEqual(self.seeker.job_seeker_profile.job_preferences.count(), 0)
+
+    def test_seeker_invalid_category_id_rejected(self):
+        self.client.force_authenticate(user=self.seeker)
+        res = self.client.put(self.preferences_url, {"category_ids": [99999]}, format='json')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_onboarding_with_preferences(self):
+        new_seeker = User.objects.create_user(
+            email="newseeker@example.com",
+            username="newseeker",
+            password="Password123!",
+            role=User.Role.JOB_SEEKER
+        )
+        self.client.force_authenticate(user=new_seeker)
+        payload = {
+            "username": "New Seeker Name",
+            "skills": "Python, React",
+            "category_ids": [self.cat1.id, self.cat2.id]
+        }
+        res = self.client.post(self.setup_url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        new_seeker.refresh_from_db()
+        self.assertTrue(new_seeker.is_profile_setup)
+        self.assertCountEqual(
+            list(new_seeker.job_seeker_profile.job_preferences.values_list('id', flat=True)),
+            [self.cat1.id, self.cat2.id]
+        )
+
 

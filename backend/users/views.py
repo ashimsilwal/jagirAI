@@ -1,3 +1,4 @@
+import os
 from django.db.models import Q
 from rest_framework import generics, status, permissions, parsers
 from rest_framework.response import Response
@@ -6,17 +7,24 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from jobs.models import Job
 from applications.models import Application
-from .models import JobSeekerProfile, RecruiterProfile
+from .models import JobSeekerProfile, RecruiterProfile, SupportTicket
 from .permissions import IsJobSeeker, IsRecruiter, IsSuperAdminUser
+from rest_framework.exceptions import PermissionDenied
 from .serializers import (
     RegisterSerializer,
     UserSerializer,
+    ChangeInitialPasswordSerializer,
     CustomTokenObtainPairSerializer,
     LogoutSerializer,
     JobSeekerProfileSerializer,
     RecruiterProfileSerializer,
+    JobCategorySummarySerializer,
+    JobSeekerPreferencesSerializer,
     AdminUserListSerializer,
     AdminUserUpdateSerializer,
+    SupportTicketSerializer,
+    SupportTicketCreateSerializer,
+    AdminSupportTicketUpdateSerializer,
 )
 
 User = get_user_model()
@@ -78,8 +86,33 @@ class CurrentUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
+        user = User.objects.get(id=request.user.id)
+        serializer = UserSerializer(user, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ChangeInitialPasswordView(APIView):
+    """
+    Endpoint: POST /api/auth/change-initial-password/
+    Allows a user with a one-time/temporary password to set their permanent password.
+    Clears must_change_password and returns updated user details.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangeInitialPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_password = serializer.validated_data['password']
+
+        user = request.user
+        user.set_password(new_password)
+        user.must_change_password = False
+        user.save(update_fields=['password', 'must_change_password'])
+
+        return Response({
+            "message": "Your password has been successfully established. You now have full access to your organization features.",
+            "user": UserSerializer(user, context={'request': request}).data
+        }, status=status.HTTP_200_OK)
 
 
 class JobSeekerProfileView(generics.RetrieveUpdateAPIView):
@@ -95,19 +128,289 @@ class JobSeekerProfileView(generics.RetrieveUpdateAPIView):
         profile, _ = JobSeekerProfile.objects.get_or_create(user=self.request.user)
         return profile
 
+    def perform_update(self, serializer):
+        remove_picture = self.request.data.get('remove_profile_picture')
+        if remove_picture in ['true', 'True', True, '1']:
+            instance = serializer.instance
+            if instance.profile_picture:
+                instance.profile_picture.delete(save=False)
+                instance.profile_picture = None
+        serializer.save()
+
+
+class JobSeekerPreferencesView(APIView):
+    """
+    Endpoint: GET, PUT /api/job-seeker/preferences/
+    Manage preferred job categories for the authenticated job seeker.
+    """
+    permission_classes = [permissions.IsAuthenticated, IsJobSeeker]
+
+    def get(self, request):
+        profile, _ = JobSeekerProfile.objects.get_or_create(user=request.user)
+        categories = profile.job_preferences.all()
+        return Response({
+            'category_ids': list(categories.values_list('id', flat=True)),
+            'categories': JobCategorySummarySerializer(categories, many=True).data
+        }, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        profile, _ = JobSeekerProfile.objects.get_or_create(user=request.user)
+        serializer = JobSeekerPreferencesSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        category_ids = serializer.validated_data.get('category_ids', [])
+        profile.job_preferences.set(category_ids)
+
+        updated_categories = profile.job_preferences.all()
+        return Response({
+            'message': 'Preferences updated successfully.',
+            'category_ids': list(updated_categories.values_list('id', flat=True)),
+            'categories': JobCategorySummarySerializer(updated_categories, many=True).data
+        }, status=status.HTTP_200_OK)
+
 
 class RecruiterProfileView(generics.RetrieveUpdateAPIView):
     """
     Endpoint: GET, PUT, PATCH /api/profile/recruiter/
-    Allows authenticated Recruiters to view and update their company profile.
+    Allows authenticated Recruiters to view and update company profile based on permissions.
+    - View: requires organization.view or organization.update (or owner)
+    - Update: requires organization.update (or owner)
     """
     serializer_class = RecruiterProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsRecruiter]
     parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
 
     def get_object(self):
-        profile, _ = RecruiterProfile.objects.get_or_create(user=self.request.user)
+        from organizations.services import get_or_create_user_organization
+        from organizations.permissions import check_org_permission
+
+        user = self.request.user
+        org = get_or_create_user_organization(user)
+
+        if self.request.method in ['PUT', 'PATCH', 'POST']:
+            if not check_org_permission(user, org, 'organization.update'):
+                raise PermissionDenied("You do not have permission to update the organization profile.")
+        else:
+            if not (check_org_permission(user, org, 'organization.view') or check_org_permission(user, org, 'organization.update')):
+                raise PermissionDenied("You do not have permission to view the organization profile.")
+
+        # Always return the organization owner's recruiter profile to represent company branding
+        profile, _ = RecruiterProfile.objects.get_or_create(user=org.owner)
         return profile
+
+    def perform_update(self, serializer):
+        profile = serializer.save()
+        # Keep organization profile synchronized with recruiter profile
+        try:
+            from organizations.services import get_or_create_user_organization, log_activity
+            from organizations.models import OrganizationActivityLog
+            org = get_or_create_user_organization(self.request.user)
+            if org:
+                if profile.company_name and org.name != profile.company_name:
+                    org.name = profile.company_name
+                if profile.company_description:
+                    org.description = profile.company_description
+                if profile.company_logo:
+                    org.logo = profile.company_logo
+                if profile.company_website:
+                    org.website = profile.company_website
+                if profile.location:
+                    org.location = profile.location
+                if profile.phone:
+                    org.phone = profile.phone
+                org.save()
+
+                log_activity(
+                    organization=org,
+                    actor=self.request.user,
+                    action=OrganizationActivityLog.Action.ORG_UPDATED,
+                    target_type='Organization',
+                    target_id=str(org.id),
+                    target_repr=org.name,
+                    metadata={'updated_by': self.request.user.email}
+                )
+        except Exception:
+            pass
+
+
+class ProfileSetupView(APIView):
+    """
+    Endpoint: POST /api/profile/setup/
+    First-time onboarding endpoint for newly registered users.
+    Mandatory parts:
+      - Job Seeker: name/username, phone, skills, resume
+      - Recruiter: company_name, phone, location
+    Optional/Skippable parts:
+      - Job Seeker: profile_picture, bio, education, experience, location
+      - Recruiter: company_logo, company_website, company_description
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
+
+    def post(self, request):
+        user = request.user
+        errors = {}
+
+        if user.role == User.Role.JOB_SEEKER:
+            profile, _ = JobSeekerProfile.objects.get_or_create(user=user)
+
+            # Name / Username (Mandatory)
+            new_username = request.data.get('username', '').strip()
+            if not new_username:
+                errors['username'] = ['Full name / username is required.']
+            elif new_username != user.username and User.objects.filter(username__iexact=new_username).exclude(id=user.id).exists():
+                errors['username'] = ['A user with this username already exists.']
+
+            # Phone (Optional)
+            phone = request.data.get('phone', '').strip()
+
+            # Skills (Mandatory)
+            skills = request.data.get('skills', '').strip()
+            if not skills:
+                errors['skills'] = ['Please provide your key skills (e.g. Python, React, Sales).']
+
+            # Resume (Optional)
+            resume_file = request.FILES.get('resume')
+            if resume_file:
+                ext = os.path.splitext(resume_file.name)[1].lower()
+                if ext not in ['.pdf', '.doc', '.docx']:
+                    errors['resume'] = ['Resume must be a PDF or Word document (.pdf, .doc, .docx).']
+                elif resume_file.size > 5 * 1024 * 1024:
+                    errors['resume'] = ['Resume file size cannot exceed 5MB.']
+
+            # Optional Profile Picture
+            profile_picture_file = request.FILES.get('profile_picture')
+            if profile_picture_file:
+                ext = os.path.splitext(profile_picture_file.name)[1].lower()
+                if ext not in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+                    errors['profile_picture'] = ['Profile picture must be an image (.jpg, .jpeg, .png, .webp).']
+                elif profile_picture_file.size > 2 * 1024 * 1024:
+                    errors['profile_picture'] = ['Profile picture size cannot exceed 2MB.']
+
+            # Job Preferences (Optional)
+            category_ids_raw = request.data.get('category_ids')
+            pref_serializer = None
+            if category_ids_raw is not None:
+                parsed_category_ids = None
+                if isinstance(category_ids_raw, str):
+                    try:
+                        import json
+                        parsed_category_ids = json.loads(category_ids_raw)
+                    except Exception:
+                        try:
+                            parsed_category_ids = [int(x.strip()) for x in category_ids_raw.split(',') if x.strip()]
+                        except ValueError:
+                            errors['category_ids'] = ['Invalid format for category IDs.']
+                elif isinstance(category_ids_raw, list):
+                    parsed_category_ids = category_ids_raw
+                else:
+                    errors['category_ids'] = ['Invalid format for category IDs.']
+
+                if parsed_category_ids is not None and not errors.get('category_ids'):
+                    pref_serializer = JobSeekerPreferencesSerializer(data={'category_ids': parsed_category_ids})
+                    if not pref_serializer.is_valid():
+                        errors['category_ids'] = pref_serializer.errors.get('category_ids', ['Invalid category IDs.'])
+
+            if errors:
+                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Save updates
+            if new_username:
+                user.username = new_username
+            user.is_profile_setup = True
+            user.save()
+
+            profile.phone = phone
+            profile.skills = skills
+            if resume_file:
+                profile.resume = resume_file
+            if profile_picture_file:
+                profile.profile_picture = profile_picture_file
+            if 'bio' in request.data:
+                profile.bio = request.data.get('bio', '')
+            if 'location' in request.data:
+                profile.location = request.data.get('location', '')
+            if 'education' in request.data:
+                profile.education = request.data.get('education', '')
+            if 'experience' in request.data:
+                profile.experience = request.data.get('experience', '')
+
+            if pref_serializer and pref_serializer.is_valid():
+                profile.job_preferences.set(pref_serializer.validated_data.get('category_ids', []))
+
+            profile.save()
+
+            return Response({
+                'message': 'Profile setup completed successfully!',
+                'user': UserSerializer(user, context={'request': request}).data,
+                'profile': JobSeekerProfileSerializer(profile, context={'request': request}).data
+            }, status=status.HTTP_200_OK)
+
+        elif user.role == User.Role.JOB_RECRUITER:
+            profile, _ = RecruiterProfile.objects.get_or_create(user=user)
+
+            # Company Name (Mandatory)
+            company_name = request.data.get('company_name', '').strip()
+            if not company_name:
+                errors['company_name'] = ['Company or Organization name is required.']
+
+            # Phone (Optional)
+            phone = request.data.get('phone', '').strip()
+
+            # Location (Mandatory)
+            location = request.data.get('location', '').strip()
+            if not location:
+                errors['location'] = ['Company headquarters or office location is required.']
+
+            # Optional Contact Name / Username
+            new_username = request.data.get('username', '').strip()
+            if new_username and new_username != user.username and User.objects.filter(username__iexact=new_username).exclude(id=user.id).exists():
+                errors['username'] = ['A user with this username already exists.']
+
+            # Optional Company Logo
+            logo_file = request.FILES.get('company_logo') or request.FILES.get('profile_picture')
+            if logo_file:
+                ext = os.path.splitext(logo_file.name)[1].lower()
+                if ext not in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+                    errors['company_logo'] = ['Company logo must be an image file (.jpg, .jpeg, .png, .webp).']
+                elif logo_file.size > 2 * 1024 * 1024:
+                    errors['company_logo'] = ['Company logo size cannot exceed 2MB.']
+
+            if errors:
+                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Save updates
+            if new_username:
+                user.username = new_username
+            user.is_profile_setup = True
+            user.save()
+
+            profile.company_name = company_name
+            profile.phone = phone
+            profile.location = location
+            if logo_file:
+                profile.company_logo = logo_file
+            if 'company_website' in request.data:
+                profile.company_website = request.data.get('company_website', '')
+            if 'company_description' in request.data:
+                profile.company_description = request.data.get('company_description', '')
+            profile.save()
+
+            return Response({
+                'message': 'Recruiter company profile setup completed successfully!',
+                'user': UserSerializer(user, context={'request': request}).data,
+                'profile': RecruiterProfileSerializer(profile, context={'request': request}).data
+            }, status=status.HTTP_200_OK)
+
+        else:
+            # Admins or other roles
+            user.is_profile_setup = True
+            user.save()
+            return Response({
+                'message': 'Profile setup completed!',
+                'user': UserSerializer(user, context={'request': request}).data
+            }, status=status.HTTP_200_OK)
 
 
 class AdminStatsView(APIView):
@@ -198,4 +501,81 @@ class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
             {"detail": "User deleted successfully."},
             status=status.HTTP_200_OK
         )
+
+
+class SupportTicketListCreateView(generics.ListCreateAPIView):
+    """
+    Endpoint: GET, POST /api/support/tickets/
+    Allows job seekers and recruiters to view their own tickets or create a new support ticket.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return SupportTicket.objects.filter(user=self.request.user).order_by('-created_at')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return SupportTicketCreateSerializer
+        return SupportTicketSerializer
+
+
+class SupportTicketDetailView(generics.RetrieveAPIView):
+    """
+    Endpoint: GET /api/support/tickets/<id>/
+    Allows job seekers and recruiters to view their specific ticket details.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SupportTicketSerializer
+
+    def get_queryset(self):
+        return SupportTicket.objects.filter(user=self.request.user)
+
+
+class AdminSupportTicketListView(generics.ListAPIView):
+    """
+    Endpoint: GET /api/admin/tickets/
+    Admin endpoint to view, search, and filter all support tickets across the platform.
+    """
+    serializer_class = SupportTicketSerializer
+    permission_classes = [permissions.IsAuthenticated, IsSuperAdminUser]
+
+    def get_queryset(self):
+        queryset = SupportTicket.objects.all().select_related('user', 'resolved_by').order_by('-created_at')
+
+        status_param = self.request.query_params.get('status', '').strip()
+        if status_param and status_param in SupportTicket.Status.values:
+            queryset = queryset.filter(status=status_param)
+
+        priority_param = self.request.query_params.get('priority', '').strip()
+        if priority_param and priority_param in SupportTicket.Priority.values:
+            queryset = queryset.filter(priority=priority_param)
+
+        category_param = self.request.query_params.get('category', '').strip()
+        if category_param and category_param in SupportTicket.Category.values:
+            queryset = queryset.filter(category=category_param)
+
+        search = self.request.query_params.get('search', '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(subject__icontains=search) |
+                Q(message__icontains=search) |
+                Q(user__email__icontains=search) |
+                Q(user__username__icontains=search)
+            )
+
+        return queryset
+
+
+class AdminSupportTicketDetailView(generics.RetrieveUpdateAPIView):
+    """
+    Endpoint: GET, PATCH, PUT /api/admin/tickets/<id>/
+    Admin endpoint to inspect ticket details and solve/update support tickets.
+    """
+    queryset = SupportTicket.objects.all().select_related('user', 'resolved_by')
+    permission_classes = [permissions.IsAuthenticated, IsSuperAdminUser]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return AdminSupportTicketUpdateSerializer
+        return SupportTicketSerializer
 
